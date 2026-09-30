@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Surubi
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: 'Surubí (Pseudoplatystoma fasciatum)'
+  foto: {fileID: 0}
+  rareza: 3
+  fuerzaPez: 8
+  pesoMinimo: 5
+  pesoMaximo: 30
+  longitudMinima: 70
+  longitudMaxima: 150
+  velocidadRecogida: 0.55
+  habitat: 'Fondos de ríos y lagunas conectadas.'
+  descripcion: 'Bagre cazador de gran porte con bandas oscuras en el cuerpo. Rangos aproximados. Unidades: kg y cm.'

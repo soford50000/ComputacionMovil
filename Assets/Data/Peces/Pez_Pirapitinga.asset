@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Pirapitinga
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: 'Pirapitinga (Piaractus brachypomus)'
+  foto: {fileID: 0}
+  rareza: 1
+  fuerzaPez: 5
+  pesoMinimo: 2
+  pesoMaximo: 20
+  longitudMinima: 40
+  longitudMaxima: 80
+  velocidadRecogida: 0.85
+  habitat: 'Ríos y lagunas de várzea.'
+  descripcion: 'Pariente del tambaquí, de cuerpo alto y dieta variada. Rangos aproximados de adultos. Unidades: kg y cm.'

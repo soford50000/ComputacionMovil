@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Tambaqui
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: 'Tambaquí (Colossoma macropomum)'
+  foto: {fileID: 0}
+  rareza: 2
+  fuerzaPez: 7
+  pesoMinimo: 5
+  pesoMaximo: 30
+  longitudMinima: 50
+  longitudMaxima: 100
+  velocidadRecogida: 0.7
+  habitat: 'Ríos y lagos inundables, especialmente durante la temporada de frutos.'
+  descripcion: 'Gran pez omnívoro importante para la pesca amazónica. Rangos aproximados de adultos. Unidades: kg y cm.'

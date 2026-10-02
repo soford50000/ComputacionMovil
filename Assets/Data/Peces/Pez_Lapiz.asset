@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Pez_Gato
+  m_Name: Pez_Lapiz
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Bagre amazónico (Pimelodus blochii)'
+  nombreEspecie: 'Pez lápiz amazónico (Nannostomus eques)'
   foto: {fileID: 0}
   rareza: 0
-  fuerzaPez: 2
-  pesoMinimo: 0.2
-  pesoMaximo: 1.5
-  longitudMinima: 15
-  longitudMaxima: 35
-  velocidadRecogida: 1.05
-  habitat: 'Ríos y lagunas de la cuenca amazónica.'
-  descripcion: 'Bagre pequeño y común de fondo. Rangos aproximados de adultos. Unidades: kg y cm.'
+  fuerzaPez: 1
+  pesoMinimo: 0.005
+  pesoMaximo: 0.02
+  longitudMinima: 2
+  longitudMaxima: 4
+  velocidadRecogida: 1.2
+  habitat: 'Orillas sombreadas y vegetación flotante.'
+  descripcion: 'Pequeño pez de cardumen que nada inclinado cerca de la superficie.
+    Rangos aproximados. Unidades: kg y cm.'

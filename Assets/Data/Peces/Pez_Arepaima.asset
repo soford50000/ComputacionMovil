@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c3331819d0cd604b9a4663bdeaf176c, type: 3}
   m_Name: Pez_Arepaima
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 
+  nombreEspecie: Paiche (Arapaima gigas)
   foto: {fileID: 0}
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
-  velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  rareza: 4
+  fuerzaPez: 10
+  pesoMinimo: 50
+  pesoMaximo: 200
+  longitudMinima: 150
+  longitudMaxima: 300
+  velocidadRecogida: 0.45
+  habitat: Ríos y lagunas de aguas tranquilas de la cuenca amazónica.
+  descripcion: 'Uno de los mayores peces de agua dulce. Es un pez emblemático de la Amazonía; rangos de ficha aproximados para ejemplares adultos. Unidades: kg y cm.'

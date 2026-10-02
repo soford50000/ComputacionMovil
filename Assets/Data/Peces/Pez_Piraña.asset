@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c3331819d0cd604b9a4663bdeaf176c, type: 3}
   m_Name: "Pez_Pira\xF1a"
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 
+  nombreEspecie: Piraña roja (Pygocentrus nattereri)
   foto: {fileID: 0}
   rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
-  velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  fuerzaPez: 3
+  pesoMinimo: 0.5
+  pesoMaximo: 4
+  longitudMinima: 15
+  longitudMaxima: 35
+  velocidadRecogida: 1.1
+  habitat: Ríos, lagos y zonas inundables de la cuenca amazónica.
+  descripcion: 'Pez de cardumen conocido por su cuerpo profundo y dientes afilados. Rangos aproximados para ejemplares adultos. Unidades: kg y cm.'

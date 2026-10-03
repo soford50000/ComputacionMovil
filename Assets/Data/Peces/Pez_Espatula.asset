@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Bagre_Pintadillo
+  m_Name: Pez_Espatula
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Bagre pintadillo (Pseudoplatystoma punctifer)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Bagre espátula (Sorubimichthys planiceps)'
+  foto: {fileID: 5957259522491383044, guid: e7fc6df2fe72a90469f0442ee5ee56de, type: 3}
   rareza: 3
   fuerzaPez: 8
   pesoMinimo: 5
-  pesoMaximo: 40
-  longitudMinima: 80
-  longitudMaxima: 180
+  pesoMaximo: 35
+  longitudMinima: 70
+  longitudMaxima: 150
   velocidadRecogida: 0.55
-  habitat: 'Canales profundos de grandes ríos amazónicos.'
-  descripcion: 'Bagre depredador de gran tamaño, con patrón de manchas oscuras. Rangos aproximados. Unidades: kg y cm.'
+  habitat: 'Canales y fondos de grandes ríos amazónicos.'
+  descripcion: 'Bagre de hocico aplanado y largo, asociado al nombre pez espátula del sprite. Rangos aproximados; kg y cm.'
+
+
+

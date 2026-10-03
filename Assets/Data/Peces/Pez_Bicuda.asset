@@ -10,20 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Pez_Cachama
+  m_Name: Pez_Bicuda
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Cachama blanca (Piaractus brachypomus)'
-  foto: {fileID: 7254367991966419479, guid: dd66a35507a39e54b8e273f4da3432a3, type: 3}
+  nombreEspecie: 'Bicuda (Boulengerella cuvieri)'
+  foto: {fileID: -8327814355510934416, guid: 40b5af9025b710a42b1f83374ee01dde, type: 3}
   rareza: 2
   fuerzaPez: 6
-  pesoMinimo: 2
-  pesoMaximo: 20
+  pesoMinimo: 1
+  pesoMaximo: 6
   longitudMinima: 40
-  longitudMaxima: 80
-  velocidadRecogida: 0.8
-  habitat: 'Ríos y lagunas de várzea.'
-  descripcion: 'Serrasálmido frugívoro conocido en varias regiones como cachama blanca o pirapitinga. Rangos aproximados; kg y cm.'
-
+  longitudMaxima: 88
+  velocidadRecogida: 0.75
+  habitat: 'Ríos y tributarios de aguas claras o negras.'
+  descripcion: 'Depredador alargado de superficie; registros publicados llegan cerca de 88 cm y 6 kg. Rangos de juego aproximados; kg y cm.'
 
 
 

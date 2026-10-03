@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Pacu
+  m_Name: Pez_Pacu
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Pacu (Mylossoma duriventre)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Pacu amazónico (Mylossoma duriventre)'
+  foto: {fileID: 407949374561546640, guid: 5062d597a8f435f46bdfbf7c984bb0cc, type: 3}
   rareza: 0
-  fuerzaPez: 2
+  fuerzaPez: 3
   pesoMinimo: 0.2
   pesoMaximo: 1.5
   longitudMinima: 12
-  longitudMaxima: 25
-  velocidadRecogida: 1.1
+  longitudMaxima: 30
+  velocidadRecogida: 1
   habitat: 'Ríos, lagos y bosques inundados.'
-  descripcion: 'Pez de cuerpo comprimido que consume semillas, frutos y pequeños organismos. Rangos aproximados. Unidades: kg y cm.'
+  descripcion: 'Pez de cuerpo comprimido que consume frutos, semillas y otros alimentos. Rangos aproximados; kg y cm.'
+
+
+

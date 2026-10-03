@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Surubi
+  m_Name: Pez_Gato_Surubi
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Surubí (Pseudoplatystoma fasciatum)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Surubí rayado (Pseudoplatystoma fasciatum)'
+  foto: {fileID: -5839588560472809559, guid: 513b52ae3736c42418799dbe357044ef, type: 3}
   rareza: 3
   fuerzaPez: 8
   pesoMinimo: 5
@@ -22,4 +22,7 @@ MonoBehaviour:
   longitudMaxima: 150
   velocidadRecogida: 0.55
   habitat: 'Fondos de ríos y lagunas conectadas.'
-  descripcion: 'Bagre cazador de gran porte con bandas oscuras en el cuerpo. Rangos aproximados. Unidades: kg y cm.'
+  descripcion: 'Bagre depredador de gran porte con bandas oscuras. Rangos aproximados para adultos; kg y cm.'
+
+
+

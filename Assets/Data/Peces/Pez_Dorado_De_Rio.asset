@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Piraiba
+  m_Name: Pez_Dorado_De_Rio
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Piraíba (Brachyplatystoma filamentosum)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Dorado de río (Brachyplatystoma rousseauxii)'
+  foto: {fileID: 5984881594436384185, guid: c94a6cc8a1b06b342a28cb420eaa896b, type: 3}
   rareza: 4
   fuerzaPez: 10
-  pesoMinimo: 20
-  pesoMaximo: 150
-  longitudMinima: 120
-  longitudMaxima: 250
+  pesoMinimo: 10
+  pesoMaximo: 50
+  longitudMinima: 100
+  longitudMaxima: 200
   velocidadRecogida: 0.4
-  habitat: 'Pozas profundas de los grandes ríos amazónicos.'
-  descripcion: 'Uno de los bagres gigantes de la cuenca amazónica. Rangos aproximados de adultos. Unidades: kg y cm.'
+  habitat: 'Canales principales de los grandes ríos amazónicos.'
+  descripcion: 'Bagre migratorio de larga distancia y gran potencia. Rangos aproximados para ejemplares adultos; kg y cm.'
+
+
+

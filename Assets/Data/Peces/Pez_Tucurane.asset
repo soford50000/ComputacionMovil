@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Tucunare
+  m_Name: Pez_Tucurane
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Tucunaré (Cichla temensis)'
-  foto: {fileID: 0}
+  foto: {fileID: -368077584688036795, guid: fef132e30fadbf040b5cc6ffcf3d90e8, type: 3}
   rareza: 2
-  fuerzaPez: 6
+  fuerzaPez: 7
   pesoMinimo: 2
-  pesoMaximo: 13
-  longitudMinima: 35
-  longitudMaxima: 100
-  velocidadRecogida: 0.75
-  habitat: 'Lagos, remansos y ríos de aguas claras o negras.'
-  descripcion: 'Cíclido depredador territorial muy apreciado por la pesca deportiva. Rangos aproximados. Unidades: kg y cm.'
+  pesoMaximo: 12.2
+  longitudMinima: 31
+  longitudMaxima: 99
+  velocidadRecogida: 0.7
+  habitat: 'Ríos y lagos de aguas negras, especialmente en la cuenca del río Negro.'
+  descripcion: 'Cíclido depredador conocido como tucunaré-açu. Longitud máxima publicada cercana a 99 cm y peso a 12,2 kg; rangos de juego aproximados; kg y cm.'
+
+
+

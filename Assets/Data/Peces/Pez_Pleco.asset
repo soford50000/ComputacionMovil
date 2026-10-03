@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Pez_Pleco
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: 'Pleco amazónico (Pterygoplichthys pardalis)'
+  foto: {fileID: -3127151784643475593, guid: 226024087cb53c849b984196b974662d, type: 3}
+  rareza: 0
+  fuerzaPez: 3
+  pesoMinimo: 0.1
+  pesoMaximo: 1.5
+  longitudMinima: 20
+  longitudMaxima: 45
+  velocidadRecogida: 0.85
+  habitat: 'Fondos de ríos y zonas con troncos sumergidos.'
+  descripcion: 'Bagre acorazado conocido como pleco de vela amazónico. Tamaño máximo publicado cercano a 43 cm; peso y rangos de juego aproximados; kg y cm.'
+    Rangos aproximados. Unidades: kg y cm.'
+
+
+

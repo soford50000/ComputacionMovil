@@ -9,17 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c3331819d0cd604b9a4663bdeaf176c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
   m_Name: Pez_Pirana
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 
-  foto: {fileID: 0}
+  nombreEspecie: 'Piraña roja (Pygocentrus nattereri)'
+  foto: {fileID: 8837823623955497063, guid: 5cb0a257b289f774c8953a51149747af, type: 3}
   rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
-  velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  fuerzaPez: 4
+  pesoMinimo: 0.3
+  pesoMaximo: 4
+  longitudMinima: 15
+  longitudMaxima: 35
+  velocidadRecogida: 0.9
+  habitat: 'Ríos, lagos y zonas inundables de la cuenca amazónica.'
+  descripcion: 'Pez de cardumen con cuerpo alto y dientes afilados. Rangos aproximados para adultos; kg y cm.'
+
+
+

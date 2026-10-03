@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Curimata
+  m_Name: Pez_Curimata
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Curimatá (Prochilodus nigricans)'
-  foto: {fileID: 0}
+  foto: {fileID: -8619432478203616070, guid: 2ca64fb31fad3a74e98d5fda44811098, type: 3}
   rareza: 0
-  fuerzaPez: 2
+  fuerzaPez: 3
   pesoMinimo: 0.3
-  pesoMaximo: 3
-  longitudMinima: 18
-  longitudMaxima: 40
-  velocidadRecogida: 1.05
-  habitat: 'Ríos de aguas blancas y lagunas inundables.'
-  descripcion: 'Pez detritívoro migratorio, común en las pesquerías amazónicas. Rangos aproximados. Unidades: kg y cm.'
+  pesoMaximo: 4
+  longitudMinima: 20
+  longitudMaxima: 50
+  velocidadRecogida: 1
+  habitat: 'Ríos de aguas blancas, lagunas y zonas inundables.'
+  descripcion: 'Pez migratorio detritívoro importante en la pesca regional. Rangos aproximados para el juego; kg y cm.'
+
+
+

@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Raya_Motoro
+  m_Name: Pez_Raya_Motoro
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Raya motoro (Potamotrygon motoro)'
-  foto: {fileID: 0}
+  foto: {fileID: 6002543673311578262, guid: dc838a28855f6a44aa780124c3df7213, type: 3}
   rareza: 3
   fuerzaPez: 8
   pesoMinimo: 5
@@ -22,4 +22,7 @@ MonoBehaviour:
   longitudMaxima: 100
   velocidadRecogida: 0.5
   habitat: 'Fondos arenosos de ríos y lagunas.'
-  descripcion: 'Raya de agua dulce con ocelos; requiere equipo fuerte en este juego. Rangos aproximados. Unidades: kg y cm.'
+  descripcion: 'Raya de agua dulce con manchas circulares en el disco. Rangos aproximados de juego; kg y cm.'
+
+
+

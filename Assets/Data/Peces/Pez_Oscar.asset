@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Oscar
+  m_Name: Pez_Oscar
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Óscar (Astronotus ocellatus)'
-  foto: {fileID: 0}
+  foto: {fileID: 6812475384108362867, guid: 756886d336d478b4a86817f10b72b2c0, type: 3}
   rareza: 1
   fuerzaPez: 4
   pesoMinimo: 0.3
@@ -21,5 +21,8 @@ MonoBehaviour:
   longitudMinima: 15
   longitudMaxima: 35
   velocidadRecogida: 0.9
-  habitat: 'Lagos y zonas lentas con vegetación.'
-  descripcion: 'Cíclido robusto, conocido por las manchas oculares cerca de la cola. Rangos aproximados. Unidades: kg y cm.'
+  habitat: 'Lagos, remansos y orillas con vegetación.'
+  descripcion: 'Cíclido robusto con manchas oculares cerca de la cola. Rangos aproximados para adultos; kg y cm.'
+
+
+

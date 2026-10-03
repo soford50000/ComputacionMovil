@@ -9,17 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c3331819d0cd604b9a4663bdeaf176c, type: 3}
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
   m_Name: Pez_Arapaima
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 
-  foto: {fileID: 0}
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
-  velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  nombreEspecie: 'Paiche (Arapaima gigas)'
+  foto: {fileID: -970787879972787969, guid: 6779ed2155f1bac468904461b178d54d, type: 3}
+  rareza: 4
+  fuerzaPez: 10
+  pesoMinimo: 50
+  pesoMaximo: 200
+  longitudMinima: 150
+  longitudMaxima: 300
+  velocidadRecogida: 0.4
+  habitat: 'Ríos y lagunas tranquilas de la cuenca amazónica.'
+  descripcion: 'Uno de los mayores peces de agua dulce. Rangos amplios aproximados para adultos; kg y cm.'
+
+
+

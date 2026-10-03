@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Payara
+  m_Name: Pez_Payara
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Payara (Hydrolycus scomberoides)'
-  foto: {fileID: 0}
+  foto: {fileID: 4120648126729828776, guid: 2be3b1624591c4848a6635b825d361a0, type: 3}
   rareza: 3
-  fuerzaPez: 7
+  fuerzaPez: 8
   pesoMinimo: 2
   pesoMaximo: 17
   longitudMinima: 40
   longitudMaxima: 100
-  velocidadRecogida: 0.65
+  velocidadRecogida: 0.6
   habitat: 'Aguas abiertas y corrientes de ríos grandes.'
-  descripcion: 'Depredador veloz, reconocible por sus largos colmillos. Rangos aproximados. Unidades: kg y cm.'
+  descripcion: 'Depredador veloz reconocible por sus largos colmillos. Rangos aproximados para adultos; kg y cm.'
+
+
+

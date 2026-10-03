@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Disco
+  m_Name: Pez_Hoja_Amazonico
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Pez disco (Symphysodon aequifasciatus)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Pez hoja amazónico (Monocirrhus polyacanthus)'
+  foto: {fileID: -9046001172131082368, guid: 7aa4d8da157a46a49ae31c24e024c1c3, type: 3}
   rareza: 2
   fuerzaPez: 2
-  pesoMinimo: 0.1
-  pesoMaximo: 0.5
-  longitudMinima: 12
-  longitudMaxima: 20
+  pesoMinimo: 0.005
+  pesoMaximo: 0.05
+  longitudMinima: 3
+  longitudMaxima: 10
   velocidadRecogida: 1
-  habitat: 'Aguas tranquilas y cálidas con madera sumergida.'
-  descripcion: 'Cíclido de cuerpo redondo, característico de la Amazonía. Rangos aproximados. Unidades: kg y cm.'
+  habitat: 'Aguas tranquilas, sombreadas y con hojarasca.'
+  descripcion: 'Pez pequeño de camuflaje foliar; puede alcanzar cerca de 10 cm. Peso aproximado para el juego; kg y cm.'
+
+
+

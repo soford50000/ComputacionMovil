@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Jaraqui
+  m_Name: Pez_Jaraqui
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Jaraquí (Semaprochilodus insignis)'
-  foto: {fileID: 0}
+  foto: {fileID: -6344201464066757, guid: e2baf4562290b2d44bfe53a32c117326, type: 3}
   rareza: 0
-  fuerzaPez: 2
+  fuerzaPez: 3
   pesoMinimo: 0.3
   pesoMaximo: 2
   longitudMinima: 15
   longitudMaxima: 35
-  velocidadRecogida: 1.15
-  habitat: 'Canales principales y lagos amazónicos.'
-  descripcion: 'Pez migratorio abundante y de gran importancia alimentaria regional. Rangos aproximados. Unidades: kg y cm.'
+  velocidadRecogida: 1.05
+  habitat: 'Canales principales, lagos y bosques inundados.'
+  descripcion: 'Pez migratorio abundante e importante en las pesquerías de la Amazonía central. Rangos aproximados; kg y cm.'
+
+
+

@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Aruana
+  m_Name: Pez_Arowana_Plateada
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Aruanã (Osteoglossum ferreirai)'
-  foto: {fileID: 0}
-  rareza: 3
+  nombreEspecie: 'Arawana plateada (Osteoglossum bicirrhosum)'
+  foto: {fileID: 4468074478470849169, guid: 8d59d3cd894a4cc4c814266c8f89a2e9, type: 3}
+  rareza: 2
   fuerzaPez: 6
   pesoMinimo: 1
-  pesoMaximo: 5
+  pesoMaximo: 6
   longitudMinima: 50
-  longitudMaxima: 90
-  velocidadRecogida: 0.75
-  habitat: 'Superficie de ríos negros y lagunas tranquilas.'
-  descripcion: 'Arawana de aguas negras, ágil en superficie. Rangos aproximados de adultos. Unidades: kg y cm.'
+  longitudMaxima: 100
+  velocidadRecogida: 0.8
+  habitat: 'Superficie de ríos y lagunas de aguas tranquilas.'
+  descripcion: 'Pez de superficie que puede saltar para capturar presas. Rangos aproximados para adultos; kg y cm.'
+
+
+

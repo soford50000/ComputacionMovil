@@ -3,55 +3,194 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Control de tensión por pulsación: la zona interactiva ocupa la mitad
-/// inferior de la pantalla y funciona tanto con toque como con mouse.
+/// RF3: inicia el lanzamiento desde un botón, espera el pique y habilita la
+/// mitad inferior de la pantalla como control de mantener/soltar.
 /// </summary>
 public class TensionSystem : MonoBehaviour
 {
-    [Header("Zona táctil")]
-    [SerializeField] private bool zonaActiva = true;
+    private enum EstadoPesca
+    {
+        Listo,
+        EsperandoPique,
+        EnForcejeo,
+        EsperandoRecogida
+    }
+
+    [Header("RF3: lanzamiento y pique")]
+    [SerializeField] private bool simularPiqueAutomatico = true;
+    [SerializeField] private Vector2 demoraPique = new Vector2(2f, 4f);
+    [SerializeField] private UnityEvent alLanzar = new UnityEvent();
+    [SerializeField] private UnityEvent alPique = new UnityEvent();
+
+    [Header("RF3: zona táctil inferior")]
+    [SerializeField] private bool zonaActiva;
     [SerializeField] private bool mostrarIndicador = true;
     [SerializeField, Range(0f, 1f)] private float opacidadZona = 0.24f;
     [SerializeField] private UnityEvent alPresionar = new UnityEvent();
     [SerializeField] private UnityEvent alSoltar = new UnityEvent();
 
+    private EstadoPesca estado = EstadoPesca.Listo;
+    private float tiempoParaPique;
     private Image fondoZona;
     private Text textoZona;
+    private Button botonLanzar;
+    private Text textoBotonLanzar;
+    private Text textoEstado;
+    private CapturaResultUI interfazResultado;
     private bool capturaTouch;
     private bool capturaMouse;
     private bool estaPresionado;
 
-    /// <summary>True mientras el jugador mantiene la zona inferior presionada.</summary>
+    /// <summary>True mientras el jugador mantiene pulsada la zona inferior.</summary>
     public bool EstaPresionado => estaPresionado;
 
     /// <summary>Notifica true al presionar y false al soltar.</summary>
     public event Action<bool> PresionCambiada;
 
+    /// <summary>Señala que se pulsó el botón para lanzar el anzuelo.</summary>
+    public event Action LanzamientoIniciado;
+
+    /// <summary>Señala que comenzó el forcejeo y se habilitó la zona inferior.</summary>
+    public event Action PiqueDetectado;
+
     private void Awake()
     {
-        CrearZonaVisual();
-        ActualizarVisual();
+        interfazResultado = GetComponent<CapturaResultUI>();
+        if (interfazResultado != null)
+            interfazResultado.alRecoger.AddListener(VolverAListo);
+
+        AsegurarEventSystem();
+        CrearInterfazPesca();
+        SetZonaActiva(false);
+        VolverAListo();
     }
 
     private void Update()
     {
-        if (!zonaActiva)
+        if (estado == EstadoPesca.EsperandoPique && simularPiqueAutomatico)
+        {
+            tiempoParaPique -= Time.deltaTime;
+            if (tiempoParaPique <= 0f)
+                NotificarPique();
+        }
+
+        if (estado != EstadoPesca.EnForcejeo || !zonaActiva)
+        {
+            if (estaPresionado)
+                CambiarEstadoPresion(false);
+            return;
+        }
+
+        LeerEntradaDeZona();
+    }
+
+    /// <summary>Callback del botón táctil «Lanzar / Pescar».</summary>
+    public void IniciarLanzamiento()
+    {
+        if (estado != EstadoPesca.Listo)
+            return;
+
+        estado = EstadoPesca.EsperandoPique;
+        SetZonaActiva(false);
+        botonLanzar.interactable = false;
+        textoBotonLanzar.text = "ESPERANDO...";
+        textoEstado.text = simularPiqueAutomatico
+            ? "El anzuelo cayó al agua. Esperando un pique..."
+            : "El anzuelo cayó al agua. Esperando la señal de pique...";
+
+        float minimo = Mathf.Max(0f, Mathf.Min(demoraPique.x, demoraPique.y));
+        float maximo = Mathf.Max(minimo, Mathf.Max(demoraPique.x, demoraPique.y));
+        tiempoParaPique = UnityEngine.Random.Range(minimo, maximo);
+        LanzamientoIniciado?.Invoke();
+        alLanzar.Invoke();
+
+        // En modo manual, RF2 u otro controlador debe llamar NotificarPique().
+        if (simularPiqueAutomatico && tiempoParaPique <= 0f)
+            NotificarPique();
+    }
+
+    /// <summary>
+    /// Llama este método cuando el sistema real de pesca detecte un pique.
+    /// También se usa automáticamente si está activa la simulación de prueba.
+    /// </summary>
+    public void NotificarPique()
+    {
+        if (estado != EstadoPesca.EsperandoPique)
+            return;
+
+        estado = EstadoPesca.EnForcejeo;
+        SetZonaActiva(true);
+        botonLanzar.gameObject.SetActive(false);
+        textoEstado.text = "¡PICÓ! Mantén pulsada la mitad inferior para tensar.";
+        PiqueDetectado?.Invoke();
+        alPique.Invoke();
+    }
+
+    /// <summary>
+    /// Permite activar u ocultar el control inferior desde otros sistemas.
+    /// </summary>
+    public void SetZonaActiva(bool activa)
+    {
+        zonaActiva = activa;
+        if (!activa)
         {
             capturaTouch = false;
             capturaMouse = false;
             CambiarEstadoPresion(false);
-            ActualizarVisual();
-            return;
         }
 
+        ActualizarVisualZona();
+    }
+
+    /// <summary>
+    /// RF4 pasa su proporción de tiempo en zona segura. RF5 calcula el resultado
+    /// usando la fuerza del pez y el poder/tolerancia de la caña equipada.
+    /// </summary>
+    public bool ResolverIntentoCaptura(
+        PezData pez,
+        CanaData cana,
+        float porcentajeControlado,
+        int oro,
+        out CapturaEvaluacion evaluacion)
+    {
+        if (estado != EstadoPesca.EnForcejeo)
+            throw new InvalidOperationException("Solo se puede resolver una captura después del pique.");
+        if (interfazResultado == null)
+            throw new InvalidOperationException("Falta CapturaResultUI en el mismo objeto que TensionSystem.");
+
+        SetZonaActiva(false);
+        bool capturada = interfazResultado.ResolverIntentoCaptura(
+            pez,
+            cana,
+            porcentajeControlado,
+            oro,
+            out evaluacion);
+
+        if (capturada)
+        {
+            estado = EstadoPesca.EsperandoRecogida;
+            textoEstado.text = "Captura conseguida. Recoge el pez para volver a pescar.";
+        }
+        else
+        {
+            VolverAListo();
+        }
+
+        return capturada;
+    }
+
+    private void LeerEntradaDeZona()
+    {
         TouchControl touch = Touchscreen.current != null
             ? Touchscreen.current.primaryTouch
             : null;
 
-        // Mantén capturado el dedo o botón que inició la acción hasta soltarlo.
+        // Conserva la fuente que inició la pulsación hasta que se suelte.
         if (capturaTouch)
         {
             if (touch != null && touch.press.isPressed)
@@ -83,46 +222,6 @@ public class TensionSystem : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Permite activar el control cuando el pez pique y ocultarlo al terminar.
-    /// </summary>
-    public void SetZonaActiva(bool activa)
-    {
-        zonaActiva = activa;
-        if (!activa)
-        {
-            capturaTouch = false;
-            capturaMouse = false;
-            CambiarEstadoPresion(false);
-        }
-
-        ActualizarVisual();
-    }
-
-    /// <summary>
-    /// Punto de integración para RF4: pasa su proporción de tiempo en zona
-    /// segura y RF5 decide si mostrar la captura o emitir el escape.
-    /// </summary>
-    public bool ResolverIntentoCaptura(
-        PezData pez,
-        CanaData cana,
-        float porcentajeControlado,
-        int oro,
-        out CapturaEvaluacion evaluacion)
-    {
-        CapturaResultUI interfazResultado = GetComponent<CapturaResultUI>();
-        if (interfazResultado == null)
-            throw new InvalidOperationException("Falta CapturaResultUI en el mismo objeto que TensionSystem.");
-
-        SetZonaActiva(false);
-        return interfazResultado.ResolverIntentoCaptura(
-            pez,
-            cana,
-            porcentajeControlado,
-            oro,
-            out evaluacion);
-    }
-
     private bool EstaDentroDeZona(Vector2 posicion)
     {
         return posicion.x >= 0f && posicion.x <= Screen.width &&
@@ -136,27 +235,26 @@ public class TensionSystem : MonoBehaviour
 
         estaPresionado = presionada;
         PresionCambiada?.Invoke(estaPresionado);
-
         if (estaPresionado)
             alPresionar?.Invoke();
         else
             alSoltar?.Invoke();
 
-        ActualizarVisual();
+        ActualizarVisualZona();
     }
 
-    private void CrearZonaVisual()
+    private void CrearInterfazPesca()
     {
         var canvasObject = new GameObject(
-            "Canvas Zona de Tensión",
+            "Canvas Controles de Pesca",
             typeof(RectTransform),
             typeof(Canvas),
-            typeof(CanvasScaler));
+            typeof(CanvasScaler),
+            typeof(GraphicRaycaster));
         canvasObject.transform.SetParent(transform, false);
 
         var canvas = canvasObject.GetComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        // Mantiene la zona por debajo de ventanas modales como el resultado de captura.
         canvas.sortingOrder = 20;
 
         var scaler = canvasObject.GetComponent<CanvasScaler>();
@@ -164,12 +262,19 @@ public class TensionSystem : MonoBehaviour
         scaler.referenceResolution = new Vector2(1280f, 720f);
         scaler.matchWidthOrHeight = 0.5f;
 
+        CrearZonaInferior(canvasObject.transform);
+        CrearBotonLanzar(canvasObject.transform);
+        CrearTextoEstado(canvasObject.transform);
+    }
+
+    private void CrearZonaInferior(Transform padre)
+    {
         var panel = new GameObject(
             "Botón Mitad Inferior",
             typeof(RectTransform),
             typeof(CanvasRenderer),
             typeof(Image));
-        panel.transform.SetParent(canvasObject.transform, false);
+        panel.transform.SetParent(padre, false);
 
         var panelRect = panel.GetComponent<RectTransform>();
         panelRect.anchorMin = Vector2.zero;
@@ -180,32 +285,91 @@ public class TensionSystem : MonoBehaviour
         fondoZona = panel.GetComponent<Image>();
         fondoZona.raycastTarget = false;
 
-        var label = new GameObject(
-            "Instrucción de tensión",
-            typeof(RectTransform),
-            typeof(CanvasRenderer),
-            typeof(Text));
-        label.transform.SetParent(panel.transform, false);
-
+        var label = CrearTexto("Instrucción de tensión", panel.transform);
         var labelRect = label.GetComponent<RectTransform>();
         labelRect.anchorMin = new Vector2(0.05f, 0.12f);
         labelRect.anchorMax = new Vector2(0.95f, 0.88f);
         labelRect.offsetMin = Vector2.zero;
         labelRect.offsetMax = Vector2.zero;
-
-        textoZona = label.GetComponent<Text>();
-        textoZona.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        textoZona = label;
         textoZona.fontSize = 30;
-        textoZona.fontStyle = FontStyle.Bold;
-        textoZona.alignment = TextAnchor.MiddleCenter;
-        textoZona.color = Color.white;
-        textoZona.resizeTextForBestFit = true;
         textoZona.resizeTextMinSize = 16;
         textoZona.resizeTextMaxSize = 30;
-        textoZona.raycastTarget = false;
     }
 
-    private void ActualizarVisual()
+    private void CrearBotonLanzar(Transform padre)
+    {
+        var botonObject = new GameObject(
+            "Botón Lanzar Pescar",
+            typeof(RectTransform),
+            typeof(CanvasRenderer),
+            typeof(Image),
+            typeof(Button));
+        botonObject.transform.SetParent(padre, false);
+
+        var rect = botonObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.2f, 0.76f);
+        rect.anchorMax = new Vector2(0.8f, 0.9f);
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        var imagen = botonObject.GetComponent<Image>();
+        imagen.color = new Color(0.42f, 0.23f, 0.10f, 0.96f);
+        var boton = botonObject.GetComponent<Button>();
+        boton.targetGraphic = imagen;
+        boton.onClick.AddListener(IniciarLanzamiento);
+        botonLanzar = boton;
+
+        textoBotonLanzar = CrearTexto("Texto del botón", botonObject.transform);
+        textoBotonLanzar.text = "LANZAR / PESCAR";
+        textoBotonLanzar.fontSize = 28;
+        textoBotonLanzar.resizeTextMinSize = 15;
+        textoBotonLanzar.resizeTextMaxSize = 28;
+    }
+
+    private void CrearTextoEstado(Transform padre)
+    {
+        textoEstado = CrearTexto("Estado de pesca", padre);
+        var rect = textoEstado.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.08f, 0.65f);
+        rect.anchorMax = new Vector2(0.92f, 0.74f);
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        textoEstado.fontSize = 22;
+        textoEstado.resizeTextMinSize = 12;
+        textoEstado.resizeTextMaxSize = 22;
+    }
+
+    private static Text CrearTexto(string nombre, Transform padre)
+    {
+        var label = new GameObject(nombre, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+        label.transform.SetParent(padre, false);
+        var rect = label.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        var text = label.GetComponent<Text>();
+        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        text.fontStyle = FontStyle.Bold;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color = Color.white;
+        text.resizeTextForBestFit = true;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private void AsegurarEventSystem()
+    {
+        if (FindAnyObjectByType<EventSystem>() != null)
+            return;
+
+        var eventos = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+        eventos.transform.SetParent(transform, false);
+    }
+
+    private void ActualizarVisualZona()
     {
         if (fondoZona == null || textoZona == null)
             return;
@@ -219,10 +383,19 @@ public class TensionSystem : MonoBehaviour
         fondoZona.color = estaPresionado
             ? new Color(0.10f, 0.48f, 0.32f, Mathf.Min(0.55f, opacidadZona + 0.18f))
             : new Color(0.02f, 0.08f, 0.08f, opacidadZona);
-
         textoZona.text = estaPresionado
             ? "TENSANDO...\nSUELTA PARA LIBERAR"
             : "MANTÉN PRESIONADO PARA TENSAR";
+    }
+
+    private void VolverAListo()
+    {
+        estado = EstadoPesca.Listo;
+        SetZonaActiva(false);
+        botonLanzar.interactable = true;
+        botonLanzar.gameObject.SetActive(true);
+        textoBotonLanzar.text = "LANZAR / PESCAR";
+        textoEstado.text = "Pulsa para lanzar el anzuelo.";
     }
 
     private void OnDisable()
@@ -230,5 +403,11 @@ public class TensionSystem : MonoBehaviour
         capturaTouch = false;
         capturaMouse = false;
         CambiarEstadoPresion(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (interfazResultado != null)
+            interfazResultado.alRecoger.RemoveListener(VolverAListo);
     }
 }

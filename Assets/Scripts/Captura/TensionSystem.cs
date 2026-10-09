@@ -24,6 +24,9 @@ public class TensionSystem : MonoBehaviour
     [Header("RF3: lanzamiento y pique")]
     [SerializeField] private bool simularPiqueAutomatico = true;
     [SerializeField] private Vector2 demoraPique = new Vector2(2f, 4f);
+    [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
+    [SerializeField] private CanaData canaEquipada;
+    [SerializeField, Min(0)] private int oroRecompensaBase = 100;
     [SerializeField] private UnityEvent alLanzar = new UnityEvent();
     [SerializeField] private UnityEvent alPique = new UnityEvent();
 
@@ -47,6 +50,9 @@ public class TensionSystem : MonoBehaviour
     private Sprite spriteBotonCircular;
     private Texture2D texturaBotonCircular;
     private CapturaResultUI interfazResultado;
+    private PezData pezEnAnzuelo;
+    private float tiempoForcejeo;
+    private float tiempoEnZonaSegura;
     private bool capturaTouch;
     private bool capturaMouse;
     private bool estaPresionado;
@@ -95,6 +101,7 @@ public class TensionSystem : MonoBehaviour
         }
 
         LeerEntradaDeZona();
+        ActualizarForcejeo();
     }
 
     // Respaldo al Button de Unity: permite lanzar incluso si el EventSystem de
@@ -149,6 +156,21 @@ public class TensionSystem : MonoBehaviour
         if (estado != EstadoPesca.Listo)
             return;
 
+        var gestorPeces = FisheryManager.Instance;
+        if (gestorPeces == null)
+        {
+            Debug.LogError("No se encontró FisheryManager en la escena.", this);
+            textoEstado.text = "No se pudo iniciar: falta el gestor de peces.";
+            return;
+        }
+
+        pezEnAnzuelo = gestorPeces.GenerarPezAleatorio();
+        if (pezEnAnzuelo == null)
+        {
+            textoEstado.text = "No se pudo iniciar: revisa los peces de Amazonas.";
+            return;
+        }
+
         estado = EstadoPesca.EsperandoPique;
         SetZonaActiva(false);
         botonLanzar.interactable = false;
@@ -179,12 +201,70 @@ public class TensionSystem : MonoBehaviour
             return;
 
         estado = EstadoPesca.EnForcejeo;
+        tiempoForcejeo = 0f;
+        tiempoEnZonaSegura = 0f;
         SetZonaActiva(true);
         hudLanzamiento.SetActive(false);
         ColocarMensajeDePique();
-        textoEstado.text = "¡PICÓ!";
+        textoEstado.text = "¡PICÓ! " + pezEnAnzuelo.nombreEspecie;
         PiqueDetectado?.Invoke();
         alPique.Invoke();
+    }
+
+    /// <summary>
+    /// RF5 consume el porcentaje de control simulado por RF4. Por ahora se mide
+    /// como la fracción del forcejeo durante la que el jugador mantiene pulsada
+    /// la zona inferior; RF4 podrá sustituir esta medida por su barra de tensión.
+    /// </summary>
+    private void ActualizarForcejeo()
+    {
+        float delta = Time.deltaTime;
+        tiempoForcejeo += delta;
+        if (estaPresionado)
+            tiempoEnZonaSegura += delta;
+
+        float restante = Mathf.Max(0f, duracionForcejeo - tiempoForcejeo);
+        textoEstado.text = $"¡PICÓ! {pezEnAnzuelo.nombreEspecie} — {Mathf.CeilToInt(restante)} s";
+
+        if (tiempoForcejeo < duracionForcejeo)
+            return;
+
+        float porcentajeControlado = tiempoForcejeo > 0f
+            ? tiempoEnZonaSegura / tiempoForcejeo
+            : 0f;
+        CanaData cana = canaEquipada;
+        if (cana == null)
+        {
+            Debug.LogWarning("No hay caña asignada; se usará una caña básica para resolver RF5.", this);
+            cana = ScriptableObject.CreateInstance<CanaData>();
+            cana.nombreCana = "Caña básica";
+            ResolverIntentoCapturaConCanaTemporal(cana, porcentajeControlado);
+            return;
+        }
+
+        ResolverIntentoCaptura(
+            pezEnAnzuelo,
+            cana,
+            porcentajeControlado,
+            oroRecompensaBase,
+            out _);
+    }
+
+    private void ResolverIntentoCapturaConCanaTemporal(CanaData cana, float porcentajeControlado)
+    {
+        try
+        {
+            ResolverIntentoCaptura(
+                pezEnAnzuelo,
+                cana,
+                porcentajeControlado,
+                oroRecompensaBase,
+                out _);
+        }
+        finally
+        {
+            Destroy(cana);
+        }
     }
 
     /// <summary>
@@ -235,6 +315,7 @@ public class TensionSystem : MonoBehaviour
         else
         {
             VolverAListo();
+            textoEstado.text = "El pez escapó. Pulsa para volver a pescar.";
         }
 
         return capturada;

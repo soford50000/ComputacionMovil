@@ -59,6 +59,18 @@ public class TensionSystem : MonoBehaviour
 
     /// <summary>True mientras el jugador mantiene pulsada la zona inferior.</summary>
     public bool EstaPresionado => estaPresionado;
+    public bool PuedeCambiarCana => estado == EstadoPesca.Listo;
+    public CanaData CanaEquipada => canaEquipada;
+
+    /// <summary>Actualiza la caña usada por la evaluación de captura RF5.</summary>
+    public bool EquiparCana(CanaData cana)
+    {
+        if (cana == null || !PuedeCambiarCana)
+            return false;
+
+        canaEquipada = cana;
+        return true;
+    }
 
     /// <summary>Notifica true al presionar y false al soltar.</summary>
     public event Action<bool> PresionCambiada;

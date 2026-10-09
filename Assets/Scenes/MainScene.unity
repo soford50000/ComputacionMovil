@@ -374,6 +374,7 @@ GameObject:
   - component: {fileID: 710000004}
   - component: {fileID: 710000005}
   - component: {fileID: 710000006}
+  - component: {fileID: 710000007}
   m_Layer: 0
   m_Name: Pesca Amazonas
   m_TagString: Untagged
@@ -486,6 +487,23 @@ MonoBehaviour:
   intensidad: 2.5
   velocidad: 0.6
   limiteAgua: 0.34
+--- !u!114 &710000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f345b09baecb4388932cde286a7d54e0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CanaSelectorUI
+  canasDisponibles:
+  - {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
+  - {fileID: 11400000, guid: c6a98b1fdf65438a938d4c51e9d2a760, type: 2}
+  - {fileID: 11400000, guid: f9a19807b9565be45bf82cb2a01adf34, type: 2}
+  canaInicial: {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

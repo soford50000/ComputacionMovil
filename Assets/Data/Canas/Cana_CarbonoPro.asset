@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21d0a489b6923c74aa5255def9d1e9ec, type: 3}
   m_Name: Cana_CarbonoPro
   m_EditorClassIdentifier: Assembly-CSharp::CanaData
-  nombreCana: 
+  nombreCana: Caña Carbono Pro
   iconoCana: {fileID: 0}
-  precio: 0
-  poderCana: 1
-  bonificacionTolerancia: 0
+  precio: 900
+  poderCana: 7
+  bonificacionTolerancia: 3

@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 180
   velocidadRecogida: 0.55
   habitat: 'Canales profundos y remansos de grandes ríos.'
-  descripcion: 'Bagre depredador de gran porte con bandas oscuras. Identificación taxonómica y rangos orientativos según el nombre del sprite; kg y cm.'
+  descripcion: 'Gran bagre amazónico reconocible por las bandas oscuras que recorren su cuerpo claro. Sus largas barbillas le ayudan a explorar el entorno y localizar alimento en aguas turbias; es apreciado en la pesca regional.'
 
 
 

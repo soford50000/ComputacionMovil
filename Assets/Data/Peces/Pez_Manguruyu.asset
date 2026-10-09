@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Manguruyú amazónico (Zungaro zungaro)'
   foto: {fileID: -6093841227940578588, guid: 3554a6dfd8a35f84eb19d3e551df3303, type: 3}
-  rareza: 4
+  rareza: 3
   fuerzaPez: 10
   pesoMinimo: 10
   pesoMaximo: 50
@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 140
   velocidadRecogida: 0.4
   habitat: 'Pozas y cauces profundos de grandes tributarios amazónicos.'
-  descripcion: 'Bagre grande de fondo, también llamado manguruyú amarillo. FishBase registra ejemplares de alrededor de 130 cm y 50 kg; rangos de juego aproximados; kg y cm.'
+  descripcion: 'Gran pez gato de cuerpo robusto que habita los cauces profundos de los ríos sudamericanos. Pasa buena parte del tiempo cerca del fondo y busca alimento principalmente durante la noche.'
 
 
 

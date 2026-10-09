@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 150
   velocidadRecogida: 0.55
   habitat: 'Fondos de ríos y lagunas conectadas.'
-  descripcion: 'Bagre depredador de gran porte con bandas oscuras. Rangos aproximados para adultos; kg y cm.'
+  descripcion: 'Bagre de gran tamaño con un patrón de bandas oscuras sobre el cuerpo. Recorre los ríos sudamericanos en busca de presas y utiliza sus largas barbillas para explorar el fondo, especialmente durante la noche.'
 
 
 

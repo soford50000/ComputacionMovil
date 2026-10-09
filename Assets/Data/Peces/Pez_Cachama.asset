@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Cachama blanca (Piaractus brachypomus)'
   foto: {fileID: 7254367991966419479, guid: dd66a35507a39e54b8e273f4da3432a3, type: 3}
-  rareza: 2
+  rareza: 1
   fuerzaPez: 6
   pesoMinimo: 2
   pesoMaximo: 20
@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 80
   velocidadRecogida: 0.8
   habitat: 'Ríos y lagunas de várzea.'
-  descripcion: 'Serrasálmido frugívoro conocido en varias regiones como cachama blanca o pirapitinga. Rangos aproximados; kg y cm.'
+  descripcion: 'La cachama blanca, también llamada pirapitinga, es un pez de cuerpo robusto que consume frutos y semillas en los bosques inundados. Sus dientes fuertes le permiten triturar el alimento y es importante para la acuicultura sudamericana.'
 
 
 

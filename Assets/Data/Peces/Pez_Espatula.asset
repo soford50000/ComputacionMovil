@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 150
   velocidadRecogida: 0.55
   habitat: 'Canales y fondos de grandes ríos amazónicos.'
-  descripcion: 'Bagre de hocico aplanado y largo, asociado al nombre pez espátula del sprite. Rangos aproximados; kg y cm.'
+  descripcion: 'Bagre sudamericano de cuerpo alargado y hocico ancho y aplanado, parecido a una espátula. Habita las cuencas del Amazonas y del Orinoco y se alimenta principalmente de otros peces.'
 
 
 

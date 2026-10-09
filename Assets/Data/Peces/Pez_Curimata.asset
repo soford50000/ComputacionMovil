@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 50
   velocidadRecogida: 1
   habitat: 'Ríos de aguas blancas, lagunas y zonas inundables.'
-  descripcion: 'Pez migratorio detritívoro importante en la pesca regional. Rangos aproximados para el juego; kg y cm.'
+  descripcion: 'Pez migratorio que busca detritos y materia orgánica en los fondos de ríos y lagunas. Al alimentarse contribuye al reciclaje de nutrientes y forma parte importante de las pesquerías amazónicas.'
 
 
 

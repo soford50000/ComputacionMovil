@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 100
   velocidadRecogida: 0.8
   habitat: 'Superficie de ríos y lagunas de aguas tranquilas.'
-  descripcion: 'Pez de superficie que puede saltar para capturar presas. Rangos aproximados para adultos; kg y cm.'
+  descripcion: 'Depredador de superficie de cuerpo alargado y grandes escamas plateadas. Puede saltar fuera del agua para atrapar insectos y otras presas sobre las ramas bajas de las orillas.'
 
 
 

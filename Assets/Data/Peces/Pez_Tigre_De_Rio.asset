@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Bagre tigre de río (Pseudoplatystoma tigrinum)'
   foto: {fileID: -7575266370897265387, guid: af3aae172aee58447a156ad368b9f488, type: 3}
-  rareza: 3
+  rareza: 4
   fuerzaPez: 8
   pesoMinimo: 5
   pesoMaximo: 25
@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 140
   velocidadRecogida: 0.55
   habitat: 'Canales y remansos profundos de grandes ríos.'
-  descripcion: 'Bagre depredador con patrón de bandas llamativas. Identificación orientativa basada en el nombre del sprite; rangos aproximados; kg y cm.'
+  descripcion: 'Bagre de los ríos Amazonas y Orinoco, reconocible por sus llamativas bandas oscuras. Es un cazador principalmente nocturno que consume peces y también puede aprovechar crustáceos; los jóvenes utilizan los bosques inundados.'
 
 
 

@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 100
   velocidadRecogida: 0.5
   habitat: 'Fondos arenosos de ríos y lagunas.'
-  descripcion: 'Raya de agua dulce con manchas circulares en el disco. Rangos aproximados de juego; kg y cm.'
+  descripcion: 'Raya de agua dulce con manchas circulares amarillas o anaranjadas sobre el disco. Se desplaza cerca del fondo en busca de alimento y posee un aguijón venenoso en la cola que utiliza para defenderse.'
 
 
 

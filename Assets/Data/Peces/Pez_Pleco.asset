@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 45
   velocidadRecogida: 0.85
   habitat: 'Fondos de ríos y zonas con troncos sumergidos.'
-  descripcion: 'Bagre acorazado conocido como pleco de vela amazónico. Tamaño máximo publicado cercano a 43 cm; peso y rangos de juego aproximados; kg y cm.'
+  descripcion: 'Pez de fondo protegido por placas óseas y reconocible por su gran aleta dorsal. Su boca en forma de ventosa le permite sujetarse a superficies y raspar algas y materia orgánica de piedras y troncos.'
     Rangos aproximados. Unidades: kg y cm.'
 
 

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Bagre de cabeza plana amazónico (Pseudopimelodus sp.)'
   foto: {fileID: -862191489736965328, guid: 726e9e50495365e4bb716fb87725508b, type: 3}
-  rareza: 2
+  rareza: 1
   fuerzaPez: 6
   pesoMinimo: 1
   pesoMaximo: 12
@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 90
   velocidadRecogida: 0.7
   habitat: 'Fondos de ríos y arroyos amazónicos.'
-  descripcion: 'Ficha de grupo para el bagre de cabeza plana representado; el sprite no permite precisar especie. Rangos orientativos de juego; kg y cm.'
+  descripcion: 'Bagre sudamericano de cabeza ancha y aplanada, cuerpo robusto y barbillas alrededor de la boca. En el juego representa al género Pseudopimelodus; la especie concreta todavía no está determinada.'
 
 
 

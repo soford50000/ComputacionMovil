@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 30
   velocidadRecogida: 1
   habitat: 'Ríos, lagos y bosques inundados.'
-  descripcion: 'Pez de cuerpo comprimido que consume frutos, semillas y otros alimentos. Rangos aproximados; kg y cm.'
+  descripcion: 'Pez de cuerpo alto y comprimido que aprovecha frutos, semillas y otros alimentos disponibles en el río. En esta ficha corresponde al pacú amazónico Mylossoma duriventre, de menor tamaño que otros peces conocidos como pacú.'
 
 
 

@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 100
   velocidadRecogida: 0.6
   habitat: 'Aguas abiertas y corrientes de ríos grandes.'
-  descripcion: 'Depredador veloz reconocible por sus largos colmillos. Rangos aproximados para adultos; kg y cm.'
+  descripcion: 'Depredador conocido como pez vampiro por sus dos largos colmillos inferiores. Estos encajan en cavidades de la mandíbula superior cuando cierra la boca y le ayudan a sujetar a los peces que captura.'
 
 
 

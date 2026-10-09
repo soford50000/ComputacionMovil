@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: 'Anguila eléctrica (Electrophorus electricus)'
   foto: {fileID: -1770348718304776743, guid: 8181f093535eac74da1e0e0a9a5a2c29, type: 3}
-  rareza: 4
+  rareza: 3
   fuerzaPez: 9
   pesoMinimo: 5
   pesoMaximo: 20
@@ -22,7 +22,7 @@ MonoBehaviour:
   longitudMaxima: 220
   velocidadRecogida: 0.45
   habitat: 'Ríos lentos, pantanos y llanuras inundables de la Amazonía.'
-  descripcion: 'Pez alargado que respira aire y produce descargas eléctricas. Pesos y longitudes aproximados para ejemplares adultos; kg y cm.'
+  descripcion: 'Pez de agua dulce de cuerpo alargado que utiliza descargas eléctricas para orientarse, cazar y defenderse. Sube a la superficie para respirar aire, una adaptación que le permite vivir en aguas con poco oxígeno.'
 
 
 

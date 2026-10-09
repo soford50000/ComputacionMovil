@@ -481,7 +481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e80764800a4847fda9cc3a785d491121, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::FondoAguaUI
-  fotografia: {fileID: 2800000, guid: a27c2ce8395746ee936d2bc038b4a2a7, type: 3}
+  fotografia: {fileID: 2800000, guid: 0bf892d560464a743b275aac93247e32, type: 3}
   shaderAgua: {fileID: 4800000, guid: 75c6620eaaae4e3296ee784275c1eeef, type: 3}
   intensidad: 2.5
   velocidad: 0.6

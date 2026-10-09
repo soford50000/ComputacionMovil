@@ -41,7 +41,9 @@ public class CapturaResultUI : MonoBehaviour
     [SerializeField] private Font fuentePixel;
     public UnityEvent alRecoger = new UnityEvent();
     public UnityEvent alPescarDeNuevo = new UnityEvent();
+    public UnityEvent alEscapar = new UnityEvent();
     public event Action<CapturaResultado> CapturaRecogida;
+    public event Action<CapturaEvaluacion> IntentoEvaluado;
     public CapturaResultado ResultadoActual { get; private set; }
 
     private GameObject ventana;
@@ -70,6 +72,32 @@ public class CapturaResultUI : MonoBehaviour
         largo.text = (resultado.LongitudCm / 100f).ToString("0.###", cultura) + " m";
         oro.text = "+" + resultado.Oro.ToString(cultura);
         ventana.SetActive(true);
+    }
+
+    /// <summary>
+    /// Resuelve RF5 con los datos del pez, la caña equipada y el rendimiento
+    /// de zona segura que entrega RF4. Muestra el popup solo si la captura tuvo éxito.
+    /// </summary>
+    /// <param name="porcentajeControlado">Proporción en zona segura, entre 0 y 1.</param>
+    /// <param name="oro">Recompensa que se mostrará si la captura resulta exitosa.</param>
+    public bool ResolverIntentoCaptura(
+        PezData pez,
+        CanaData cana,
+        float porcentajeControlado,
+        int oro,
+        out CapturaEvaluacion evaluacion)
+    {
+        evaluacion = CapturaCalculoRF5.Evaluar(pez, cana, porcentajeControlado);
+        IntentoEvaluado?.Invoke(evaluacion);
+
+        if (!evaluacion.Capturada)
+        {
+            alEscapar.Invoke();
+            return false;
+        }
+
+        Mostrar(new CapturaResultado(pez, oro));
+        return true;
     }
 
     private void Confirmar(bool volverAPescar)

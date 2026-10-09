@@ -13,6 +13,6 @@ public class CanaData : ScriptableObject
     [Range(1f, 10f)]
     public float poderCana = 1f;
 
-    [Tooltip("Tolerancia extra en la barra de tensión (ej. hace que la zona segura sea un poco más flexible).")]
+    [Tooltip("Tolerancia extra en la barra. En RF5, cada punto reduce en 2 puntos porcentuales el control seguro requerido.")]
     public float bonificacionTolerancia = 0f;
 }

@@ -367,6 +367,7 @@ GameObject:
   m_Component:
   - component: {fileID: 710000002}
   - component: {fileID: 710000003}
+  - component: {fileID: 710000004}
   m_Layer: 0
   m_Name: Pesca Amazonas
   m_TagString: Untagged
@@ -399,7 +400,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b48103e20c9fd8d49983fa1d84e59c1d, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FisheryManager
   zonaAmazonas: {fileID: 11400000, guid: 80deec21ac1caeb4482f7d3f9bfd614a, type: 2}
   todosLosPeces: []
@@ -408,6 +409,25 @@ MonoBehaviour:
   pesoRaro: 15
   pesoEpico: 8
   pesoLegendario: 2
+--- !u!114 &710000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db24a22c2ba9484fa169418559eaac5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CapturaResultUI
+  fuentePixel: {fileID: 0}
+  alRecoger:
+    m_PersistentCalls:
+      m_Calls: []
+  alPescarDeNuevo:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

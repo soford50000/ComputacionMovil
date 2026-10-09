@@ -458,7 +458,7 @@ MonoBehaviour:
       m_Calls: []
   zonaActiva: 0
   mostrarIndicador: 1
-  opacidadZona: 0.22
+  opacidadZona: 0.151
   alPresionar:
     m_PersistentCalls:
       m_Calls: []

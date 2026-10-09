@@ -36,12 +36,16 @@ public class TensionSystem : MonoBehaviour
 
     private EstadoPesca estado = EstadoPesca.Listo;
     private float tiempoParaPique;
+    private GameObject hudLanzamiento;
     private Image fondoZona;
     private Text textoZona;
     private Button botonLanzar;
     private Text textoBotonLanzar;
     private Text subtituloBotonLanzar;
+    private Text marcaBotonLanzar;
     private Text textoEstado;
+    private Sprite spriteBotonCircular;
+    private Texture2D texturaBotonCircular;
     private CapturaResultUI interfazResultado;
     private bool capturaTouch;
     private bool capturaMouse;
@@ -73,6 +77,9 @@ public class TensionSystem : MonoBehaviour
 
     private void Update()
     {
+        if (estado == EstadoPesca.Listo)
+            LeerEntradaDeLanzamiento();
+
         if (estado == EstadoPesca.EsperandoPique && simularPiqueAutomatico)
         {
             tiempoParaPique -= Time.deltaTime;
@@ -90,6 +97,52 @@ public class TensionSystem : MonoBehaviour
         LeerEntradaDeZona();
     }
 
+    // Respaldo al Button de Unity: permite lanzar incluso si el EventSystem de
+    // la escena no entrega el callback de UI. La prueba conserva la forma circular.
+    private void LeerEntradaDeLanzamiento()
+    {
+        TouchControl touch = Touchscreen.current != null
+            ? Touchscreen.current.primaryTouch
+            : null;
+
+        if (touch != null && touch.press.wasPressedThisFrame &&
+            EstaDentroDelBoton(touch.position.ReadValue()))
+        {
+            IniciarLanzamiento();
+            return;
+        }
+
+        Pointer pointer = Pointer.current;
+        if (pointer != null && pointer.press.wasPressedThisFrame &&
+            EstaDentroDelBoton(pointer.position.ReadValue()))
+        {
+            IniciarLanzamiento();
+            return;
+        }
+
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame &&
+            EstaDentroDelBoton(Mouse.current.position.ReadValue()))
+            IniciarLanzamiento();
+    }
+
+    private bool EstaDentroDelBoton(Vector2 posicionPantalla)
+    {
+        var rect = botonLanzar.transform as RectTransform;
+        if (rect == null)
+            return false;
+
+        Vector2 centroPantalla = RectTransformUtility.WorldToScreenPoint(
+            null, rect.TransformPoint(rect.rect.center));
+        Vector2 mitad = Vector2.Scale(rect.rect.size, rect.lossyScale) * 0.46f;
+        if (mitad.x <= 0f || mitad.y <= 0f)
+            return false;
+
+        Vector2 distanciaNormalizada = new Vector2(
+            (posicionPantalla.x - centroPantalla.x) / mitad.x,
+            (posicionPantalla.y - centroPantalla.y) / mitad.y);
+        return distanciaNormalizada.sqrMagnitude <= 1f;
+    }
+
     /// <summary>Callback del botón táctil «Lanzar / Pescar».</summary>
     public void IniciarLanzamiento()
     {
@@ -99,8 +152,8 @@ public class TensionSystem : MonoBehaviour
         estado = EstadoPesca.EsperandoPique;
         SetZonaActiva(false);
         botonLanzar.interactable = false;
-        textoBotonLanzar.text = "ESPERANDO...";
-        subtituloBotonLanzar.text = "EL ANZUELO YA ESTÁ EN EL AGUA";
+        textoBotonLanzar.text = "ESPERA";
+        subtituloBotonLanzar.text = "EL PIQUE";
         textoEstado.text = simularPiqueAutomatico
             ? "El anzuelo cayó al agua. Esperando un pique..."
             : "El anzuelo cayó al agua. Esperando la señal de pique...";
@@ -127,8 +180,9 @@ public class TensionSystem : MonoBehaviour
 
         estado = EstadoPesca.EnForcejeo;
         SetZonaActiva(true);
-        botonLanzar.gameObject.SetActive(false);
-        textoEstado.text = "¡PICÓ! Mantén pulsada la mitad inferior para tensar.";
+        hudLanzamiento.SetActive(false);
+        ColocarMensajeDePique();
+        textoEstado.text = "¡PICÓ!";
         PiqueDetectado?.Invoke();
         alPique.Invoke();
     }
@@ -265,7 +319,14 @@ public class TensionSystem : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         CrearZonaInferior(canvasObject.transform);
-        CrearBotonLanzar(canvasObject.transform);
+        hudLanzamiento = new GameObject("Interfaz de lanzamiento", typeof(RectTransform));
+        hudLanzamiento.transform.SetParent(canvasObject.transform, false);
+        var hudRect = hudLanzamiento.GetComponent<RectTransform>();
+        hudRect.anchorMin = Vector2.zero;
+        hudRect.anchorMax = Vector2.one;
+        hudRect.offsetMin = Vector2.zero;
+        hudRect.offsetMax = Vector2.zero;
+        CrearBotonLanzar(hudLanzamiento.transform);
         CrearTextoEstado(canvasObject.transform);
     }
 
@@ -301,19 +362,6 @@ public class TensionSystem : MonoBehaviour
 
     private void CrearBotonLanzar(Transform padre)
     {
-        CrearBloqueDecorativo(
-            "Sombra del botón",
-            padre,
-            Hex("17251F"),
-            new Vector2(0.165f, 0.045f),
-            new Vector2(0.835f, 0.235f));
-        CrearBloqueDecorativo(
-            "Marco de madera y latón",
-            padre,
-            Hex("C79B52"),
-            new Vector2(0.17f, 0.055f),
-            new Vector2(0.83f, 0.235f));
-
         var botonObject = new GameObject(
             "Botón Lanzar Pescar",
             typeof(RectTransform),
@@ -323,52 +371,62 @@ public class TensionSystem : MonoBehaviour
         botonObject.transform.SetParent(padre, false);
 
         var rect = botonObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.185f, 0.07f);
-        rect.anchorMax = new Vector2(0.815f, 0.22f);
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
+        rect.anchorMin = new Vector2(1f, 0f);
+        rect.anchorMax = new Vector2(1f, 0f);
+        rect.pivot = new Vector2(1f, 0f);
+        rect.sizeDelta = new Vector2(240f, 240f);
+        rect.anchoredPosition = new Vector2(-48f, 28f);
 
         var imagen = botonObject.GetComponent<Image>();
-        imagen.color = Hex("315441");
+        spriteBotonCircular = CrearSpriteBotonCircular();
+        imagen.sprite = spriteBotonCircular;
+        imagen.preserveAspect = true;
+        // Las esquinas transparentes no reciben toques; el centro translúcido
+        // supera este umbral y sigue funcionando como botón.
+        imagen.alphaHitTestMinimumThreshold = 0.45f;
+        imagen.color = Color.white;
         var boton = botonObject.GetComponent<Button>();
         boton.targetGraphic = imagen;
         var colores = boton.colors;
-        colores.normalColor = Hex("315441");
-        colores.highlightedColor = Hex("426C4C");
-        colores.pressedColor = Hex("243F35");
-        colores.selectedColor = Hex("426C4C");
-        colores.disabledColor = Hex("5A6257");
+        colores.normalColor = Color.white;
+        colores.highlightedColor = Hex("FFF2D8");
+        colores.pressedColor = Hex("DDE8D8");
+        colores.selectedColor = Hex("FFF2D8");
+        colores.disabledColor = Hex("8A9188");
         colores.colorMultiplier = 1f;
         boton.colors = colores;
         boton.onClick.AddListener(IniciarLanzamiento);
         botonLanzar = boton;
 
         textoBotonLanzar = CrearTexto("Acción del botón", botonObject.transform);
-        textoBotonLanzar.text = "LANZAR / PESCAR";
-        textoBotonLanzar.fontSize = 25;
-        textoBotonLanzar.resizeTextMinSize = 16;
-        textoBotonLanzar.resizeTextMaxSize = 25;
+        textoBotonLanzar.text = "LANZAR";
+        textoBotonLanzar.fontSize = 21;
+        textoBotonLanzar.resizeTextMinSize = 15;
+        textoBotonLanzar.resizeTextMaxSize = 21;
         textoBotonLanzar.color = Hex("F4E9C8");
         var accionRect = textoBotonLanzar.GetComponent<RectTransform>();
-        accionRect.anchorMin = new Vector2(0.08f, 0.39f);
-        accionRect.anchorMax = new Vector2(0.92f, 0.88f);
+        accionRect.anchorMin = new Vector2(0.12f, 0.45f);
+        accionRect.anchorMax = new Vector2(0.88f, 0.66f);
 
         subtituloBotonLanzar = CrearTexto("Subtítulo de pesca", botonObject.transform);
-        subtituloBotonLanzar.text = "TOCA PARA LANZAR EL ANZUELO";
-        subtituloBotonLanzar.fontSize = 12;
-        subtituloBotonLanzar.resizeTextMinSize = 9;
-        subtituloBotonLanzar.resizeTextMaxSize = 12;
+        subtituloBotonLanzar.text = "PESCA";
+        subtituloBotonLanzar.fontSize = 13;
+        subtituloBotonLanzar.resizeTextMinSize = 10;
+        subtituloBotonLanzar.resizeTextMaxSize = 13;
         subtituloBotonLanzar.color = Hex("E1C17A");
         var subtituloRect = subtituloBotonLanzar.GetComponent<RectTransform>();
-        subtituloRect.anchorMin = new Vector2(0.08f, 0.1f);
-        subtituloRect.anchorMax = new Vector2(0.92f, 0.4f);
+        subtituloRect.anchorMin = new Vector2(0.15f, 0.3f);
+        subtituloRect.anchorMax = new Vector2(0.85f, 0.45f);
 
-        CrearAcento("Ribete superior", botonObject.transform,
-            new Vector2(0.08f, 0.91f), new Vector2(0.92f, 0.935f));
-        CrearAcento("Detalle izquierdo", botonObject.transform,
-            new Vector2(0.035f, 0.24f), new Vector2(0.05f, 0.76f));
-        CrearAcento("Detalle derecho", botonObject.transform,
-            new Vector2(0.95f, 0.24f), new Vector2(0.965f, 0.76f));
+        marcaBotonLanzar = CrearTexto("Marca Amazonas", botonObject.transform);
+        marcaBotonLanzar.text = "AMAZONAS";
+        marcaBotonLanzar.fontSize = 9;
+        marcaBotonLanzar.resizeTextMinSize = 7;
+        marcaBotonLanzar.resizeTextMaxSize = 9;
+        marcaBotonLanzar.color = Hex("F4E9C8");
+        var marcaRect = marcaBotonLanzar.GetComponent<RectTransform>();
+        marcaRect.anchorMin = new Vector2(0.15f, 0.65f);
+        marcaRect.anchorMax = new Vector2(0.85f, 0.78f);
     }
 
     private void CrearTextoEstado(Transform padre)
@@ -384,32 +442,18 @@ public class TensionSystem : MonoBehaviour
         textoEstado.resizeTextMaxSize = 22;
     }
 
-    private static void CrearBloqueDecorativo(string nombre, Transform padre, Color color, Vector2 minimo, Vector2 maximo)
+    private void ColocarMensajeDePique()
     {
-        var bloque = new GameObject(nombre, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        bloque.transform.SetParent(padre, false);
-        var rect = bloque.GetComponent<RectTransform>();
-        rect.anchorMin = minimo;
-        rect.anchorMax = maximo;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        var imagen = bloque.GetComponent<Image>();
-        imagen.color = color;
-        imagen.raycastTarget = false;
+        var rect = textoEstado.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.12f, 0.84f);
+        rect.anchorMax = new Vector2(0.88f, 0.94f);
     }
 
-    private static void CrearAcento(string nombre, Transform padre, Vector2 minimo, Vector2 maximo)
+    private void ColocarMensajeListo()
     {
-        var acento = new GameObject(nombre, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        acento.transform.SetParent(padre, false);
-        var rect = acento.GetComponent<RectTransform>();
-        rect.anchorMin = minimo;
-        rect.anchorMax = maximo;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-        var imagen = acento.GetComponent<Image>();
-        imagen.color = Hex("D7AE62");
-        imagen.raycastTarget = false;
+        var rect = textoEstado.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.12f, 0.28f);
+        rect.anchorMax = new Vector2(0.88f, 0.38f);
     }
 
     private static Text CrearTexto(string nombre, Transform padre)
@@ -438,13 +482,100 @@ public class TensionSystem : MonoBehaviour
         return color;
     }
 
+    private Sprite CrearSpriteBotonCircular()
+    {
+        const int resolucion = 256;
+        var pixeles = new Color[resolucion * resolucion];
+        Color verdeOscuro = Hex("244334");
+        Color verdeHoja = Hex("456B48");
+        Color dorado = Hex("D4AA5E");
+        Color madera = Hex("3D281B");
+        Color borde = Hex("17251F");
+
+        for (int y = 0; y < resolucion; y++)
+        {
+            for (int x = 0; x < resolucion; x++)
+            {
+                float dx = (x + 0.5f - resolucion * 0.5f) / (resolucion * 0.5f);
+                float dy = (y + 0.5f - resolucion * 0.5f) / (resolucion * 0.5f);
+                float radio = Mathf.Sqrt(dx * dx + dy * dy);
+                int indice = y * resolucion + x;
+
+                // Deja un pequeño margen transparente dentro del rectángulo
+                // cuadrado para que tanto el dibujo como el área táctil sean circulares.
+                if (radio >= 0.92f)
+                {
+                    pixeles[indice] = Color.clear;
+                    continue;
+                }
+
+                Color color;
+                float opacidad;
+                if (radio >= 0.87f)
+                {
+                    color = borde;
+                    opacidad = 0.96f;
+                }
+                else if (radio >= 0.81f)
+                {
+                    color = dorado;
+                    opacidad = 0.88f;
+                }
+                else if (radio >= 0.75f)
+                {
+                    color = madera;
+                    opacidad = 0.76f;
+                }
+                else
+                {
+                    float luz = Mathf.Clamp01(0.25f + (y / (float)resolucion) * 0.45f + (0.8f - radio) * 0.45f);
+                    color = Color.Lerp(verdeOscuro, verdeHoja, luz);
+                    opacidad = 0.62f;
+                }
+
+                float suavizadoBorde = 1f - Mathf.SmoothStep(0.90f, 0.92f, radio);
+                color.a = opacidad * suavizadoBorde;
+                pixeles[indice] = color;
+            }
+        }
+
+        texturaBotonCircular = new Texture2D(resolucion, resolucion, TextureFormat.RGBA32, false)
+        {
+            name = "Botón circular de pesca Amazonas",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+        texturaBotonCircular.SetPixels(pixeles);
+        texturaBotonCircular.Apply(false, false);
+
+        return Sprite.Create(
+            texturaBotonCircular,
+            new Rect(0f, 0f, resolucion, resolucion),
+            new Vector2(0.5f, 0.5f),
+            100f,
+            0,
+            SpriteMeshType.FullRect);
+    }
+
     private void AsegurarEventSystem()
     {
-        if (FindAnyObjectByType<EventSystem>() != null)
-            return;
+        var eventSystem = FindAnyObjectByType<EventSystem>();
+        if (eventSystem == null)
+        {
+            var eventos = new GameObject("EventSystem");
+            eventos.transform.SetParent(transform, false);
+            eventSystem = eventos.AddComponent<EventSystem>();
+        }
 
-        var eventos = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-        eventos.transform.SetParent(transform, false);
+        // Puede existir un EventSystem de otra escena o prefab sin módulo
+        // compatible con el Input System configurado por el proyecto.
+        var uiInput = eventSystem.GetComponent<InputSystemUIInputModule>();
+        if (uiInput == null)
+            uiInput = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+
+        var legacyInput = eventSystem.GetComponent<StandaloneInputModule>();
+        if (legacyInput != null)
+            legacyInput.enabled = false;
     }
 
     private void ActualizarVisualZona()
@@ -471,9 +602,11 @@ public class TensionSystem : MonoBehaviour
         estado = EstadoPesca.Listo;
         SetZonaActiva(false);
         botonLanzar.interactable = true;
-        botonLanzar.gameObject.SetActive(true);
-        textoBotonLanzar.text = "LANZAR / PESCAR";
-        subtituloBotonLanzar.text = "TOCA PARA LANZAR EL ANZUELO";
+        hudLanzamiento.SetActive(true);
+        textoBotonLanzar.text = "LANZAR";
+        subtituloBotonLanzar.text = "PESCA";
+        marcaBotonLanzar.text = "AMAZONAS";
+        ColocarMensajeListo();
         textoEstado.text = "Pulsa para lanzar el anzuelo.";
     }
 
@@ -488,5 +621,10 @@ public class TensionSystem : MonoBehaviour
     {
         if (interfazResultado != null)
             interfazResultado.alRecoger.RemoveListener(VolverAListo);
+
+        if (spriteBotonCircular != null)
+            Destroy(spriteBotonCircular);
+        if (texturaBotonCircular != null)
+            Destroy(texturaBotonCircular);
     }
 }

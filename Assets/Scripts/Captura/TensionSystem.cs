@@ -40,6 +40,7 @@ public class TensionSystem : MonoBehaviour
     private Text textoZona;
     private Button botonLanzar;
     private Text textoBotonLanzar;
+    private Text subtituloBotonLanzar;
     private Text textoEstado;
     private CapturaResultUI interfazResultado;
     private bool capturaTouch;
@@ -99,6 +100,7 @@ public class TensionSystem : MonoBehaviour
         SetZonaActiva(false);
         botonLanzar.interactable = false;
         textoBotonLanzar.text = "ESPERANDO...";
+        subtituloBotonLanzar.text = "EL ANZUELO YA ESTÁ EN EL AGUA";
         textoEstado.text = simularPiqueAutomatico
             ? "El anzuelo cayó al agua. Esperando un pique..."
             : "El anzuelo cayó al agua. Esperando la señal de pique...";
@@ -299,6 +301,19 @@ public class TensionSystem : MonoBehaviour
 
     private void CrearBotonLanzar(Transform padre)
     {
+        CrearBloqueDecorativo(
+            "Sombra del botón",
+            padre,
+            Hex("17251F"),
+            new Vector2(0.165f, 0.045f),
+            new Vector2(0.835f, 0.235f));
+        CrearBloqueDecorativo(
+            "Marco de madera y latón",
+            padre,
+            Hex("C79B52"),
+            new Vector2(0.17f, 0.055f),
+            new Vector2(0.83f, 0.235f));
+
         var botonObject = new GameObject(
             "Botón Lanzar Pescar",
             typeof(RectTransform),
@@ -308,36 +323,93 @@ public class TensionSystem : MonoBehaviour
         botonObject.transform.SetParent(padre, false);
 
         var rect = botonObject.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.2f, 0.76f);
-        rect.anchorMax = new Vector2(0.8f, 0.9f);
+        rect.anchorMin = new Vector2(0.185f, 0.07f);
+        rect.anchorMax = new Vector2(0.815f, 0.22f);
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
 
         var imagen = botonObject.GetComponent<Image>();
-        imagen.color = new Color(0.42f, 0.23f, 0.10f, 0.96f);
+        imagen.color = Hex("315441");
         var boton = botonObject.GetComponent<Button>();
         boton.targetGraphic = imagen;
+        var colores = boton.colors;
+        colores.normalColor = Hex("315441");
+        colores.highlightedColor = Hex("426C4C");
+        colores.pressedColor = Hex("243F35");
+        colores.selectedColor = Hex("426C4C");
+        colores.disabledColor = Hex("5A6257");
+        colores.colorMultiplier = 1f;
+        boton.colors = colores;
         boton.onClick.AddListener(IniciarLanzamiento);
         botonLanzar = boton;
 
-        textoBotonLanzar = CrearTexto("Texto del botón", botonObject.transform);
+        textoBotonLanzar = CrearTexto("Acción del botón", botonObject.transform);
         textoBotonLanzar.text = "LANZAR / PESCAR";
-        textoBotonLanzar.fontSize = 28;
-        textoBotonLanzar.resizeTextMinSize = 15;
-        textoBotonLanzar.resizeTextMaxSize = 28;
+        textoBotonLanzar.fontSize = 25;
+        textoBotonLanzar.resizeTextMinSize = 16;
+        textoBotonLanzar.resizeTextMaxSize = 25;
+        textoBotonLanzar.color = Hex("F4E9C8");
+        var accionRect = textoBotonLanzar.GetComponent<RectTransform>();
+        accionRect.anchorMin = new Vector2(0.08f, 0.39f);
+        accionRect.anchorMax = new Vector2(0.92f, 0.88f);
+
+        subtituloBotonLanzar = CrearTexto("Subtítulo de pesca", botonObject.transform);
+        subtituloBotonLanzar.text = "TOCA PARA LANZAR EL ANZUELO";
+        subtituloBotonLanzar.fontSize = 12;
+        subtituloBotonLanzar.resizeTextMinSize = 9;
+        subtituloBotonLanzar.resizeTextMaxSize = 12;
+        subtituloBotonLanzar.color = Hex("E1C17A");
+        var subtituloRect = subtituloBotonLanzar.GetComponent<RectTransform>();
+        subtituloRect.anchorMin = new Vector2(0.08f, 0.1f);
+        subtituloRect.anchorMax = new Vector2(0.92f, 0.4f);
+
+        CrearAcento("Ribete superior", botonObject.transform,
+            new Vector2(0.08f, 0.91f), new Vector2(0.92f, 0.935f));
+        CrearAcento("Detalle izquierdo", botonObject.transform,
+            new Vector2(0.035f, 0.24f), new Vector2(0.05f, 0.76f));
+        CrearAcento("Detalle derecho", botonObject.transform,
+            new Vector2(0.95f, 0.24f), new Vector2(0.965f, 0.76f));
     }
 
     private void CrearTextoEstado(Transform padre)
     {
         textoEstado = CrearTexto("Estado de pesca", padre);
         var rect = textoEstado.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.08f, 0.65f);
-        rect.anchorMax = new Vector2(0.92f, 0.74f);
+        rect.anchorMin = new Vector2(0.12f, 0.28f);
+        rect.anchorMax = new Vector2(0.88f, 0.38f);
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
         textoEstado.fontSize = 22;
         textoEstado.resizeTextMinSize = 12;
         textoEstado.resizeTextMaxSize = 22;
+    }
+
+    private static void CrearBloqueDecorativo(string nombre, Transform padre, Color color, Vector2 minimo, Vector2 maximo)
+    {
+        var bloque = new GameObject(nombre, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        bloque.transform.SetParent(padre, false);
+        var rect = bloque.GetComponent<RectTransform>();
+        rect.anchorMin = minimo;
+        rect.anchorMax = maximo;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        var imagen = bloque.GetComponent<Image>();
+        imagen.color = color;
+        imagen.raycastTarget = false;
+    }
+
+    private static void CrearAcento(string nombre, Transform padre, Vector2 minimo, Vector2 maximo)
+    {
+        var acento = new GameObject(nombre, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        acento.transform.SetParent(padre, false);
+        var rect = acento.GetComponent<RectTransform>();
+        rect.anchorMin = minimo;
+        rect.anchorMax = maximo;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        var imagen = acento.GetComponent<Image>();
+        imagen.color = Hex("D7AE62");
+        imagen.raycastTarget = false;
     }
 
     private static Text CrearTexto(string nombre, Transform padre)
@@ -358,6 +430,12 @@ public class TensionSystem : MonoBehaviour
         text.resizeTextForBestFit = true;
         text.raycastTarget = false;
         return text;
+    }
+
+    private static Color Hex(string valor)
+    {
+        ColorUtility.TryParseHtmlString("#" + valor, out Color color);
+        return color;
     }
 
     private void AsegurarEventSystem()
@@ -395,6 +473,7 @@ public class TensionSystem : MonoBehaviour
         botonLanzar.interactable = true;
         botonLanzar.gameObject.SetActive(true);
         textoBotonLanzar.text = "LANZAR / PESCAR";
+        subtituloBotonLanzar.text = "TOCA PARA LANZAR EL ANZUELO";
         textoEstado.text = "Pulsa para lanzar el anzuelo.";
     }
 

@@ -14,16 +14,15 @@ public sealed class CapturaResultado
     public float LongitudCm { get; }
     public int Oro { get; }
 
-    public CapturaResultado(PezData pez, int oro)
+    public CapturaResultado(PezData pez)
     {
         if (pez == null) throw new ArgumentNullException(nameof(pez));
         ValidarRango(pez.pesoMinimo, pez.pesoMaximo);
         ValidarRango(pez.longitudMinima, pez.longitudMaxima);
-        if (oro < 0) throw new ArgumentOutOfRangeException(nameof(oro));
         Pez = pez;
         PesoKg = UnityEngine.Random.Range(pez.pesoMinimo, pez.pesoMaximo);
         LongitudCm = UnityEngine.Random.Range(pez.longitudMinima, pez.longitudMaxima);
-        Oro = oro;
+        Oro = RecompensaCaptura.Calcular(pez, PesoKg, LongitudCm);
     }
 
     private static void ValidarRango(float min, float max)
@@ -79,12 +78,10 @@ public class CapturaResultUI : MonoBehaviour
     /// de zona segura que entrega RF4. Muestra el popup solo si la captura tuvo éxito.
     /// </summary>
     /// <param name="porcentajeControlado">Proporción en zona segura, entre 0 y 1.</param>
-    /// <param name="oro">Recompensa que se mostrará si la captura resulta exitosa.</param>
     public bool ResolverIntentoCaptura(
         PezData pez,
         CanaData cana,
         float porcentajeControlado,
-        int oro,
         out CapturaEvaluacion evaluacion)
     {
         evaluacion = CapturaCalculoRF5.Evaluar(pez, cana, porcentajeControlado);
@@ -96,7 +93,7 @@ public class CapturaResultUI : MonoBehaviour
             return false;
         }
 
-        Mostrar(new CapturaResultado(pez, oro));
+        Mostrar(new CapturaResultado(pez));
         return true;
     }
 
@@ -120,8 +117,7 @@ public class CapturaResultUI : MonoBehaviour
         var gestor = FisheryManager.Instance;
         if (gestor == null) return;
         var pez = gestor.GenerarPezAleatorio();
-        // Recompensa de prueba: la recompensa real la proporciona el sistema de pesca.
-        if (pez != null) Mostrar(new CapturaResultado(pez, 500));
+        if (pez != null) Mostrar(new CapturaResultado(pez));
     }
 
     private void Construir()

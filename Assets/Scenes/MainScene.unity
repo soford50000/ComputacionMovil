@@ -454,7 +454,6 @@ MonoBehaviour:
   demoraPique: {x: 2, y: 4}
   duracionForcejeo: 8
   canaEquipada: {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
-  oroRecompensaBase: 100
   alLanzar:
     m_PersistentCalls:
       m_Calls: []

@@ -26,7 +26,6 @@ public class TensionSystem : MonoBehaviour
     [SerializeField] private Vector2 demoraPique = new Vector2(2f, 4f);
     [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
     [SerializeField] private CanaData canaEquipada;
-    [SerializeField, Min(0)] private int oroRecompensaBase = 100;
     [SerializeField] private UnityEvent alLanzar = new UnityEvent();
     [SerializeField] private UnityEvent alPique = new UnityEvent();
 
@@ -258,7 +257,6 @@ public class TensionSystem : MonoBehaviour
             pezEnAnzuelo,
             cana,
             porcentajeControlado,
-            oroRecompensaBase,
             out _);
     }
 
@@ -270,7 +268,6 @@ public class TensionSystem : MonoBehaviour
                 pezEnAnzuelo,
                 cana,
                 porcentajeControlado,
-                oroRecompensaBase,
                 out _);
         }
         finally
@@ -303,7 +300,6 @@ public class TensionSystem : MonoBehaviour
         PezData pez,
         CanaData cana,
         float porcentajeControlado,
-        int oro,
         out CapturaEvaluacion evaluacion)
     {
         if (estado != EstadoPesca.EnForcejeo)
@@ -316,7 +312,6 @@ public class TensionSystem : MonoBehaviour
             pez,
             cana,
             porcentajeControlado,
-            oro,
             out evaluacion);
 
         if (capturada)

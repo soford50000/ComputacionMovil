@@ -375,6 +375,7 @@ GameObject:
   - component: {fileID: 710000005}
   - component: {fileID: 710000006}
   - component: {fileID: 710000007}
+  - component: {fileID: 710000008}
   m_Layer: 0
   m_Name: Pesca Amazonas
   m_TagString: Untagged
@@ -499,10 +500,28 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CanaSelectorUI
   canasDisponibles:
+  - {fileID: 11400000, guid: f578a7dd0b194f029e06f2f0d21e2b95, type: 2}
+  - {fileID: 11400000, guid: f97eaee1d99b49bf93782d4bb59c0e51, type: 2}
   - {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
-  - {fileID: 11400000, guid: c6a98b1fdf65438a938d4c51e9d2a760, type: 2}
-  - {fileID: 11400000, guid: f9a19807b9565be45bf82cb2a01adf34, type: 2}
+  - {fileID: 11400000, guid: eaf31c45b8454b9a9748d1cd0fa53d27, type: 2}
   canaInicial: {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
+--- !u!114 &710000008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d86cfaf18e3645cf8f77303bca162bde, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CanaVisual
+  basePantalla: {x: 0.74, y: -0.12}
+  puntaPantalla: {x: 0.5, y: 0.81}
+  grosor: 1
+  flexionMaxima: 0.32
+  suavizado: 0.22
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -31,6 +31,12 @@ public sealed class CanaSelectorUI : MonoBehaviour
             return;
         }
 
+        // La escena abierta puede conservar una lista anterior en memoria.
+        // El catálogo incluido en el juego es la fuente de las opciones actuales.
+        var catalogo = Resources.Load<CatalogoCanas>("CatalogoCanas");
+        if (catalogo != null)
+            canasDisponibles = catalogo.canas;
+
         CrearInterfaz();
         EquiparCanaInicial();
     }
@@ -82,7 +88,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         CrearTexto("Título", panel, "EQUIPO DE PESCA", 34, Crema,
             new Vector2(0.06f, 0.82f), new Vector2(0.78f, 0.96f));
         CrearTexto("Instrucción", panel,
-            "Elige una caña de ejemplo. La de bambú está equipada por defecto.",
+            "Elige una caña. Abu Garcia Vengeance está equipada por defecto.",
             17, Hex("DCC89B"), new Vector2(0.06f, 0.74f), new Vector2(0.94f, 0.83f));
 
         CrearBoton("Cerrar menú de cañas", panel, Hex("6B3B25"),
@@ -103,7 +109,8 @@ public sealed class CanaSelectorUI : MonoBehaviour
         fondosOpciones = new Image[cantidad];
         marcasOpciones = new Text[cantidad];
         float separacion = 0.025f;
-        float ancho = (0.88f - separacion * (cantidad - 1)) / cantidad;
+        int columnas = cantidad > 3 ? 2 : cantidad;
+        float ancho = (0.88f - separacion * (columnas - 1)) / columnas;
         for (int i = 0; i < cantidad; i++)
             CrearOpcionCana(panel, i, cantidad, ancho, separacion);
 
@@ -115,16 +122,20 @@ public sealed class CanaSelectorUI : MonoBehaviour
     private void CrearOpcionCana(Transform padre, int indice, int cantidad, float ancho, float separacion)
     {
         CanaData cana = canasDisponibles[indice];
-        float xMin = 0.06f + indice * (ancho + separacion);
+        int columnas = cantidad > 3 ? 2 : cantidad;
+        float xMin = 0.06f + (indice % columnas) * (ancho + separacion);
         float xMax = xMin + ancho;
+        int filas = Mathf.CeilToInt(cantidad / (float)columnas);
+        float alto = (0.54f - separacion * (filas - 1)) / filas;
+        float yMax = 0.70f - (indice / columnas) * (alto + separacion);
         Color colorFondo = Hex("3C2A1D");
         var boton = CrearBoton(
             "Opción " + (cana != null ? cana.nombreCana : "caña inválida"),
             padre,
             colorFondo,
-            new Vector2(xMin, 0.16f),
-            new Vector2(xMin, 0.16f),
-            new Vector2(xMax, 0.70f),
+            new Vector2(xMin, yMax - alto),
+            new Vector2(xMin, yMax - alto),
+            new Vector2(xMax, yMax),
             Vector2.zero,
             Vector2.zero,
             () => SeleccionarCana(cana));
@@ -138,10 +149,14 @@ public sealed class CanaSelectorUI : MonoBehaviour
         int precio = cana != null ? cana.precio : 0;
         CrearTexto("Nombre", boton.transform, nombre, 21, Crema,
             new Vector2(0.28f, 0.69f), new Vector2(0.96f, 0.91f));
+        bool pendientes = cana != null && cana.estadisticasPendientes;
         CrearTexto("Estadísticas", boton.transform,
-            $"PODER {poder:0.#}  ·  TOLERANCIA +{tolerancia:0.#}",
+            pendientes ? "ESTADÍSTICAS POR DEFINIR" : $"PODER {poder:0.#}  ·  TOLERANCIA +{tolerancia:0.#}",
             14, Hex("E1C17A"), new Vector2(0.28f, 0.46f), new Vector2(0.96f, 0.69f));
-        CrearTexto("Precio", boton.transform, precio == 0 ? "GRATIS" : $"{precio} ORO",
+        string detalle = cana != null && cana.modeloVisual == ModeloCana.ShimanoFx ? "LA MÁS BÁSICA" : pendientes && cana.puestoPotenciaPrevisto > 0
+            ? (cana.puestoPotenciaPrevisto == 1 ? "LA MÁS POTENTE" : $"{cana.puestoPotenciaPrevisto}.ª MÁS POTENTE")
+            : (precio == 0 ? "GRATIS" : $"{precio} ORO");
+        CrearTexto("Precio o posición prevista", boton.transform, detalle,
             17, Hex("F2B632"), new Vector2(0.28f, 0.30f), new Vector2(0.96f, 0.46f));
         marcasOpciones[indice] = CrearTexto("Estado de caña", boton.transform, "",
             13, Crema, new Vector2(0.28f, 0.08f), new Vector2(0.96f, 0.27f));
@@ -160,6 +175,21 @@ public sealed class CanaSelectorUI : MonoBehaviour
             icono.color = Color.white;
             icono.preserveAspect = true;
             icono.raycastTarget = false;
+            return;
+        }
+
+        if (cana != null && cana.puestoPotenciaPrevisto > 0)
+        {
+            var modelo = new GameObject("Modelo de " + cana.nombreCana,
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(CanaGrafico));
+            modelo.transform.SetParent(zona, false);
+            var grafico = modelo.GetComponent<CanaGrafico>();
+            grafico.rectTransform.anchorMin = Vector2.zero;
+            grafico.rectTransform.anchorMax = Vector2.one;
+            grafico.rectTransform.offsetMin = grafico.rectTransform.offsetMax = Vector2.zero;
+            grafico.raycastTarget = false;
+            grafico.EstablecerModelo(cana.modeloVisual);
+            grafico.Configurar(new Vector2(0.62f, 0.02f), new Vector2(0.38f, 0.98f), 4f, 0.32f, 0f);
             return;
         }
 

@@ -1,5 +1,13 @@
 ﻿using UnityEngine;
 
+public enum ModeloCana
+{
+    AbuGarciaVengeance = 0,
+    ShimanoColtSniperLimited100H = 1,
+    ShimanoFx = 2,
+    DaiwaDSK25BF662M = 3
+}
+
 [CreateAssetMenu(fileName = "NuevaCana", menuName = "Pesca/Cana")]
 public class CanaData : ScriptableObject
 {
@@ -7,6 +15,10 @@ public class CanaData : ScriptableObject
     public string nombreCana;
     public Sprite iconoCana; // Imagen visual para la tienda o inventario
     public int precio;
+    public ModeloCana modeloVisual;
+    [Tooltip("Posición prevista, sin efecto en captura. 1 = más potente; 0 = sin definir.")]
+    public int puestoPotenciaPrevisto;
+    public bool estadisticasPendientes;
 
     [Header("Estadísticas (RF7)")]
     [Tooltip("Poder de la caña. Cuanto mayor sea, más contrarrestará la fuerza de los peces difíciles.")]

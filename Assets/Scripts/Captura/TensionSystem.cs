@@ -58,6 +58,8 @@ public class TensionSystem : MonoBehaviour
 
     /// <summary>True mientras el jugador mantiene pulsada la zona inferior.</summary>
     public bool EstaPresionado => estaPresionado;
+    /// <summary>Estado de pique para la presentación; no modifica el cálculo de captura.</summary>
+    public bool EnForcejeo => estado == EstadoPesca.EnForcejeo && zonaActiva;
     public bool PuedeCambiarCana => estado == EstadoPesca.Listo;
     public CanaData CanaEquipada => canaEquipada;
 

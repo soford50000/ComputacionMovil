@@ -39,8 +39,9 @@ public class FisheryManager : MonoBehaviour
     /// RF2 y RF11: Selecciona un pez aleatoriamente según su rareza y modificadores de cebo.
     /// </summary>
     /// <param name="pezEspecialCebo">Opcional: un pez específico al que el cebo actual le da bonificación (RF11)</param>
-    /// <param name="multiplicadorCebo">Multiplicador de probabilidad para el pez del cebo (ej. 3.0 para triplicar su chance)</param>
-    public PezData GenerarPezAleatorio(PezData pezEspecialCebo = null, float multiplicadorCebo = 1f)
+    /// <param name="multiplicadorCebo">Multiplicador del peso de sorteo del pez; el porcentaje final se normaliza.</param>
+    /// <param name="cebo">Carnada para múltiples especies. Tiene prioridad sobre los parámetros anteriores.</param>
+    public PezData GenerarPezAleatorio(PezData pezEspecialCebo = null, float multiplicadorCebo = 1f, CeboData cebo = null)
     {
         if (zonaAmazonas == null || zonaAmazonas.especiesDeEstaZona == null || zonaAmazonas.especiesDeEstaZona.Length == 0)
         {
@@ -58,7 +59,11 @@ public class FisheryManager : MonoBehaviour
             float pesoRarezaBase = Mathf.Max(0f, ObtenerPesoBasePorRareza(pez.rareza));
 
             // Aplicar la lógica del cebo (RF11): si coincide con el cebo, aumentamos su probabilidad
-            if (pez == pezEspecialCebo)
+            if (cebo != null)
+            {
+                pesoRarezaBase *= cebo.MultiplicadorPara(pez);
+            }
+            else if (pez == pezEspecialCebo)
             {
                 pesoRarezaBase *= Mathf.Max(1f, multiplicadorCebo);
             }

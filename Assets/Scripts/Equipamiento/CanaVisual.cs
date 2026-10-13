@@ -19,6 +19,7 @@ public sealed class CanaVisual : MonoBehaviour
     private TensionSystem pesca;
     private GameObject lienzo;
     private CanaGrafico grafico;
+    private BarraTensionGrafico barraTension;
     private float tension, velocidad, tiempoTiron, tensionExterna;
     private bool usarTensionExterna, estabaTirando;
     private float vibracion, poseCombate;
@@ -45,6 +46,14 @@ public sealed class CanaVisual : MonoBehaviour
         grafico.rectTransform.anchorMax = Vector2.one;
         grafico.rectTransform.offsetMin = grafico.rectTransform.offsetMax = Vector2.zero;
         grafico.raycastTarget = false;
+        var barra = new GameObject("Barra de tensión · zona estable central", typeof(RectTransform),
+            typeof(CanvasRenderer), typeof(BarraTensionGrafico));
+        barra.transform.SetParent(lienzo.transform, false);
+        barraTension = barra.GetComponent<BarraTensionGrafico>();
+        barraTension.raycastTarget = false;
+        barraTension.rectTransform.anchorMin = barraTension.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        barraTension.rectTransform.pivot = new Vector2(0.5f, 0f);
+        barra.SetActive(false);
         ActualizarModelo();
     }
 
@@ -93,6 +102,28 @@ public sealed class CanaVisual : MonoBehaviour
         // Solo cambia de pose al entrar o salir del combate. Los tirones no la mueven.
         poseCombate = Mathf.MoveTowards(poseCombate, tirando ? 0.8f : 0f, Time.deltaTime * 2f);
         ActualizarModelo();
+        ActualizarBarraTension(tirando);
+    }
+
+    private void ActualizarBarraTension(bool visible)
+    {
+        Rect r = grafico.rectTransform.rect;
+        float escala = Mathf.Min(r.width / 1280f, r.height / 720f);
+        // Se mide toda la curva: durante el combate la punta cae y deja de ser
+        // el punto más alto. El margen también protege las anillas y el borde.
+        float alturaCana = r.yMin;
+        for (int i = 0; i <= 96; i++)
+            alturaCana = Mathf.Max(alturaCana, grafico.Punto(i / 96f).y);
+        float baseBarra = alturaCana + 26f * escala;
+        float techo = r.yMin + r.height * 0.83f; // Reserva el mensaje de pique.
+        float ajuste = Mathf.Min(escala, (techo - baseBarra) / 132f);
+        // Espera a que la pose de combate deje espacio suficiente para el arco.
+        visible &= ajuste >= escala * 0.45f && escala > 0f;
+        barraTension.gameObject.SetActive(visible);
+        if (!visible) return;
+        barraTension.rectTransform.sizeDelta = new Vector2(420f, 132f) * ajuste;
+        barraTension.rectTransform.anchoredPosition = new Vector2(0f, baseBarra);
+        barraTension.EstablecerValor(tension);
     }
 
     private void ActualizarModelo()

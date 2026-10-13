@@ -26,6 +26,7 @@ public class TensionSystem : MonoBehaviour
     [SerializeField] private Vector2 demoraPique = new Vector2(2f, 4f);
     [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
     [SerializeField] private CanaData canaEquipada;
+    [SerializeField] private CeboData ceboEquipado;
     [SerializeField] private UnityEvent alLanzar = new UnityEvent();
     [SerializeField] private UnityEvent alPique = new UnityEvent();
 
@@ -62,6 +63,18 @@ public class TensionSystem : MonoBehaviour
     public bool EnForcejeo => estado == EstadoPesca.EnForcejeo && zonaActiva;
     public bool PuedeCambiarCana => estado == EstadoPesca.Listo;
     public CanaData CanaEquipada => canaEquipada;
+    public CeboData CeboEquipado => ceboEquipado;
+    public bool PuedeCambiarCebo => estado == EstadoPesca.Listo;
+    public event Action CeboCambiado;
+    private CeboSelectorUI selectorCebos;
+
+    public bool EquiparCebo(CeboData cebo)
+    {
+        if (!PuedeCambiarCebo) return false;
+        ceboEquipado = cebo; // null permite volver a las probabilidades base.
+        CeboCambiado?.Invoke();
+        return true;
+    }
 
     /// <summary>Actualiza la caña usada por la evaluación de captura RF5.</summary>
     public bool EquiparCana(CanaData cana)
@@ -92,6 +105,8 @@ public class TensionSystem : MonoBehaviour
         CrearInterfazPesca();
         SetZonaActiva(false);
         VolverAListo();
+        selectorCebos = GetComponent<CeboSelectorUI>();
+        if (selectorCebos == null) selectorCebos = gameObject.AddComponent<CeboSelectorUI>();
     }
 
     private void Update()
@@ -166,7 +181,7 @@ public class TensionSystem : MonoBehaviour
     /// <summary>Callback del botón táctil «Lanzar / Pescar».</summary>
     public void IniciarLanzamiento()
     {
-        if (estado != EstadoPesca.Listo)
+        if (estado != EstadoPesca.Listo || (selectorCebos != null && selectorCebos.EstaAbierto))
             return;
 
         var gestorPeces = FisheryManager.Instance;
@@ -177,7 +192,7 @@ public class TensionSystem : MonoBehaviour
             return;
         }
 
-        pezEnAnzuelo = gestorPeces.GenerarPezAleatorio();
+        pezEnAnzuelo = gestorPeces.GenerarPezAleatorio(cebo: ceboEquipado);
         if (pezEnAnzuelo == null)
         {
             textoEstado.text = "No se pudo iniciar: revisa los peces de Amazonas.";

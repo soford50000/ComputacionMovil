@@ -163,13 +163,16 @@ public static class ValidarCanaVisual
                 Exigir(cargaMaxima - cargaMinima > 0.002f, "No hay variaciones de carga en el combate.");
                 Exigir(recorridoPunta > 0.01f, "La punta no presenta microsacudidas.");
                 Capturar("combate");
+                Capturar("combate-4-3", 1024, 768);
+                Capturar("combate-panoramico", 1920, 1080);
+                Capturar("combate-vertical", 720, 1280);
                 pesca.SetZonaActiva(false);
             }
             else
             {
                 Exigir(Mathf.Abs(visual.TensionVisual) < 0.02f, "No volvió al reposo al terminar.");
                 Capturar("recuperada");
-                Debug.Log("CANA QA OK: selección de las cuatro cañas, incluida Daiwa; físicas compartidas, pose estable, microsacudidas y recuperación. Capturas en Logs/CanaQA.");
+                Debug.Log("CANA QA OK: cuatro cañas, físicas compartidas, pose estable, microsacudidas y recuperación; barra visible en combate, sin cubrir la caña ni bloquear controles en cuatro resoluciones. Capturas en Logs/CanaQA.");
                 Terminar(0);
                 return;
             }
@@ -208,11 +211,11 @@ public static class ValidarCanaVisual
         modelo.Configurar(new Vector2(0.74f, -0.12f), new Vector2(0.5f, 0.81f), 1f, 0.32f, 0f);
     }
 
-    private static void Capturar(string nombre)
+    private static void Capturar(string nombre, int ancho = 1280, int alto = 720)
     {
         Camera camara = Camera.main;
         Exigir(camara != null, "Falta cámara principal.");
-        var rt = new RenderTexture(1280, 720, 24);
+        var rt = new RenderTexture(ancho, alto, 24);
         RenderTexture anterior = RenderTexture.active;
         RenderTexture destinoAnterior = camara.targetTexture;
         var canvases = UnityEngine.Object.FindObjectsByType<Canvas>();
@@ -233,8 +236,28 @@ public static class ValidarCanaVisual
                 canvases[i].planeDistance = 10;
             }
             Canvas.ForceUpdateCanvases();
+            // Recalcula el arco después de aplicar la resolución de esta captura.
+            var visual = UnityEngine.Object.FindAnyObjectByType<CanaVisual>();
+            visual.SendMessage("ActualizarBarraTension", visual.GetComponent<TensionSystem>().EnForcejeo);
+            Canvas.ForceUpdateCanvases();
             var grafico = UnityEngine.Object.FindAnyObjectByType<CanaGrafico>();
             Exigir(!grafico.raycastTarget, "La caña bloquea los controles.");
+            var barra = visual.GetComponentInChildren<BarraTensionGrafico>(true);
+            Exigir(barra != null && !barra.raycastTarget, "Falta la barra o bloquea los controles.");
+            if (nombre.StartsWith("combate") || nombre == "tension")
+            {
+                Exigir(barra.gameObject.activeInHierarchy, "La barra no aparece durante el forcejeo.");
+                var esquinas = new Vector3[4];
+                barra.rectTransform.GetWorldCorners(esquinas);
+                float baseBarra = grafico.rectTransform.InverseTransformPoint(esquinas[0]).y;
+                for (int i = 0; i <= 96; i++)
+                    Exigir(grafico.Punto(i / 96f).y < baseBarra, "La barra cubre la caña.");
+                Rect pantalla = grafico.rectTransform.rect;
+                foreach (Vector3 esquina in esquinas)
+                    Exigir(pantalla.Contains(grafico.rectTransform.InverseTransformPoint(esquina)), "La barra sale de la pantalla.");
+            }
+            if (nombre == "reposo" || nombre == "recuperada")
+                Exigir(!barra.gameObject.activeInHierarchy, "La barra permanece visible fuera del forcejeo.");
             if (nombre == "tension")
             {
                 Rect r = grafico.rectTransform.rect;

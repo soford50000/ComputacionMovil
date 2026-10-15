@@ -376,6 +376,8 @@ GameObject:
   - component: {fileID: 710000006}
   - component: {fileID: 710000007}
   - component: {fileID: 710000008}
+  - component: {fileID: 710000009}
+  - component: {fileID: 710000010}
   m_Layer: 0
   m_Name: Pesca Amazonas
   m_TagString: Untagged
@@ -454,7 +456,11 @@ MonoBehaviour:
   simularPiqueAutomatico: 1
   demoraPique: {x: 2, y: 4}
   duracionForcejeo: 8
-  canaEquipada: {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
+  velocidadSubidaTension: 0.38
+  velocidadBajadaTension: 0.34
+  intervaloTirones: {x: 1.4, y: 2.6}
+  tiempoMaximoEnRojo: 1.1
+  canaEquipada: {fileID: 11400000, guid: f578a7dd0b194f029e06f2f0d21e2b95, type: 2}
   alLanzar:
     m_PersistentCalls:
       m_Calls: []
@@ -504,7 +510,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f97eaee1d99b49bf93782d4bb59c0e51, type: 2}
   - {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
   - {fileID: 11400000, guid: eaf31c45b8454b9a9748d1cd0fa53d27, type: 2}
-  canaInicial: {fileID: 11400000, guid: a2a4977bb10b8a746a4609246a8751aa, type: 2}
+  canaInicial: {fileID: 11400000, guid: f578a7dd0b194f029e06f2f0d21e2b95, type: 2}
 --- !u!114 &710000008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,6 +528,31 @@ MonoBehaviour:
   grosor: 1
   flexionMaxima: 0.32
   suavizado: 0.22
+--- !u!114 &710000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b61a901b2e54400ba3da542587d8b8c4, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::EconomiaManager
+  saldoInicial: 0
+--- !u!114 &710000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d419c84f65431394a96bc8b44003548b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CatalogoManager
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

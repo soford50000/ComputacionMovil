@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Camarón de río"
   icono: {fileID: 21300000, guid: 7e4c3db16e574450bb06205adbefc01f, type: 3}
   descripcion: "Carnada de crustáceo para la raya motoro y el óscar."
+  precio: 80
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000021, type: 2}

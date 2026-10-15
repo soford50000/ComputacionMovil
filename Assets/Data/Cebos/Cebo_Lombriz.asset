@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Lombriz"
   icono: {fileID: 21300000, guid: 9420b89e34ef4cbabd98642b9a4b7487, type: 3}
   descripcion: "Cebo natural sencillo para atraer al óscar."
+  precio: 35
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000015, type: 2}

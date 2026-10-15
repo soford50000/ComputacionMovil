@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Pez de carnada entero"
   icono: {fileID: 21300000, guid: 25be68bbae84451aa65d6b3ec7ba77a3, type: 3}
   descripcion: "Presa entera para los grandes depredadores del río."
+  precio: 160
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000014, type: 2}

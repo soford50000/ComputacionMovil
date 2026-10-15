@@ -25,6 +25,11 @@ public class TensionSystem : MonoBehaviour
     [SerializeField] private bool simularPiqueAutomatico = true;
     [SerializeField] private Vector2 demoraPique = new Vector2(2f, 4f);
     [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
+    [Header("RF4: tensión vinculada al toque")]
+    [SerializeField, Min(0.05f)] private float velocidadSubidaTension = 0.38f;
+    [SerializeField, Min(0.05f)] private float velocidadBajadaTension = 0.34f;
+    [SerializeField] private Vector2 intervaloTirones = new Vector2(1.4f, 2.6f);
+    [SerializeField, Min(0.1f)] private float tiempoMaximoEnRojo = 1.1f;
     [SerializeField] private CanaData canaEquipada;
     [SerializeField] private CeboData ceboEquipado;
     [SerializeField] private UnityEvent alLanzar = new UnityEvent();
@@ -50,12 +55,22 @@ public class TensionSystem : MonoBehaviour
     private Sprite spriteBotonCircular;
     private Texture2D texturaBotonCircular;
     private CapturaResultUI interfazResultado;
+    private CanaVisual visualCana;
     private PezData pezEnAnzuelo;
     private float tiempoForcejeo;
     private float tiempoEnZonaSegura;
+    private float tensionActual = 0.5f;
+    private float tiempoEnRojo;
+    private float tiempoHastaTiron;
+    private float tiempoDesdeTiron = 10f;
+    private float tironPendiente;
+    private float velocidadTironPendiente;
+    private const float DuracionVisualTiron = 0.32f;
     private bool capturaTouch;
     private bool capturaMouse;
     private bool estaPresionado;
+    private const float TensionSeguraMinima = 0.17f;
+    private const float TensionSeguraMaxima = 0.83f;
 
     /// <summary>True mientras el jugador mantiene pulsada la zona inferior.</summary>
     public bool EstaPresionado => estaPresionado;
@@ -98,6 +113,7 @@ public class TensionSystem : MonoBehaviour
     private void Awake()
     {
         interfazResultado = GetComponent<CapturaResultUI>();
+        visualCana = GetComponent<CanaVisual>();
         if (interfazResultado != null)
             interfazResultado.alRecoger.AddListener(VolverAListo);
 
@@ -231,6 +247,14 @@ public class TensionSystem : MonoBehaviour
         estado = EstadoPesca.EnForcejeo;
         tiempoForcejeo = 0f;
         tiempoEnZonaSegura = 0f;
+        tensionActual = 0.5f;
+        tiempoEnRojo = 0f;
+        tironPendiente = 0f;
+        velocidadTironPendiente = 0f;
+        tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
+        tiempoDesdeTiron = 10f;
+        if (visualCana != null)
+            visualCana.EstablecerTension(tensionActual);
         SetZonaActiva(true);
         hudLanzamiento.SetActive(false);
         ColocarMensajeDePique();
@@ -240,19 +264,67 @@ public class TensionSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// RF5 consume el porcentaje de control simulado por RF4. Por ahora se mide
-    /// como la fracción del forcejeo durante la que el jugador mantiene pulsada
-    /// la zona inferior; RF4 podrá sustituir esta medida por su barra de tensión.
+    /// RF4: mantener pulsada la zona sube la tensión y soltarla la baja. Los
+    /// tirones del pez también mueven el indicador del arco que dibuja CanaVisual.
+    /// RF5 usa el tiempo que el indicador permanece en verde o amarillo.
     /// </summary>
     private void ActualizarForcejeo()
     {
         float delta = Time.deltaTime;
         tiempoForcejeo += delta;
-        if (estaPresionado)
+        tiempoDesdeTiron += delta;
+
+        float fuerzaEfectiva = ObtenerFuerzaEfectiva();
+        float poderCana = canaEquipada != null ? Mathf.Clamp(canaEquipada.poderCana, 1f, 10f) : 1f;
+        float factorPez = 0.75f + Mathf.Clamp01(fuerzaEfectiva / 10f) * 0.45f;
+        float factorCana = 1f / (1f + Mathf.Max(0f, poderCana - 1f) * 0.055f);
+        float cambioManual = estaPresionado ? velocidadSubidaTension : -velocidadBajadaTension;
+        tensionActual += cambioManual * factorPez * factorCana * delta;
+
+        // Distribuye el impulso del tirón en varios fotogramas para evitar un
+        // salto visual del marcador, manteniendo la misma fuerza total.
+        if (tironPendiente > 0f)
+        {
+            float aplicado = Mathf.Min(tironPendiente, velocidadTironPendiente * delta);
+            tensionActual += aplicado;
+            tironPendiente -= aplicado;
+            if (tironPendiente <= 0.0001f)
+            {
+                tironPendiente = 0f;
+                velocidadTironPendiente = 0f;
+            }
+        }
+
+        tiempoHastaTiron -= delta;
+        if (tiempoHastaTiron <= 0f)
+        {
+            float intensidadTiron = Mathf.Lerp(0.07f, 0.19f, Mathf.Clamp01(fuerzaEfectiva / 10f));
+            tironPendiente = UnityEngine.Random.Range(intensidadTiron * 0.65f, intensidadTiron) * factorCana;
+            velocidadTironPendiente = tironPendiente / DuracionVisualTiron;
+            tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
+            tiempoDesdeTiron = 0f;
+        }
+
+        tensionActual = Mathf.Clamp01(tensionActual);
+        if (visualCana != null)
+            visualCana.EstablecerTension(tensionActual);
+
+        bool enZonaSegura = tensionActual >= TensionSeguraMinima && tensionActual <= TensionSeguraMaxima;
+        if (enZonaSegura)
             tiempoEnZonaSegura += delta;
+        tiempoEnRojo = enZonaSegura ? 0f : tiempoEnRojo + delta;
 
         float restante = Mathf.Max(0f, duracionForcejeo - tiempoForcejeo);
         textoEstado.text = $"¡PICÓ! {pezEnAnzuelo.nombreEspecie} — {Mathf.CeilToInt(restante)} s";
+        ActualizarTextoTension();
+
+        if (tiempoEnRojo >= tiempoMaximoEnRojo)
+        {
+            ResolverIntentoConControl(0f);
+            if (estado == EstadoPesca.Listo)
+                textoEstado.text = "La línea se rompió. Pulsa para volver a pescar.";
+            return;
+        }
 
         if (tiempoForcejeo < duracionForcejeo)
             return;
@@ -260,32 +332,38 @@ public class TensionSystem : MonoBehaviour
         float porcentajeControlado = tiempoForcejeo > 0f
             ? tiempoEnZonaSegura / tiempoForcejeo
             : 0f;
+        ResolverIntentoConControl(porcentajeControlado);
+    }
+
+    private float ObtenerFuerzaEfectiva()
+    {
+        float fuerza = pezEnAnzuelo != null ? Mathf.Clamp(pezEnAnzuelo.fuerzaPez, 1f, 10f) : 1f;
+        float poder = canaEquipada != null ? Mathf.Clamp(canaEquipada.poderCana, 1f, 10f) : 1f;
+        return Mathf.Max(1f, fuerza - (poder - 1f) * 0.65f);
+    }
+
+    private float ObtenerIntervaloTironAleatorio()
+    {
+        float minimo = Mathf.Max(0.25f, Mathf.Min(intervaloTirones.x, intervaloTirones.y));
+        float maximo = Mathf.Max(minimo, Mathf.Max(intervaloTirones.x, intervaloTirones.y));
+        return UnityEngine.Random.Range(minimo, maximo);
+    }
+
+    private void ResolverIntentoConControl(float porcentajeControlado)
+    {
         CanaData cana = canaEquipada;
-        if (cana == null)
+        if (cana != null)
         {
-            Debug.LogWarning("No hay caña asignada; se usará una caña básica para resolver RF5.", this);
-            cana = ScriptableObject.CreateInstance<CanaData>();
-            cana.nombreCana = "Caña básica";
-            ResolverIntentoCapturaConCanaTemporal(cana, porcentajeControlado);
+            ResolverIntentoCaptura(pezEnAnzuelo, cana, porcentajeControlado, out _);
             return;
         }
 
-        ResolverIntentoCaptura(
-            pezEnAnzuelo,
-            cana,
-            porcentajeControlado,
-            out _);
-    }
-
-    private void ResolverIntentoCapturaConCanaTemporal(CanaData cana, float porcentajeControlado)
-    {
+        Debug.LogWarning("No hay caña asignada; se usará una caña básica para resolver RF5.", this);
+        cana = ScriptableObject.CreateInstance<CanaData>();
+        cana.nombreCana = "Caña básica";
         try
         {
-            ResolverIntentoCaptura(
-                pezEnAnzuelo,
-                cana,
-                porcentajeControlado,
-                out _);
+            ResolverIntentoCaptura(pezEnAnzuelo, cana, porcentajeControlado, out _);
         }
         finally
         {
@@ -697,9 +775,28 @@ public class TensionSystem : MonoBehaviour
         fondoZona.color = estaPresionado
             ? new Color(0.10f, 0.48f, 0.32f, Mathf.Min(0.55f, opacidadZona + 0.18f))
             : new Color(0.02f, 0.08f, 0.08f, opacidadZona);
-        textoZona.text = estaPresionado
-            ? "TENSANDO...\nSUELTA PARA LIBERAR"
-            : "MANTÉN PRESIONADO PARA TENSAR";
+        ActualizarTextoTension();
+    }
+
+    private void ActualizarTextoTension()
+    {
+        if (textoZona == null || !zonaActiva)
+            return;
+
+        int porcentaje = Mathf.RoundToInt(tensionActual * 100f);
+        string instruccion;
+        if (tiempoDesdeTiron < 0.65f)
+            instruccion = "¡TIRÓN! AJUSTA LA TENSIÓN";
+        else if (tensionActual > TensionSeguraMaxima)
+            instruccion = "TENSIÓN ALTA · SUELTA PARA BAJAR";
+        else if (tensionActual < TensionSeguraMinima)
+            instruccion = "LÍNEA FLOJA · MANTÉN PARA SUBIR";
+        else if (estaPresionado)
+            instruccion = "TENSANDO · SUELTA PARA BAJAR";
+        else
+            instruccion = "MANTÉN PARA SUBIR · SUELTA PARA BAJAR";
+
+        textoZona.text = $"TENSIÓN {porcentaje}%\n{instruccion}";
     }
 
     private void VolverAListo()

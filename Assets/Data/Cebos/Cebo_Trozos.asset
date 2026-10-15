@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Trozos de pescado"
   icono: {fileID: 21300000, guid: 0b1c7a00511f4be8a4a63a36d6170fe6, type: 3}
   descripcion: "Pescado fresco para favorecer pirañas y tiburones toro."
+  precio: 70
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: b436a3ed6fd665f4aba18e5327a82a1b, type: 2}

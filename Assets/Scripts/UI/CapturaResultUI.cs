@@ -93,6 +93,11 @@ public class CapturaResultUI : MonoBehaviour
             return false;
         }
 
+        if (CatalogoManager.Instance == null)
+            Debug.LogError("Falta CatalogoManager: no se pudo registrar la especie capturada.", this);
+        else
+            CatalogoManager.Instance.RegistrarCaptura(pez);
+
         Mostrar(new CapturaResultado(pez));
         return true;
     }
@@ -101,6 +106,10 @@ public class CapturaResultUI : MonoBehaviour
     {
         if (ResultadoActual == null) return;
         var resultado = ResultadoActual;
+        if (EconomiaManager.Instance != null)
+            EconomiaManager.Instance.AgregarOro(resultado.Oro);
+        else
+            Debug.LogError("Falta EconomiaManager: no se pudo acreditar la recompensa de la captura.", this);
         ultimoRecogido = resultado;
         ResultadoActual = null;
         ventana.SetActive(false);

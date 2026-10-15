@@ -5,6 +5,7 @@ using UnityEngine.UI;
 /// <summary>Selector de una sola carnada, disponible antes de lanzar.</summary>
 public sealed class CeboSelectorUI : MonoBehaviour
 {
+    private const string ClaveCompra = "RoadToAmazonas.CebosComprados.v1.";
     private TensionSystem pesca;
     private CeboData[] cebos;
     private CeboData seleccionado;
@@ -91,7 +92,9 @@ public sealed class CeboSelectorUI : MonoBehaviour
                 imagen.color = Color.white;
             }
             else Texto(imagen.transform, "Imagen provisional", "CEBO", 15, 0, 0, 1, 1);
-            Texto(boton.transform, "Nombre", cebo != null ? cebo.nombre : "Sin datos", 19, .38f, .08f, .97f, .92f);
+            string precio = cebo == null ? "Sin datos" : EstaComprado(cebo) ? "COMPRADO" : $"{cebo.precio:N0} ORO";
+            Texto(boton.transform, "Nombre", cebo != null ? cebo.nombre + "\n" + precio : "Sin datos",
+                17, .38f, .08f, .97f, .92f);
         }
         Boton(panel, "Sin carnada", "SIN CARNADA", .025f, .025f, .315f, .1f, () => Mostrar(null));
 
@@ -124,8 +127,13 @@ public sealed class CeboSelectorUI : MonoBehaviour
                 if (pez != null) lista.AppendLine("• " + pez.nombreEspecie.Split('(')[0].Trim());
         }
         afinidades.text = lista.ToString();
-        aviso.text = cebo != null ? $"Atracción ×{cebo.multiplicadorAparicion:0.#}. No modifica los kilos del pez." : "Sin bonificación de aparición.";
-        textoEquipar.text = cebo == pesca.CeboEquipado ? "EQUIPADA" : cebo != null ? "EQUIPAR" : "QUITAR CARNADA";
+        aviso.text = cebo != null
+            ? $"Precio: {cebo.precio:N0} oro · Atracción ×{cebo.multiplicadorAparicion:0.#}."
+            : "Sin bonificación de aparición.";
+        bool comprado = cebo == null || EstaComprado(cebo);
+        textoEquipar.text = cebo == pesca.CeboEquipado ? "EQUIPADA"
+            : cebo == null ? "QUITAR CARNADA"
+            : comprado ? "EQUIPAR" : $"COMPRAR · {cebo.precio:N0} ORO";
         equipar.interactable = cebo != pesca.CeboEquipado;
         for (int i = 0; i < tarjetas.Length; i++)
             tarjetas[i].color = cebos[i] == cebo ? new Color32(98, 115, 62, 255) : Verde;
@@ -133,9 +141,40 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
     private void Equipar()
     {
-        if (!pesca.EquiparCebo(seleccionado)) { aviso.text = "Termina el intento antes de cambiar de carnada."; return; }
+        if (!pesca.PuedeCambiarCebo) { aviso.text = "Termina el intento antes de cambiar de carnada."; return; }
+
+        if (seleccionado != null && !EstaComprado(seleccionado))
+        {
+            if (EconomiaManager.Instance == null)
+            {
+                aviso.text = "No se encontró el saldo del jugador.";
+                return;
+            }
+            if (!EconomiaManager.Instance.IntentarGastarOro(seleccionado.precio))
+            {
+                aviso.text = $"Saldo insuficiente. Necesitas {seleccionado.precio:N0} monedas.";
+                return;
+            }
+            MarcarComoComprado(seleccionado);
+        }
+
+        if (!pesca.EquiparCebo(seleccionado)) { aviso.text = "No se pudo equipar esta carnada."; return; }
         ActualizarResumen();
         Cerrar();
+    }
+
+    private static string ClaveDe(CeboData cebo) => ClaveCompra + cebo.name;
+
+    private static bool EstaComprado(CeboData cebo)
+    {
+        return cebo != null && PlayerPrefs.GetInt(ClaveDe(cebo), cebo.precio <= 0 ? 1 : 0) == 1;
+    }
+
+    private static void MarcarComoComprado(CeboData cebo)
+    {
+        if (cebo == null) return;
+        PlayerPrefs.SetInt(ClaveDe(cebo), 1);
+        PlayerPrefs.Save();
     }
 
     private void ActualizarResumen()

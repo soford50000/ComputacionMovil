@@ -17,6 +17,6 @@ MonoBehaviour:
   puestoPotenciaPrevisto: 2
   estadisticasPendientes: 1
   iconoCana: {fileID: 0}
-  precio: 0
+  precio: 350
   poderCana: 1
   bonificacionTolerancia: 0

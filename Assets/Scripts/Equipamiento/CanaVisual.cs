@@ -123,7 +123,9 @@ public sealed class CanaVisual : MonoBehaviour
         if (!visible) return;
         barraTension.rectTransform.sizeDelta = new Vector2(420f, 132f) * ajuste;
         barraTension.rectTransform.anchoredPosition = new Vector2(0f, baseBarra);
-        barraTension.EstablecerValor(tension);
+        // El marcador sigue el valor real que controla RF4; la caña conserva
+        // su flexión suavizada para que el movimiento visual no sea brusco.
+        barraTension.EstablecerValor(usarTensionExterna ? tensionExterna : tension);
     }
 
     private void ActualizarModelo()

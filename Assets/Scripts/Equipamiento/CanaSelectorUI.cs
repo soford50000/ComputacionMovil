@@ -4,6 +4,7 @@ using UnityEngine.UI;
 /// <summary>Menú RF7 para elegir y equipar una caña antes de pescar.</summary>
 public sealed class CanaSelectorUI : MonoBehaviour
 {
+    private const string ClaveCompra = "RoadToAmazonas.CanasCompradas.v1.";
     [SerializeField] private CanaData[] canasDisponibles;
     [SerializeField] private CanaData canaInicial;
 
@@ -39,6 +40,13 @@ public sealed class CanaSelectorUI : MonoBehaviour
 
         CrearInterfaz();
         EquiparCanaInicial();
+    }
+
+    private void Update()
+    {
+        bool puedeCambiar = sistemaPesca != null && sistemaPesca.PuedeCambiarCana;
+        if (botonEquipo != null) botonEquipo.interactable = puedeCambiar;
+        if (!puedeCambiar && ventana != null && ventana.activeSelf) CerrarVentana();
     }
 
     private void CrearInterfaz()
@@ -88,7 +96,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         CrearTexto("Título", panel, "EQUIPO DE PESCA", 34, Crema,
             new Vector2(0.06f, 0.82f), new Vector2(0.78f, 0.96f));
         CrearTexto("Instrucción", panel,
-            "Elige una caña. Abu Garcia Vengeance está equipada por defecto.",
+            "Compra con oro y equipa una caña antes de lanzar.",
             17, Hex("DCC89B"), new Vector2(0.06f, 0.74f), new Vector2(0.94f, 0.83f));
 
         CrearBoton("Cerrar menú de cañas", panel, Hex("6B3B25"),
@@ -153,9 +161,12 @@ public sealed class CanaSelectorUI : MonoBehaviour
         CrearTexto("Estadísticas", boton.transform,
             pendientes ? "ESTADÍSTICAS POR DEFINIR" : $"PODER {poder:0.#}  ·  TOLERANCIA +{tolerancia:0.#}",
             14, Hex("E1C17A"), new Vector2(0.28f, 0.46f), new Vector2(0.96f, 0.69f));
-        string detalle = cana != null && cana.modeloVisual == ModeloCana.ShimanoFx ? "LA MÁS BÁSICA" : pendientes && cana.puestoPotenciaPrevisto > 0
-            ? (cana.puestoPotenciaPrevisto == 1 ? "LA MÁS POTENTE" : $"{cana.puestoPotenciaPrevisto}.ª MÁS POTENTE")
-            : (precio == 0 ? "GRATIS" : $"{precio} ORO");
+        string detalle = cana != null && cana.modeloVisual == ModeloCana.ShimanoFx
+            ? "INICIAL · GRATIS"
+            : precio > 0 ? $"{precio:N0} ORO"
+            : pendientes && cana.puestoPotenciaPrevisto > 0
+                ? (cana.puestoPotenciaPrevisto == 1 ? "LA MÁS POTENTE" : $"{cana.puestoPotenciaPrevisto}.ª MÁS POTENTE")
+                : "GRATIS";
         CrearTexto("Precio o posición prevista", boton.transform, detalle,
             17, Hex("F2B632"), new Vector2(0.28f, 0.30f), new Vector2(0.96f, 0.46f));
         marcasOpciones[indice] = CrearTexto("Estado de caña", boton.transform, "",
@@ -221,7 +232,22 @@ public sealed class CanaSelectorUI : MonoBehaviour
 
     private void EquiparCanaInicial()
     {
-        CanaData inicial = Contiene(canaInicial) ? canaInicial : null;
+        // El modelo básico se prioriza siempre: una referencia antigua
+        // serializada en la escena no debe cambiar la caña de inicio.
+        CanaData inicial = null;
+        if (canasDisponibles != null)
+        {
+            for (int i = 0; i < canasDisponibles.Length; i++)
+            {
+                if (canasDisponibles[i] != null && canasDisponibles[i].modeloVisual == ModeloCana.ShimanoFx)
+                {
+                    inicial = canasDisponibles[i];
+                    break;
+                }
+            }
+        }
+        if (inicial == null && Contiene(canaInicial))
+            inicial = canaInicial;
         if (inicial == null && canasDisponibles != null)
         {
             for (int i = 0; i < canasDisponibles.Length; i++)
@@ -238,7 +264,10 @@ public sealed class CanaSelectorUI : MonoBehaviour
             inicial = canasDisponibles[0];
 
         if (inicial != null)
+        {
+            MarcarComoComprada(inicial);
             sistemaPesca.EquiparCana(inicial);
+        }
         ActualizarEstadoOpciones();
     }
 
@@ -246,6 +275,27 @@ public sealed class CanaSelectorUI : MonoBehaviour
     {
         if (cana == null)
             return;
+
+        if (!sistemaPesca.PuedeCambiarCana)
+        {
+            textoAviso.text = "Termina el intento actual antes de cambiar de caña.";
+            return;
+        }
+
+        if (!EstaComprada(cana))
+        {
+            if (EconomiaManager.Instance == null)
+            {
+                textoAviso.text = "No se encontró el saldo del jugador.";
+                return;
+            }
+            if (!EconomiaManager.Instance.IntentarGastarOro(cana.precio))
+            {
+                textoAviso.text = $"Saldo insuficiente. Necesitas {cana.precio:N0} monedas.";
+                return;
+            }
+            MarcarComoComprada(cana);
+        }
 
         if (!sistemaPesca.EquiparCana(cana))
         {
@@ -271,10 +321,26 @@ public sealed class CanaSelectorUI : MonoBehaviour
 
         for (int i = 0; i < marcasOpciones.Length; i++)
         {
-            bool seleccionada = canasDisponibles[i] == equipada;
-            marcasOpciones[i].text = seleccionada ? "EQUIPADA" : "TOCA PARA EQUIPAR";
-            fondosOpciones[i].color = seleccionada ? VerdeClaro : Hex("3C2A1D");
+            CanaData cana = canasDisponibles[i];
+            bool seleccionada = cana == equipada;
+            bool comprada = EstaComprada(cana);
+            marcasOpciones[i].text = seleccionada ? "EQUIPADA" : comprada ? "COMPRADA · TOCA PARA EQUIPAR" : "TOCA PARA COMPRAR";
+            fondosOpciones[i].color = seleccionada ? VerdeClaro : comprada ? Hex("3C2A1D") : Hex("35251D");
         }
+    }
+
+    private static string ClaveDe(CanaData cana) => ClaveCompra + cana.name;
+
+    private static bool EstaComprada(CanaData cana)
+    {
+        return cana != null && PlayerPrefs.GetInt(ClaveDe(cana), cana.precio <= 0 ? 1 : 0) == 1;
+    }
+
+    private static void MarcarComoComprada(CanaData cana)
+    {
+        if (cana == null) return;
+        PlayerPrefs.SetInt(ClaveDe(cana), 1);
+        PlayerPrefs.Save();
     }
 
     private bool Contiene(CanaData cana)
@@ -292,6 +358,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
 
     private void AlternarVentana()
     {
+        if (sistemaPesca == null || !sistemaPesca.PuedeCambiarCana) return;
         ventana.SetActive(!ventana.activeSelf);
     }
 

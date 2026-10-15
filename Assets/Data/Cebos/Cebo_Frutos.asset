@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Frutos del bosque"
   icono: {fileID: 21300000, guid: e58a65928a8e4ec68fd957c2d9a47293, type: 3}
   descripcion: "Frutos para especies que se alimentan en el bosque inundado."
+  precio: 45
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000004, type: 2}

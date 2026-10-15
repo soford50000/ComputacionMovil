@@ -15,6 +15,7 @@ MonoBehaviour:
   nombre: "Grillo / saltamontes"
   icono: {fileID: 21300000, guid: 769b129445aa4abf9864ce19fed01d36, type: 3}
   descripcion: "Insectos para peces que buscan presas cerca de la superficie."
+  precio: 55
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000001, type: 2}

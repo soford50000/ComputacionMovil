@@ -6,6 +6,7 @@ public sealed class CeboData : ScriptableObject
     public string nombre;
     public Sprite icono;
     [TextArea] public string descripcion;
+    [Min(0)] public int precio = 50;
     [Min(1f)] public float multiplicadorAparicion = 2f;
     public PezData[] especiesFavorecidas;
 

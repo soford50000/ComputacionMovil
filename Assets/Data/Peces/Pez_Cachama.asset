@@ -10,17 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
-  m_Name: Cachama
+  m_Name: Pez_Cachama
   m_EditorClassIdentifier: Assembly-CSharp::PezData
-  nombreEspecie: 'Paco amazónico (Mylossoma duriventre)'
-  foto: {fileID: 0}
+  nombreEspecie: 'Cachama blanca (Piaractus brachypomus)'
+  foto: {fileID: 7254367991966419479, guid: dd66a35507a39e54b8e273f4da3432a3, type: 3}
   rareza: 1
-  fuerzaPez: 7
-  pesoMinimo: 3
-  pesoMaximo: 25
-  longitudMinima: 45
-  longitudMaxima: 90
-  velocidadRecogida: 0.7
-  habitat: 'Ríos y lagunas de inundación.'
-  descripcion: 'Serrasálmido de cuerpo alto que habita ríos y lagunas. Rangos aproximados. Unidades: kg y cm.'
+  fuerzaPez: 6
+  pesoMinimo: 2
+  pesoMaximo: 20
+  longitudMinima: 40
+  longitudMaxima: 80
+  velocidadRecogida: 0.8
+  habitat: 'Ríos y lagunas de várzea.'
+  descripcion: 'La cachama blanca, también llamada pirapitinga, es un pez de cuerpo robusto que consume frutos y semillas en los bosques inundados. Sus dientes fuertes le permiten triturar el alimento y es importante para la acuicultura sudamericana.'
+
+
+
 

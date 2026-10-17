@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4892dee4388245989b22489d2f49de4f, type: 3}
+  m_Name: Cebo_Pececillo
+  m_EditorClassIdentifier: Assembly-CSharp::CeboData
+  nombre: "Pececillo vivo"
+  icono: {fileID: 21300000, guid: fc35150eeff54a28a0aef0482e7b9a80, type: 3}
+  descripcion: "Presa pequeña para depredadores como el pez hoja y la bicuda."
+  precio: 100
+  multiplicadorAparicion: 2
+  especiesFavorecidas:
+  - {fileID: 11400000, guid: 11a00000000040008000000000000016, type: 2}
+  - {fileID: 11400000, guid: 11a00000000040008000000000000011, type: 2}
+  - {fileID: 11400000, guid: 11a00000000040008000000000000013, type: 2}

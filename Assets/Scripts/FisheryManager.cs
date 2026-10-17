@@ -5,7 +5,11 @@ public class FisheryManager : MonoBehaviour
 {
     public static FisheryManager Instance; // Patrón Singleton para acceder fácilmente desde otros scripts
 
-    [Header("Base de datos de Peces")]
+    [Header("Zona disponible (RF1)")]
+    [SerializeField] private ZonaData zonaAmazonas;
+    public ZonaData ZonaActual => zonaAmazonas;
+
+    [Header("Base de datos de Peces (compatibilidad)")]
     [Tooltip("Arrastra aquí todos los peces (ScriptableObjects) que creaste en el proyecto.")]
     public List<PezData> todosLosPeces = new List<PezData>();
 
@@ -35,12 +39,13 @@ public class FisheryManager : MonoBehaviour
     /// RF2 y RF11: Selecciona un pez aleatoriamente según su rareza y modificadores de cebo.
     /// </summary>
     /// <param name="pezEspecialCebo">Opcional: un pez específico al que el cebo actual le da bonificación (RF11)</param>
-    /// <param name="multiplicadorCebo">Multiplicador de probabilidad para el pez del cebo (ej. 3.0 para triplicar su chance)</param>
-    public PezData GenerarPezAleatorio(PezData pezEspecialCebo = null, float multiplicadorCebo = 1f)
+    /// <param name="multiplicadorCebo">Multiplicador del peso de sorteo del pez; el porcentaje final se normaliza.</param>
+    /// <param name="cebo">Carnada para múltiples especies. Tiene prioridad sobre los parámetros anteriores.</param>
+    public PezData GenerarPezAleatorio(PezData pezEspecialCebo = null, float multiplicadorCebo = 1f, CeboData cebo = null)
     {
-        if (todosLosPeces.Count == 0)
+        if (zonaAmazonas == null || zonaAmazonas.especiesDeEstaZona == null || zonaAmazonas.especiesDeEstaZona.Length == 0)
         {
-            Debug.LogError("¡No hay peces cargados en el FisheryManager!");
+            Debug.LogError("Asigna Amazonas y sus especies en FisheryManager.", this);
             return null;
         }
 
@@ -48,18 +53,30 @@ public class FisheryManager : MonoBehaviour
         Dictionary<PezData, float> probabilidadesPonderadas = new Dictionary<PezData, float>();
         float pesoTotal = 0f;
 
-        foreach (var pez in todosLosPeces)
+        foreach (var pez in zonaAmazonas.especiesDeEstaZona)
         {
-            float pesoRarezaBase = ObtenerPesoBasePorRareza(pez.rareza);
+            if (pez == null || probabilidadesPonderadas.ContainsKey(pez)) continue;
+            float pesoRarezaBase = Mathf.Max(0f, ObtenerPesoBasePorRareza(pez.rareza));
 
             // Aplicar la lógica del cebo (RF11): si coincide con el cebo, aumentamos su probabilidad
-            if (pez == pezEspecialCebo)
+            if (cebo != null)
             {
-                pesoRarezaBase *= multiplicadorCebo;
+                pesoRarezaBase *= cebo.MultiplicadorPara(pez);
+            }
+            else if (pez == pezEspecialCebo)
+            {
+                pesoRarezaBase *= Mathf.Max(1f, multiplicadorCebo);
             }
 
+            if (float.IsNaN(pesoRarezaBase) || float.IsInfinity(pesoRarezaBase) || pesoRarezaBase <= 0f) continue;
             probabilidadesPonderadas.Add(pez, pesoRarezaBase);
             pesoTotal += pesoRarezaBase;
+        }
+
+        if (pesoTotal <= 0f || float.IsInfinity(pesoTotal))
+        {
+            Debug.LogError("Amazonas no tiene especies con probabilidades válidas.", this);
+            return null;
         }
 
         // 2. Lanzar el "dado" aleatorio entre 0 y el peso total
@@ -67,8 +84,10 @@ public class FisheryManager : MonoBehaviour
         float acumulador = 0f;
 
         // 3. Seleccionar el pez en base a dónde cae el valor aleatorio
+        PezData ultimoPez = null;
         foreach (var par in probabilidadesPonderadas)
         {
+            ultimoPez = par.Key;
             acumulador += par.Value;
             if (valorAleatorio <= acumulador)
             {
@@ -78,7 +97,18 @@ public class FisheryManager : MonoBehaviour
         }
 
         // Por seguridad, si algo falla, devolvemos el primer pez de la lista
-        return todosLosPeces[0];
+        return ultimoPez;
+    }
+
+    [ContextMenu("Probar selección en Amazonas")]
+    private void ProbarSeleccionEnAmazonas()
+    {
+        GenerarPezAleatorio();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     private float ObtenerPesoBasePorRareza(Rareza rareza)

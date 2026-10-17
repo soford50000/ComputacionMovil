@@ -62,7 +62,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         abrir = Boton(lienzo.transform, "Abrir carnadas", "", 0, 1, 0, 1, Abrir);
         var acceso = abrir.GetComponent<RectTransform>();
         acceso.pivot = new Vector2(0, 1);
-        acceso.anchoredPosition = new Vector2(24, -90);
+        acceso.anchoredPosition = new Vector2(24, -156);
         acceso.sizeDelta = new Vector2(250, 58);
         resumen = Texto(abrir.transform, "Carnada equipada", "", 17, .04f, .05f, .96f, .95f);
 

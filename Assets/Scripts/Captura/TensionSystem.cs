@@ -742,23 +742,38 @@ public class TensionSystem : MonoBehaviour
 
     private void AsegurarEventSystem()
     {
-        var eventSystem = FindAnyObjectByType<EventSystem>();
+        var sistemas = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
+        var eventSystem = EventSystem.current;
+        if (eventSystem == null && sistemas.Length > 0)
+            eventSystem = sistemas[0];
         if (eventSystem == null)
         {
             var eventos = new GameObject("EventSystem");
             eventos.transform.SetParent(transform, false);
             eventSystem = eventos.AddComponent<EventSystem>();
         }
+        eventSystem.enabled = true;
 
-        // Puede existir un EventSystem de otra escena o prefab sin módulo
-        // compatible con el Input System configurado por el proyecto.
+        // Mantiene un único EventSystem activo para que los raycasters de los
+        // Canvas no compitan entre módulos creados por escenas anteriores.
+        foreach (var sistema in sistemas)
+        {
+            if (sistema == null || sistema == eventSystem) continue;
+            foreach (var moduloDuplicado in sistema.GetComponents<BaseInputModule>())
+                moduloDuplicado.enabled = false;
+            sistema.enabled = false;
+        }
+
         var uiInput = eventSystem.GetComponent<InputSystemUIInputModule>();
         if (uiInput == null)
             uiInput = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+        uiInput.enabled = true;
+        if (uiInput.actionsAsset == null || uiInput.point == null || uiInput.point.action == null ||
+            uiInput.leftClick == null || uiInput.leftClick.action == null)
+            uiInput.AssignDefaultActions();
 
-        var legacyInput = eventSystem.GetComponent<StandaloneInputModule>();
-        if (legacyInput != null)
-            legacyInput.enabled = false;
+        foreach (var modulo in eventSystem.GetComponents<BaseInputModule>())
+            if (modulo != uiInput) modulo.enabled = false;
     }
 
     private void ActualizarVisualZona()

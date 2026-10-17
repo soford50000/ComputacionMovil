@@ -74,7 +74,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
     private void CrearBotonDeEquipo(Transform padre)
     {
         botonEquipo = CrearBoton("Abrir equipo", padre, Verde, new Vector2(0f, 1f),
-            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -24f),
+            new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -90f),
             new Vector2(250f, 58f), AlternarVentana);
         textoBotonEquipo = CrearTexto("Caña equipada", botonEquipo.transform,
             "EQUIPO", 19, Crema, new Vector2(0.04f, 0.08f), new Vector2(0.96f, 0.92f));

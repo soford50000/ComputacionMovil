@@ -105,7 +105,7 @@ public sealed class EconomiaManager : MonoBehaviour
 
         var tarjeta = Rect("Tarjeta de saldo", ventana.transform, 0.25f, 0.28f, 0.75f, 0.72f);
         tarjeta.gameObject.AddComponent<Image>().color = Madera;
-        Etiqueta("Titulo", tarjeta, "TESORO DEL AMAZONAS", 30, Dorado, 0.04f, 0.69f, 0.96f, 0.94f);
+        Etiqueta("Titulo", tarjeta, "ORO DEL AMAZONAS", 30, Dorado, 0.04f, 0.69f, 0.96f, 0.94f);
         textoSaldoModal = Etiqueta("Saldo guardado", tarjeta, "", 42, Color.white, 0.05f, 0.36f, 0.95f, 0.68f);
         Etiqueta("Guardado local", tarjeta, "Tu saldo se guarda automáticamente en este dispositivo.",
             17, new Color(0.89f, 0.85f, 0.74f), 0.06f, 0.18f, 0.94f, 0.36f);

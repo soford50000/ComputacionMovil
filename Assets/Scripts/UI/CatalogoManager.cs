@@ -136,10 +136,12 @@ public sealed class CatalogoManager : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
 
         botonCatalogo = CrearBoton("Abrir catálogo", lienzo.transform, Verde,
-            new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-            new Vector2(0f, -24f), new Vector2(230f, 54f), Abrir);
-        CrearTexto("Etiqueta catálogo", botonCatalogo.transform, "PECES  0/0", 19, Crema,
-            new Vector2(0.02f, 0.04f), new Vector2(0.98f, 0.96f));
+            Vector2.up, Vector2.up, Vector2.up,
+            new Vector2(24f, -24f), new Vector2(62f, 58f), Abrir);
+        var bordeBotonCatalogo = botonCatalogo.gameObject.AddComponent<Outline>();
+        bordeBotonCatalogo.effectColor = new Color32(242, 182, 50, 190);
+        bordeBotonCatalogo.effectDistance = new Vector2(2f, -2f);
+        CrearIconoMenu(botonCatalogo.transform);
 
         menu = new GameObject("Menú catálogo", typeof(RectTransform), typeof(Image));
         menu.transform.SetParent(lienzo.transform, false);
@@ -278,10 +280,23 @@ public sealed class CatalogoManager : MonoBehaviour
     private void ActualizarProgreso()
     {
         if (progreso != null) progreso.text = $"DESCUBIERTOS  {CantidadDescubierta}/{especies.Count}";
-        if (botonCatalogo != null)
+    }
+
+    private static void CrearIconoMenu(Transform padre)
+    {
+        float[] posicionesY = { 12f, 0f, -12f };
+        for (int i = 0; i < posicionesY.Length; i++)
         {
-            var texto = botonCatalogo.GetComponentInChildren<Text>();
-            if (texto != null) texto.text = $"PECES  {CantidadDescubierta}/{especies.Count}";
+            var barra = new GameObject("Barra menú " + (i + 1), typeof(RectTransform), typeof(Image));
+            barra.transform.SetParent(padre, false);
+            var rect = barra.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(32f, 5f);
+            rect.anchoredPosition = new Vector2(0f, posicionesY[i]);
+            var imagen = barra.GetComponent<Image>();
+            imagen.color = Crema;
+            imagen.raycastTarget = false;
         }
     }
 

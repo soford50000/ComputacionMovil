@@ -14,11 +14,16 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private Image foto;
     private Button abrir, equipar;
     private Image[] tarjetas;
+    private Text[] estados;
+    private Image[] retratosAfinidad;
+    private ScrollRect desplazamientoAfinidades;
     public bool EstaAbierto => ventana != null && ventana.activeSelf;
 
-    private static readonly Color Crema = new Color32(244, 233, 200, 255);
-    private static readonly Color Verde = new Color32(41, 71, 53, 255);
-    private static readonly Color Madera = new Color32(44, 24, 16, 255);
+    private static readonly Color Crema = EstiloExpedicion.Hex("F5E9D0");
+    private static readonly Color Verde = EstiloExpedicion.Verde;
+    private static readonly Color Nogal = EstiloExpedicion.Hex("B38F5C");
+    private static readonly Color Tinta = EstiloExpedicion.Hex("2A1D10");
+    private static readonly Color Secundario = EstiloExpedicion.Hex("332411");
 
     private void Awake()
     {
@@ -31,10 +36,13 @@ public sealed class CeboSelectorUI : MonoBehaviour
         ActualizarResumen();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        abrir.interactable = pesca.PuedeCambiarCebo;
-        if (!pesca.PuedeCambiarCebo && EstaAbierto) Cerrar();
+        bool puedeCambiar = pesca.PuedeCambiarCebo;
+        abrir.interactable = puedeCambiar;
+        if (abrir.gameObject.activeSelf != puedeCambiar)
+            abrir.gameObject.SetActive(puedeCambiar);
+        if (!puedeCambiar && EstaAbierto) Cerrar();
     }
 
     public void Abrir()
@@ -67,23 +75,34 @@ public sealed class CeboSelectorUI : MonoBehaviour
         resumen = Texto(abrir.transform, "Carnada equipada", "", 17, .04f, .05f, .96f, .95f);
 
         ventana = Panel(lienzo.transform, "Menú de carnadas", new Color(0, 0, 0, .86f), 0, 0, 1, 1).gameObject;
-        var panel = Panel(ventana.transform, "Panel de carnadas", Madera, .04f, .05f, .96f, .95f);
-        Texto(panel, "Título", "CARNADAS", 30, .025f, .88f, .72f, .98f);
-        Texto(panel, "Ayuda", "Elige qué peces quieres encontrar con más frecuencia.", 17, .025f, .81f, .75f, .89f);
-        Boton(panel, "Cerrar carnadas", "CERRAR", .84f, .9f, .975f, .97f, Cerrar);
+        var panel = Panel(ventana.transform, "Panel de carnadas", EstiloExpedicion.Papel, .04f, .05f, .96f, .95f);
+        EstiloExpedicion.Cabecera(panel, "Carnadas del río", "Prepara tu próxima captura. Cada carnada atrae especies diferentes.", Cerrar);
+        panel.gameObject.AddComponent<FondoNogalCatalogo>();
+        panel.Find("Título").GetComponent<Text>().color = Tinta;
+        panel.Find("Ayuda").GetComponent<Text>().color = Secundario;
+        panel.Find("Marca de expedición").GetComponent<Text>().color = Secundario;
+        panel.Find("Línea de cabecera").GetComponent<Image>().color = Nogal;
+        EstiloExpedicion.PrepararModal(ventana, panel);
+        var disposicion = panel.gameObject.AddComponent<DisposicionExpedicion>();
+        panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel);
 
         tarjetas = new Image[cebos.Length];
+        estados = new Text[cebos.Length];
         int filas = Mathf.Max(1, Mathf.CeilToInt(cebos.Length / 2f));
         float alto = .67f / filas;
         for (int i = 0; i < cebos.Length; i++)
         {
             var cebo = cebos[i];
             float x = .025f + i % 2 * .305f;
-            float y = .80f - i / 2 * alto;
+            float y = .77f - i / 2 * alto;
             var boton = Boton(panel, "Carnada " + (cebo != null ? cebo.nombre : "Sin datos"), "",
                 x, y - alto + .012f, x + .292f, y, () => Mostrar(cebo));
             tarjetas[i] = boton.targetGraphic as Image;
-            var imagen = Panel(boton.transform, "Imagen", new Color32(64, 53, 38, 255), .025f, .08f, .35f, .92f).GetComponent<Image>();
+            float yVertical = .77f - i / 2 * .075f;
+            disposicion.Agregar((RectTransform)boton.transform, .025f + i % 2 * .48f, yVertical - .066f,
+                .49f + i % 2 * .48f, yVertical);
+            tarjetas[i].color = Crema;
+            var imagen = Panel(boton.transform, "Imagen", Color.clear, .025f, .10f, .37f, .90f).GetComponent<Image>();
             imagen.raycastTarget = false;
             if (cebo != null && cebo.icono != null)
             {
@@ -92,23 +111,55 @@ public sealed class CeboSelectorUI : MonoBehaviour
                 imagen.color = Color.white;
             }
             else Texto(imagen.transform, "Imagen provisional", "CEBO", 15, 0, 0, 1, 1);
-            string precio = cebo == null ? "Sin datos" : EstaComprado(cebo) ? "COMPRADO" : $"{cebo.precio:N0} ORO";
-            Texto(boton.transform, "Nombre", cebo != null ? cebo.nombre + "\n" + precio : "Sin datos",
-                17, .38f, .08f, .97f, .92f);
+            var nombre = Texto(boton.transform, "Nombre", cebo != null ? cebo.nombre : "Sin datos",
+                19, .40f, .39f, .96f, .94f);
+            nombre.alignment = TextAnchor.MiddleLeft;
+            estados[i] = Texto(boton.transform, "Estado", "", 16, .40f, .07f, .96f, .37f);
+            estados[i].alignment = TextAnchor.MiddleLeft;
+            estados[i].color = Secundario;
         }
-        Boton(panel, "Sin carnada", "SIN CARNADA", .025f, .025f, .315f, .1f, () => Mostrar(null));
+        var sinCarnada = Boton(panel, "Sin carnada", "Sin carnada", .025f, .025f, .315f, .1f, () => Mostrar(null));
+        disposicion.Agregar((RectTransform)sinCarnada.transform, .025f, .41f, .49f, .46f);
 
-        var ficha = Panel(panel, "Ficha de carnada", Verde, .66f, .025f, .975f, .80f);
-        titulo = Texto(ficha, "Nombre de carnada", "", 23, .05f, .88f, .95f, .98f);
-        foto = Panel(ficha, "Foto de carnada", Color.clear, .32f, .66f, .68f, .87f).GetComponent<Image>();
+        var ficha = Panel(panel, "Ficha de carnada", Crema, .66f, .025f, .975f, .77f);
+        EstiloExpedicion.Borde(ficha.GetComponent<Image>(), Nogal);
+        disposicion.Agregar(ficha, .025f, .025f, .975f, .395f);
+        titulo = Texto(ficha, "Nombre de carnada", "", 25, .06f, .85f, .94f, .98f);
+        EstiloExpedicion.Tipografia(titulo, 25, Tinta, true);
+        foto = Panel(ficha, "Foto de carnada", Color.clear, .22f, .60f, .78f, .85f).GetComponent<Image>();
         foto.preserveAspect = true;
         foto.raycastTarget = false;
-        detalle = Texto(ficha, "Descripción", "", 15, .05f, .54f, .95f, .66f);
-        afinidades = Texto(ficha, "Peces favorecidos", "", 17, .06f, .18f, .94f, .54f);
+        detalle = Texto(ficha, "Descripción", "", 16, .06f, .48f, .94f, .60f);
+        retratosAfinidad = new Image[3];
+        for (int i = 0; i < retratosAfinidad.Length; i++)
+        {
+            retratosAfinidad[i] = Panel(ficha, "Especie favorecida " + i, Color.white,
+                .08f + i * .29f, .37f, .34f + i * .29f, .47f).GetComponent<Image>();
+            retratosAfinidad[i].preserveAspect = true;
+            retratosAfinidad[i].raycastTarget = false;
+        }
+        var zonaAfinidades = Rect(ficha, "Lista de especies favorecidas", .07f, .21f, .93f, .37f);
+        desplazamientoAfinidades = zonaAfinidades.gameObject.AddComponent<ScrollRect>();
+        desplazamientoAfinidades.horizontal = false;
+        desplazamientoAfinidades.scrollSensitivity = 25;
+        desplazamientoAfinidades.movementType = ScrollRect.MovementType.Clamped;
+        var viewport = Panel(zonaAfinidades, "Viewport", Color.white, 0, 0, 1, 1);
+        viewport.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+        afinidades = Texto(viewport, "Peces favorecidos", "", 16, 0, 1, 1, 1);
+        afinidades.rectTransform.pivot = new Vector2(.5f, 1);
+        afinidades.resizeTextForBestFit = false;
+        afinidades.verticalOverflow = VerticalWrapMode.Overflow;
+        afinidades.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        desplazamientoAfinidades.viewport = viewport;
+        desplazamientoAfinidades.content = afinidades.rectTransform;
+        EstiloExpedicion.Texto(ficha, "Ayuda de desplazamiento", "Desliza para ver todas las especies", 12,
+            Secundario, .07f, .17f, .93f, .21f);
         afinidades.alignment = TextAnchor.UpperLeft;
-        aviso = Texto(ficha, "Aviso", "", 13, .05f, .105f, .95f, .18f);
+        aviso = Texto(ficha, "Aviso", "", 16, .05f, .105f, .95f, .16f);
         equipar = Boton(ficha, "Equipar carnada", "", .07f, .02f, .93f, .10f, Equipar);
         textoEquipar = Texto(equipar.transform, "Texto equipar", "EQUIPAR", 19, 0, 0, 1, 1);
+        textoEquipar.color = Crema;
+        EstiloExpedicion.Boton(equipar);
         ventana.SetActive(false);
     }
 
@@ -122,21 +173,35 @@ public sealed class CeboSelectorUI : MonoBehaviour
         var lista = new StringBuilder();
         if (cebo != null && cebo.especiesFavorecidas != null)
         {
-            lista.AppendLine("FAVORECE LA APARICIÓN DE:");
             foreach (var pez in cebo.especiesFavorecidas)
                 if (pez != null) lista.AppendLine("• " + pez.nombreEspecie.Split('(')[0].Trim());
         }
         afinidades.text = lista.ToString();
+        Canvas.ForceUpdateCanvases();
+        desplazamientoAfinidades.verticalNormalizedPosition = 1;
+        for (int i = 0; i < retratosAfinidad.Length; i++)
+        {
+            var pez = cebo != null && cebo.especiesFavorecidas != null && i < cebo.especiesFavorecidas.Length
+                ? cebo.especiesFavorecidas[i] : null;
+            retratosAfinidad[i].sprite = pez != null ? pez.foto : null;
+            retratosAfinidad[i].enabled = retratosAfinidad[i].sprite != null;
+        }
         aviso.text = cebo != null
-            ? $"Precio: {cebo.precio:N0} oro · Atracción ×{cebo.multiplicadorAparicion:0.#}."
+            ? $"Precio: $ {cebo.precio:N0} · Atracción ×{cebo.multiplicadorAparicion:0.#}."
             : "Sin bonificación de aparición.";
         bool comprado = cebo == null || EstaComprado(cebo);
-        textoEquipar.text = cebo == pesca.CeboEquipado ? "EQUIPADA"
-            : cebo == null ? "QUITAR CARNADA"
-            : comprado ? "EQUIPAR" : $"COMPRAR · {cebo.precio:N0} ORO";
+        textoEquipar.text = cebo == pesca.CeboEquipado ? "Equipada"
+            : cebo == null ? "Quitar carnada"
+            : comprado ? "Equipar carnada" : $"Comprar · $ {cebo.precio:N0}";
         equipar.interactable = cebo != pesca.CeboEquipado;
         for (int i = 0; i < tarjetas.Length; i++)
-            tarjetas[i].color = cebos[i] == cebo ? new Color32(98, 115, 62, 255) : Verde;
+        {
+            bool elegida = cebos[i] == cebo;
+            bool equipada = cebos[i] != null && cebos[i] == pesca.CeboEquipado;
+            tarjetas[i].color = elegida || EstaComprado(cebos[i]) ? Crema : Nogal;
+            EstiloExpedicion.Borde(tarjetas[i], elegida ? EstiloExpedicion.Dorado : Nogal, elegida ? 3 : 1);
+            estados[i].text = equipada ? "✓ Equipada" : EstaComprado(cebos[i]) ? "Disponible" : cebos[i] != null ? $"$ {cebos[i].precio:N0}" : "Sin datos";
+        }
     }
 
     private void Equipar()
@@ -152,7 +217,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
             }
             if (!EconomiaManager.Instance.IntentarGastarOro(seleccionado.precio))
             {
-                aviso.text = $"Saldo insuficiente. Necesitas {seleccionado.precio:N0} monedas.";
+                aviso.text = $"Saldo insuficiente. Necesitas $ {seleccionado.precio:N0}.";
                 return;
             }
             MarcarComoComprado(seleccionado);
@@ -180,6 +245,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private void ActualizarResumen()
     {
         resumen.text = "CARNADA · " + (pesca.CeboEquipado != null ? pesca.CeboEquipado.nombre : "Sin carnada");
+        resumen.color = EstiloExpedicion.Papel;
     }
 
     private void OnDestroy()
@@ -207,12 +273,11 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private static Text Texto(Transform padre, string nombre, string contenido, int tamano, float x0, float y0, float x1, float y1)
     {
         var texto = Rect(padre, nombre, x0, y0, x1, y1).gameObject.AddComponent<Text>();
-        texto.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        EstiloExpedicion.Tipografia(texto, tamano, Tinta);
         texto.text = contenido;
-        texto.color = Crema;
         texto.fontSize = tamano;
         texto.resizeTextForBestFit = true;
-        texto.resizeTextMinSize = 10;
+        texto.resizeTextMinSize = Mathf.Min(tamano, 16);
         texto.resizeTextMaxSize = tamano;
         texto.alignment = TextAnchor.MiddleCenter;
         texto.raycastTarget = false;
@@ -225,7 +290,8 @@ public sealed class CeboSelectorUI : MonoBehaviour
         var boton = rect.gameObject.AddComponent<Button>();
         boton.targetGraphic = rect.GetComponent<Image>();
         boton.onClick.AddListener(accion);
-        if (!string.IsNullOrEmpty(etiqueta)) Texto(rect, "Etiqueta", etiqueta, 17, 0, 0, 1, 1);
+        EstiloExpedicion.Boton(boton);
+        if (!string.IsNullOrEmpty(etiqueta)) Texto(rect, "Etiqueta", etiqueta, 17, .04f, 0, .96f, 1).color = EstiloExpedicion.Papel;
         return boton;
     }
 }

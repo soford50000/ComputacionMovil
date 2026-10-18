@@ -14,6 +14,13 @@ public sealed class CatalogoManager : MonoBehaviour
     private static readonly Color Crema = ColorHex("#F2E8CF");
     private static readonly Color Dorado = ColorHex("#F2B632");
     private static readonly Color Verde = ColorHex("#294735");
+    private static readonly Color NogalCasilla = ColorHex("#B38F5C");
+    private static readonly Color SiluetaNogal = ColorHex("#8F6F42");
+    private static readonly Color CremaCasilla = ColorHex("#F5E9D0");
+    private static readonly Color TintaCatalogo = ColorHex("#2A1D10");
+    private static readonly Color SecundarioCrema = ColorHex("#5A4326");
+    // #5A4326 no alcanza 4.5:1 sobre nogal; conservarlo solo sobre crema.
+    private static readonly Color SecundarioNogal = ColorHex("#332411");
 
     public static CatalogoManager Instance { get; private set; }
     public event Action<PezData> EspecieDescubierta;
@@ -23,6 +30,7 @@ public sealed class CatalogoManager : MonoBehaviour
     private GameObject menu;
     private GameObject detalle;
     private Text progreso;
+    private RectTransform rellenoProgreso;
     private Image imagenDetalle;
     private Text nombreDetalle;
     private Text rarezaDetalle;
@@ -30,6 +38,9 @@ public sealed class CatalogoManager : MonoBehaviour
     private Text habitatDetalle;
     private Button botonCatalogo;
     private TensionSystem sistemaPesca;
+    private Material materialSilueta;
+    private FisheryManager gestorZonas;
+    private Text tituloCatalogo, ayudaFicha, avisoSinEspecies;
 
     private void Awake()
     {
@@ -45,9 +56,9 @@ public sealed class CatalogoManager : MonoBehaviour
 
     private void Start()
     {
-        CargarEspecies();
-        CrearTarjetas();
-        ActualizarProgreso();
+        gestorZonas = GetComponent<FisheryManager>();
+        if (gestorZonas != null) gestorZonas.ZonaCambiada += CambiarZona;
+        CambiarZona(gestorZonas != null ? gestorZonas.ZonaActual : null);
         if (sistemaPesca != null)
             sistemaPesca.LanzamientoIniciado += Cerrar;
     }
@@ -65,9 +76,11 @@ public sealed class CatalogoManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (gestorZonas != null) gestorZonas.ZonaCambiada -= CambiarZona;
         if (sistemaPesca != null)
             sistemaPesca.LanzamientoIniciado -= Cerrar;
         if (Instance == this) Instance = null;
+        if (materialSilueta != null) Destroy(materialSilueta);
     }
 
     /// <summary>Persiste el primer descubrimiento, sin duplicar capturas posteriores.</summary>
@@ -111,6 +124,7 @@ public sealed class CatalogoManager : MonoBehaviour
 
     private void CargarEspecies()
     {
+        especies.Clear();
         FisheryManager gestor = FisheryManager.Instance;
         if (gestor == null) gestor = FindFirstObjectByType<FisheryManager>();
         if (gestor != null && gestor.ZonaActual != null && gestor.ZonaActual.especiesDeEstaZona != null)
@@ -122,8 +136,25 @@ public sealed class CatalogoManager : MonoBehaviour
         especies.Sort((a, b) => string.Compare(a.nombreEspecie, b.nombreEspecie, StringComparison.CurrentCulture));
     }
 
+    private string NombreZona => gestorZonas != null && gestorZonas.ZonaActual != null
+        ? gestorZonas.ZonaActual.nombreZona : "Amazonas";
+
+    private void CambiarZona(ZonaData zona)
+    {
+        Cerrar();
+        CerrarDetalle();
+        CargarEspecies();
+        tituloCatalogo.text = NombreZona == "Amazonas" ? "Peces del Amazonas" : "Peces de " + NombreZona;
+        ayudaFicha.text = "Notas de campo · " + NombreZona;
+        avisoSinEspecies.gameObject.SetActive(especies.Count == 0);
+        CrearTarjetas();
+        var scroll = menu.GetComponentInChildren<ScrollRect>(true);
+        scroll.verticalNormalizedPosition = 1;
+    }
+
     private void CrearInterfaz()
     {
+        materialSilueta = new Material(Resources.Load<Shader>("DecoracionCatalogo/SiluetaNogal"));
         var lienzo = new GameObject("Canvas Catálogo de peces", typeof(RectTransform), typeof(Canvas),
             typeof(CanvasScaler), typeof(GraphicRaycaster));
         lienzo.transform.SetParent(transform, false);
@@ -137,28 +168,40 @@ public sealed class CatalogoManager : MonoBehaviour
 
         botonCatalogo = CrearBoton("Abrir catálogo", lienzo.transform, Verde,
             Vector2.up, Vector2.up, Vector2.up,
-            new Vector2(24f, -24f), new Vector2(62f, 58f), Abrir);
-        var bordeBotonCatalogo = botonCatalogo.gameObject.AddComponent<Outline>();
-        bordeBotonCatalogo.effectColor = new Color32(242, 182, 50, 190);
-        bordeBotonCatalogo.effectDistance = new Vector2(2f, -2f);
+            new Vector2(24f, -24f), new Vector2(250f, 58f), Abrir);
+        EstiloExpedicion.Borde(botonCatalogo.targetGraphic as Image, EstiloExpedicion.Dorado, 2);
         CrearIconoMenu(botonCatalogo.transform);
+        EstiloExpedicion.Texto(botonCatalogo.transform, "Acceso colección", "Colección de peces", 19,
+            EstiloExpedicion.Papel, .23f, .08f, .96f, .92f);
 
         menu = new GameObject("Menú catálogo", typeof(RectTransform), typeof(Image));
         menu.transform.SetParent(lienzo.transform, false);
         Estirar(menu.GetComponent<RectTransform>());
         menu.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.03f, 0.88f);
 
-        var panel = CrearPanel("Panel de catálogo", menu.transform, Madera,
-            new Vector2(0.035f, 0.045f), new Vector2(0.965f, 0.955f));
-        CrearTexto("Título catálogo", panel.transform, "PECES DEL AMAZONAS", 32, Crema,
-            new Vector2(0.04f, 0.88f), new Vector2(0.66f, 0.98f));
-        progreso = CrearTexto("Progreso catálogo", panel.transform, "", 16, Dorado,
-            new Vector2(0.66f, 0.88f), new Vector2(0.82f, 0.98f));
-        CrearBotonConTexto("Cerrar catálogo", panel.transform, "CERRAR", ColorHex("#6B3B25"), Crema,
-            new Vector2(0.83f, 0.91f), new Vector2(0.96f, 0.91f),
-            new Vector2(0.98f, 0.98f), Vector2.zero, Vector2.zero, Cerrar);
+        var panel = CrearPanel("Panel de catálogo", menu.transform, EstiloExpedicion.Papel,
+            new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
+        EstiloExpedicion.Cabecera(panel.rectTransform, "Peces del Amazonas", "Tu cuaderno de descubrimientos. Cada captura cuenta una historia.", Cerrar);
+        panel.gameObject.AddComponent<FondoNogalCatalogo>().MostrarVetas = false;
+        panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel.rectTransform);
+        panel.transform.Find("Título").GetComponent<Text>().color = TintaCatalogo;
+        tituloCatalogo = panel.transform.Find("Título").GetComponent<Text>();
+        panel.transform.Find("Ayuda").GetComponent<Text>().color = SecundarioNogal;
+        panel.transform.Find("Marca de expedición").GetComponent<Text>().color = SecundarioNogal;
+        panel.transform.Find("Línea de cabecera").gameObject.SetActive(false);
+        EstiloExpedicion.PrepararModal(menu, panel.rectTransform);
+        progreso = CrearTexto("Progreso catálogo", panel.transform, "", 17, TintaCatalogo,
+            new Vector2(0.04f, 0.733f), new Vector2(0.46f, 0.786f));
+        var pista = EstiloExpedicion.Panel(panel.transform, "Progreso de exploración", ColorHex("#64765A"), .49f, .75f, .96f, .765f);
+        rellenoProgreso = EstiloExpedicion.Panel(pista.transform, "Descubiertos", EstiloExpedicion.Verde, 0, 0, 0, 1).rectTransform;
 
         CrearCuadricula(panel.transform);
+        avisoSinEspecies = EstiloExpedicion.Texto(panel.transform, "Especies próximamente",
+            "El catálogo de esta zona estará disponible próximamente.", 22, TintaCatalogo,
+            .08f, .32f, .92f, .58f, false, TextAnchor.MiddleCenter);
+        avisoSinEspecies.gameObject.SetActive(false);
+        EstiloExpedicion.Texto(panel.transform, "Ayuda colección", "Desliza para explorar la colección", 13,
+            SecundarioNogal, .04f, .009f, .96f, .04f, false, TextAnchor.MiddleCenter);
         CrearPanelDetalle(menu.transform);
         menu.SetActive(false);
     }
@@ -166,7 +209,7 @@ public sealed class CatalogoManager : MonoBehaviour
     private void CrearCuadricula(Transform panel)
     {
         var scrollRectTransform = Rect("Desplazamiento catálogo", panel,
-            new Vector2(0.035f, 0.045f), new Vector2(0.965f, 0.86f));
+            new Vector2(0.035f, 0.045f), new Vector2(0.965f, 0.72f));
         var scroll = scrollRectTransform.gameObject.AddComponent<ScrollRect>();
         scroll.horizontal = false;
         scroll.vertical = true;
@@ -189,31 +232,39 @@ public sealed class CatalogoManager : MonoBehaviour
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         grid.constraintCount = Mathf.Clamp(Mathf.FloorToInt(Screen.width / 270f), 2, 4);
         contenido.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        contenido.gameObject.AddComponent<CuadriculaExpedicion>();
         scroll.viewport = viewport;
         scroll.content = contenido;
     }
 
     private void CrearPanelDetalle(Transform padre)
     {
-        detalle = CrearPanel("Ficha del pez", padre, Madera,
-            new Vector2(0.18f, 0.11f), new Vector2(0.82f, 0.89f)).gameObject;
-        CrearTexto("Título ficha", detalle.transform, "FICHA DE ESPECIE", 24, Dorado,
-            new Vector2(0.05f, 0.86f), new Vector2(0.95f, 0.97f));
-        imagenDetalle = CrearPanel("Imagen de especie", detalle.transform, Crema,
-            new Vector2(0.08f, 0.37f), new Vector2(0.48f, 0.83f)).GetComponent<Image>();
+        detalle = CrearPanel("Ficha del pez", padre, EstiloExpedicion.Velo, Vector2.zero, Vector2.one).gameObject;
+        var ficha = CrearPanel("Cuaderno de especie", detalle.transform, EstiloExpedicion.Papel,
+            new Vector2(.08f, .08f), new Vector2(.92f, .92f));
+        EstiloExpedicion.Cabecera(ficha.rectTransform, "Ficha de especie", "Notas de campo · Cuenca del Amazonas", CerrarDetalle);
+        ayudaFicha = ficha.transform.Find("Ayuda").GetComponent<Text>();
+        EstiloExpedicion.PrepararModal(detalle, ficha.rectTransform);
+        imagenDetalle = CrearPanel("Imagen de especie", ficha.transform, Color.white,
+            new Vector2(0.04f, 0.24f), new Vector2(0.48f, 0.75f)).GetComponent<Image>();
         imagenDetalle.preserveAspect = true;
         imagenDetalle.raycastTarget = false;
-        nombreDetalle = CrearTexto("Nombre especie", detalle.transform, "", 27, Crema,
-            new Vector2(0.53f, 0.69f), new Vector2(0.95f, 0.83f));
-        rarezaDetalle = CrearTexto("Rareza especie", detalle.transform, "", 21, Dorado,
-            new Vector2(0.53f, 0.57f), new Vector2(0.95f, 0.69f));
-        rangoDetalle = CrearTexto("Rangos especie", detalle.transform, "", 18, Crema,
-            new Vector2(0.53f, 0.33f), new Vector2(0.95f, 0.57f));
-        habitatDetalle = CrearTexto("Hábitat especie", detalle.transform, "", 16, Crema,
-            new Vector2(0.08f, 0.20f), new Vector2(0.92f, 0.34f));
-        CrearBotonConTexto("Volver a cuadrícula", detalle.transform, "VOLVER", Verde, Crema,
-            new Vector2(0.35f, 0.045f), new Vector2(0.35f, 0.045f),
-            new Vector2(0.65f, 0.16f), Vector2.zero, Vector2.zero, CerrarDetalle);
+        nombreDetalle = CrearTexto("Nombre especie", ficha.transform, "", 30, EstiloExpedicion.Tinta,
+            new Vector2(0.53f, 0.60f), new Vector2(0.95f, 0.75f));
+        rarezaDetalle = CrearTexto("Rareza especie", ficha.transform, "", 19, EstiloExpedicion.Verde,
+            new Vector2(0.53f, 0.52f), new Vector2(0.95f, 0.60f));
+        rangoDetalle = CrearTexto("Rangos especie", ficha.transform, "", 20, EstiloExpedicion.Tinta,
+            new Vector2(0.53f, 0.35f), new Vector2(0.95f, 0.51f));
+        habitatDetalle = CrearTexto("Hábitat especie", ficha.transform, "", 18, EstiloExpedicion.Secundario,
+            new Vector2(0.53f, 0.16f), new Vector2(0.95f, 0.34f));
+        var volver = EstiloExpedicion.Accion(ficha.transform, "Volver a cuadrícula", "Volver a la colección", .32f, .04f, .68f, .13f, CerrarDetalle);
+        var disposicion = ficha.gameObject.AddComponent<DisposicionExpedicion>();
+        disposicion.Agregar(imagenDetalle.rectTransform, .08f, .48f, .92f, .77f);
+        disposicion.Agregar(nombreDetalle.rectTransform, .06f, .39f, .94f, .48f);
+        disposicion.Agregar(rarezaDetalle.rectTransform, .06f, .33f, .94f, .39f);
+        disposicion.Agregar(rangoDetalle.rectTransform, .06f, .24f, .94f, .33f);
+        disposicion.Agregar(habitatDetalle.rectTransform, .06f, .13f, .94f, .24f);
+        disposicion.Agregar((RectTransform)volver.transform, .22f, .035f, .78f, .11f);
         detalle.SetActive(false);
     }
 
@@ -222,7 +273,8 @@ public sealed class CatalogoManager : MonoBehaviour
         if (menu == null) return;
         var contenido = menu.transform.Find("Panel de catálogo/Desplazamiento catálogo/Viewport catálogo/Cuadrícula de especies");
         if (contenido == null) return;
-        foreach (Transform hijo in contenido) Destroy(hijo.gameObject);
+        // Conservar la capa ornamental al reconstruir las tarjetas.
+        foreach (var tarjeta in tarjetas) { tarjeta.SetActive(false); Destroy(tarjeta); }
         tarjetas.Clear();
 
         for (int i = 0; i < especies.Count; i++)
@@ -231,21 +283,33 @@ public sealed class CatalogoManager : MonoBehaviour
             bool descubierto = EstaDescubierto(pez);
             var tarjeta = new GameObject("Especie " + pez.name, typeof(RectTransform), typeof(Image), typeof(Button));
             tarjeta.transform.SetParent(contenido, false);
-            tarjeta.GetComponent<Image>().color = descubierto ? HexRareza(pez.rareza) : ColorHex("#26342D");
+            tarjeta.GetComponent<Image>().color = descubierto ? CremaCasilla : NogalCasilla;
             var boton = tarjeta.GetComponent<Button>();
             boton.targetGraphic = tarjeta.GetComponent<Image>();
             boton.interactable = descubierto;
             boton.onClick.AddListener(() => MostrarDetalle(pez));
+            EstiloExpedicion.Boton(boton);
+            var colores = boton.colors;
+            colores.disabledColor = Color.white;
+            boton.colors = colores;
+            EstiloExpedicion.Borde(tarjeta.GetComponent<Image>(), descubierto ? HexRareza(pez.rareza) : NogalCasilla);
 
             var imagen = CrearPanel("Retrato", tarjeta.transform,
-                descubierto ? Crema : ColorHex("#18221D"), new Vector2(0.08f, 0.24f), new Vector2(0.92f, 0.94f));
+                Color.white, new Vector2(0.08f, 0.32f), new Vector2(0.92f, 0.87f));
             var foto = imagen.GetComponent<Image>();
-            foto.sprite = descubierto ? pez.foto : null;
+            foto.sprite = pez.foto;
+            foto.color = descubierto ? Color.white : SiluetaNogal;
+            foto.material = descubierto ? null : materialSilueta;
             foto.preserveAspect = true;
             foto.raycastTarget = false;
-            string etiqueta = descubierto ? pez.nombreEspecie : "???";
-            CrearTexto("Nombre", tarjeta.transform, etiqueta, 17, descubierto ? Color.white : Dorado,
-                new Vector2(0.04f, 0.04f), new Vector2(0.96f, 0.25f));
+            string etiqueta = descubierto ? pez.nombreEspecie : "Especie por descubrir";
+            CrearTexto("Nombre", tarjeta.transform, etiqueta, 19, TintaCatalogo,
+                new Vector2(0.06f, 0.11f), new Vector2(0.94f, 0.32f));
+            EstiloExpedicion.Texto(tarjeta.transform, "Rareza", pez.caracteristicasPendientes ? "Próximamente" :
+                descubierto ? NombreRareza(pez.rareza) : NombreZona == "Amazonas" ? "?  Explora el río" : "?  Explora el mar", 14,
+                descubierto ? SecundarioCrema : SecundarioNogal, .07f, .02f, .93f, .12f);
+            EstiloExpedicion.Texto(tarjeta.transform, "Número de ficha", (i + 1).ToString("D2") + "  /  " + NombreZona.ToUpperInvariant(), 12,
+                descubierto ? SecundarioCrema : SecundarioNogal, .07f, .88f, .93f, .97f);
             tarjetas.Add(tarjeta);
         }
 
@@ -258,6 +322,7 @@ public sealed class CatalogoManager : MonoBehaviour
         imagenDetalle.sprite = pez.foto;
         nombreDetalle.text = pez.nombreEspecie;
         rarezaDetalle.text = "Rareza: " + NombreRareza(pez.rareza);
+        rarezaDetalle.color = HexRareza(pez.rareza);
         rangoDetalle.text = string.Format(Cultura,
             "Peso: {0:0.##}–{1:0.##} kg\nLongitud: {2:0.##}–{3:0.##} cm",
             pez.pesoMinimo, pez.pesoMaximo, pez.longitudMinima, pez.longitudMaxima);
@@ -279,25 +344,18 @@ public sealed class CatalogoManager : MonoBehaviour
 
     private void ActualizarProgreso()
     {
-        if (progreso != null) progreso.text = $"DESCUBIERTOS  {CantidadDescubierta}/{especies.Count}";
+        if (progreso != null) progreso.text = $"{CantidadDescubierta} de {especies.Count} especies descubiertas";
+        if (rellenoProgreso != null)
+            rellenoProgreso.anchorMax = new Vector2(especies.Count > 0 ? (float)CantidadDescubierta / especies.Count : 0, 1);
     }
 
     private static void CrearIconoMenu(Transform padre)
     {
-        float[] posicionesY = { 12f, 0f, -12f };
-        for (int i = 0; i < posicionesY.Length; i++)
-        {
-            var barra = new GameObject("Barra menú " + (i + 1), typeof(RectTransform), typeof(Image));
-            barra.transform.SetParent(padre, false);
-            var rect = barra.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.sizeDelta = new Vector2(32f, 5f);
-            rect.anchoredPosition = new Vector2(0f, posicionesY[i]);
-            var imagen = barra.GetComponent<Image>();
-            imagen.color = Crema;
-            imagen.raycastTarget = false;
-        }
+        EstiloExpedicion.Panel(padre, "Tapa del cuaderno", EstiloExpedicion.Dorado, .045f, .23f, .18f, .77f);
+        EstiloExpedicion.Panel(padre, "Página", EstiloExpedicion.Papel, .068f, .27f, .17f, .73f);
+        EstiloExpedicion.Panel(padre, "Lomo", EstiloExpedicion.Madera, .057f, .23f, .066f, .77f);
+        EstiloExpedicion.Panel(padre, "Apunte", EstiloExpedicion.Verde, .088f, .53f, .15f, .55f);
+        EstiloExpedicion.Panel(padre, "Apunte inferior", EstiloExpedicion.Verde, .088f, .43f, .14f, .45f);
     }
 
     private static Button CrearBoton(string nombre, Transform padre, Color color,
@@ -312,6 +370,7 @@ public sealed class CatalogoManager : MonoBehaviour
         var boton = rect.gameObject.AddComponent<Button>();
         boton.targetGraphic = imagen;
         boton.onClick.AddListener(accion);
+        EstiloExpedicion.Boton(boton);
         return boton;
     }
 
@@ -344,14 +403,14 @@ public sealed class CatalogoManager : MonoBehaviour
         Vector2 anchorMin, Vector2 anchorMax)
     {
         var texto = Rect(nombre, padre, anchorMin, anchorMax).gameObject.AddComponent<Text>();
-        texto.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        EstiloExpedicion.Tipografia(texto, tamano, color, nombre == "Nombre especie");
         texto.text = contenido;
         texto.fontSize = tamano;
-        texto.fontStyle = FontStyle.Bold;
+        texto.fontStyle = FontStyle.Normal;
         texto.color = color;
         texto.alignment = TextAnchor.MiddleCenter;
         texto.resizeTextForBestFit = true;
-        texto.resizeTextMinSize = 10;
+        texto.resizeTextMinSize = Mathf.Min(tamano, 16);
         texto.resizeTextMaxSize = tamano;
         texto.raycastTarget = false;
         return texto;

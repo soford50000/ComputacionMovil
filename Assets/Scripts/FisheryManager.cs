@@ -5,9 +5,16 @@ public class FisheryManager : MonoBehaviour
 {
     public static FisheryManager Instance; // Patrón Singleton para acceder fácilmente desde otros scripts
 
-    [Header("Zona disponible (RF1)")]
+    [Header("Zona inicial (RF1)")]
     [SerializeField] private ZonaData zonaAmazonas;
-    public ZonaData ZonaActual => zonaAmazonas;
+    private ZonaData zonaActual;
+    private TensionSystem pesca;
+    public ZonaData ZonaInicial => zonaAmazonas;
+    public ZonaData ZonaActual => zonaActual != null ? zonaActual : zonaAmazonas;
+    public ZonaData ZonaSanAndres { get; private set; }
+    public event System.Action<ZonaData> ZonaCambiada;
+    public bool TieneEspecies => ZonaActual != null && ZonaActual.especiesDeEstaZona != null &&
+        System.Array.Exists(ZonaActual.especiesDeEstaZona, pez => pez != null && !pez.caracteristicasPendientes);
 
     [Header("Base de datos de Peces (compatibilidad)")]
     [Tooltip("Arrastra aquí todos los peces (ScriptableObjects) que creaste en el proyecto.")]
@@ -27,12 +34,24 @@ public class FisheryManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            pesca = GetComponent<TensionSystem>();
+            ZonaSanAndres = Resources.Load<ZonaData>("Zonas/SanAndres");
             DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    public bool CambiarZona(ZonaData zona)
+    {
+        if (zona == null || (zona != ZonaInicial && zona != ZonaSanAndres) ||
+            (pesca != null && !pesca.PuedeCambiarCana)) return false;
+        if (zona == ZonaActual) return true;
+        zonaActual = zona;
+        ZonaCambiada?.Invoke(zona);
+        return true;
     }
 
     /// <summary>
@@ -43,9 +62,8 @@ public class FisheryManager : MonoBehaviour
     /// <param name="cebo">Carnada para múltiples especies. Tiene prioridad sobre los parámetros anteriores.</param>
     public PezData GenerarPezAleatorio(PezData pezEspecialCebo = null, float multiplicadorCebo = 1f, CeboData cebo = null)
     {
-        if (zonaAmazonas == null || zonaAmazonas.especiesDeEstaZona == null || zonaAmazonas.especiesDeEstaZona.Length == 0)
+        if (!TieneEspecies)
         {
-            Debug.LogError("Asigna Amazonas y sus especies en FisheryManager.", this);
             return null;
         }
 
@@ -53,9 +71,9 @@ public class FisheryManager : MonoBehaviour
         Dictionary<PezData, float> probabilidadesPonderadas = new Dictionary<PezData, float>();
         float pesoTotal = 0f;
 
-        foreach (var pez in zonaAmazonas.especiesDeEstaZona)
+        foreach (var pez in ZonaActual.especiesDeEstaZona)
         {
-            if (pez == null || probabilidadesPonderadas.ContainsKey(pez)) continue;
+            if (pez == null || pez.caracteristicasPendientes || probabilidadesPonderadas.ContainsKey(pez)) continue;
             float pesoRarezaBase = Mathf.Max(0f, ObtenerPesoBasePorRareza(pez.rareza));
 
             // Aplicar la lógica del cebo (RF11): si coincide con el cebo, aumentamos su probabilidad
@@ -75,7 +93,7 @@ public class FisheryManager : MonoBehaviour
 
         if (pesoTotal <= 0f || float.IsInfinity(pesoTotal))
         {
-            Debug.LogError("Amazonas no tiene especies con probabilidades válidas.", this);
+            Debug.LogError("La zona actual no tiene especies con probabilidades válidas.", this);
             return null;
         }
 

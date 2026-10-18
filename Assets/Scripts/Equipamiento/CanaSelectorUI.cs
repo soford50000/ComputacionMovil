@@ -42,10 +42,12 @@ public sealed class CanaSelectorUI : MonoBehaviour
         EquiparCanaInicial();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         bool puedeCambiar = sistemaPesca != null && sistemaPesca.PuedeCambiarCana;
         if (botonEquipo != null) botonEquipo.interactable = puedeCambiar;
+        if (botonEquipo != null && botonEquipo.gameObject.activeSelf != puedeCambiar)
+            botonEquipo.gameObject.SetActive(puedeCambiar);
         if (!puedeCambiar && ventana != null && ventana.activeSelf) CerrarVentana();
     }
 
@@ -91,19 +93,11 @@ public sealed class CanaSelectorUI : MonoBehaviour
         ventanaRect.offsetMax = Vector2.zero;
         ventana.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.03f, 0.82f);
 
-        var panel = CrearPanel("Panel de cañas", ventana.transform, Madera,
-            new Vector2(0.07f, 0.09f), new Vector2(0.93f, 0.91f));
-        CrearTexto("Título", panel, "EQUIPO DE PESCA", 34, Crema,
-            new Vector2(0.06f, 0.82f), new Vector2(0.78f, 0.96f));
-        CrearTexto("Instrucción", panel,
-            "Compra con oro y equipa una caña antes de lanzar.",
-            17, Hex("DCC89B"), new Vector2(0.06f, 0.74f), new Vector2(0.94f, 0.83f));
-
-        CrearBoton("Cerrar menú de cañas", panel, Hex("6B3B25"),
-            new Vector2(0.84f, 0.84f), new Vector2(0.84f, 0.84f),
-            new Vector2(0.98f, 0.98f), Vector2.zero, Vector2.zero, CerrarVentana);
-        CrearTexto("Texto cerrar", panel, "CERRAR", 14, Crema,
-            new Vector2(0.84f, 0.84f), new Vector2(0.98f, 0.98f));
+        var panel = CrearPanel("Panel de cañas", ventana.transform, EstiloExpedicion.Papel,
+            new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
+        EstiloExpedicion.Cabecera(panel, "Equipo de pesca", "Elige una compañera para tu próxima expedición.", CerrarVentana);
+        EstiloExpedicion.PrepararModal(ventana, panel);
+        panel.gameObject.AddComponent<DisposicionExpedicion>();
 
         int cantidad = canasDisponibles == null ? 0 : canasDisponibles.Length;
         if (cantidad == 0)
@@ -122,7 +116,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         for (int i = 0; i < cantidad; i++)
             CrearOpcionCana(panel, i, cantidad, ancho, separacion);
 
-        textoAviso = CrearTexto("Aviso de equipo", panel, "", 15, Hex("E1C17A"),
+        textoAviso = CrearTexto("Aviso de equipo", panel, "Selecciona una caña para comprarla o equiparla.", 17, EstiloExpedicion.Secundario,
             new Vector2(0.08f, 0.025f), new Vector2(0.92f, 0.11f));
         ventana.SetActive(false);
     }
@@ -134,9 +128,9 @@ public sealed class CanaSelectorUI : MonoBehaviour
         float xMin = 0.06f + (indice % columnas) * (ancho + separacion);
         float xMax = xMin + ancho;
         int filas = Mathf.CeilToInt(cantidad / (float)columnas);
-        float alto = (0.54f - separacion * (filas - 1)) / filas;
-        float yMax = 0.70f - (indice / columnas) * (alto + separacion);
-        Color colorFondo = Hex("3C2A1D");
+        float alto = (0.63f - separacion * (filas - 1)) / filas;
+        float yMax = 0.76f - (indice / columnas) * (alto + separacion);
+        Color colorFondo = EstiloExpedicion.Papel;
         var boton = CrearBoton(
             "Opción " + (cana != null ? cana.nombreCana : "caña inválida"),
             padre,
@@ -149,34 +143,39 @@ public sealed class CanaSelectorUI : MonoBehaviour
             () => SeleccionarCana(cana));
 
         fondosOpciones[indice] = boton.targetGraphic as Image;
+        float altoVertical = .63f / cantidad;
+        float techoVertical = .76f - indice * altoVertical;
+        padre.GetComponent<DisposicionExpedicion>().Agregar((RectTransform)boton.transform,
+            .06f, techoVertical - altoVertical + .014f, .94f, techoVertical);
         CrearIconoCana(boton.transform, indice, cana);
 
         string nombre = cana != null ? cana.nombreCana : "Caña sin datos";
         float poder = cana != null ? cana.poderCana : 0f;
         float tolerancia = cana != null ? cana.bonificacionTolerancia : 0f;
         int precio = cana != null ? cana.precio : 0;
-        CrearTexto("Nombre", boton.transform, nombre, 21, Crema,
-            new Vector2(0.28f, 0.69f), new Vector2(0.96f, 0.91f));
+        CrearTexto("Nombre", boton.transform, nombre, 26, EstiloExpedicion.Tinta,
+            new Vector2(0.34f, 0.69f), new Vector2(0.96f, 0.94f));
         bool pendientes = cana != null && cana.estadisticasPendientes;
         CrearTexto("Estadísticas", boton.transform,
-            pendientes ? "ESTADÍSTICAS POR DEFINIR" : $"PODER {poder:0.#}  ·  TOLERANCIA +{tolerancia:0.#}",
-            14, Hex("E1C17A"), new Vector2(0.28f, 0.46f), new Vector2(0.96f, 0.69f));
+            pendientes ? "Estadísticas por definir" : $"Poder  {poder:0.#}\nTolerancia  +{tolerancia:0.#}",
+            18, EstiloExpedicion.Secundario, new Vector2(0.34f, 0.39f), new Vector2(0.96f, 0.69f));
         string detalle = cana != null && cana.modeloVisual == ModeloCana.ShimanoFx
             ? "INICIAL · GRATIS"
-            : precio > 0 ? $"{precio:N0} ORO"
+            : precio > 0 ? $"$ {precio:N0}"
             : pendientes && cana.puestoPotenciaPrevisto > 0
                 ? (cana.puestoPotenciaPrevisto == 1 ? "LA MÁS POTENTE" : $"{cana.puestoPotenciaPrevisto}.ª MÁS POTENTE")
                 : "GRATIS";
         CrearTexto("Precio o posición prevista", boton.transform, detalle,
-            17, Hex("F2B632"), new Vector2(0.28f, 0.30f), new Vector2(0.96f, 0.46f));
+            17, EstiloExpedicion.Tinta, new Vector2(0.34f, 0.24f), new Vector2(0.96f, 0.39f));
+        EstiloExpedicion.Panel(boton.transform, "Separador", EstiloExpedicion.PapelOscuro, .34f, .22f, .94f, .225f);
         marcasOpciones[indice] = CrearTexto("Estado de caña", boton.transform, "",
-            13, Crema, new Vector2(0.28f, 0.08f), new Vector2(0.96f, 0.27f));
+            17, EstiloExpedicion.Verde, new Vector2(0.34f, 0.045f), new Vector2(0.96f, 0.21f));
     }
 
     private void CrearIconoCana(Transform padre, int indice, CanaData cana)
     {
         var zona = CrearPanel("Silueta de caña", padre, Color.clear,
-            new Vector2(0.035f, 0.19f), new Vector2(0.27f, 0.88f));
+            new Vector2(0.025f, 0.06f), new Vector2(0.32f, 0.94f));
         zona.GetComponent<Image>().raycastTarget = false;
 
         if (cana != null && cana.iconoCana != null)
@@ -291,7 +290,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
             }
             if (!EconomiaManager.Instance.IntentarGastarOro(cana.precio))
             {
-                textoAviso.text = $"Saldo insuficiente. Necesitas {cana.precio:N0} monedas.";
+                textoAviso.text = $"Saldo insuficiente. Necesitas $ {cana.precio:N0}.";
                 return;
             }
             MarcarComoComprada(cana);
@@ -324,8 +323,9 @@ public sealed class CanaSelectorUI : MonoBehaviour
             CanaData cana = canasDisponibles[i];
             bool seleccionada = cana == equipada;
             bool comprada = EstaComprada(cana);
-            marcasOpciones[i].text = seleccionada ? "EQUIPADA" : comprada ? "COMPRADA · TOCA PARA EQUIPAR" : "TOCA PARA COMPRAR";
-            fondosOpciones[i].color = seleccionada ? VerdeClaro : comprada ? Hex("3C2A1D") : Hex("35251D");
+            marcasOpciones[i].text = seleccionada ? "✓ Equipada" : comprada ? "Equipar caña  →" : "Comprar caña  →";
+            fondosOpciones[i].color = seleccionada ? EstiloExpedicion.PapelOscuro : EstiloExpedicion.Papel;
+            EstiloExpedicion.Borde(fondosOpciones[i], seleccionada ? EstiloExpedicion.Dorado : EstiloExpedicion.PapelOscuro, seleccionada ? 3 : 1);
         }
     }
 
@@ -359,6 +359,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
     private void AlternarVentana()
     {
         if (sistemaPesca == null || !sistemaPesca.PuedeCambiarCana) return;
+        ActualizarEstadoOpciones();
         ventana.SetActive(!ventana.activeSelf);
     }
 
@@ -400,6 +401,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         colores.pressedColor = Hex("DDE8D8");
         colores.colorMultiplier = 1f;
         boton.colors = colores;
+        EstiloExpedicion.Boton(boton);
         return boton;
     }
 
@@ -428,14 +430,14 @@ public sealed class CanaSelectorUI : MonoBehaviour
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
         var texto = objeto.GetComponent<Text>();
-        texto.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        EstiloExpedicion.Tipografia(texto, tamano, color, nombre == "Nombre");
         texto.text = contenido;
         texto.fontSize = tamano;
         texto.resizeTextForBestFit = true;
-        texto.resizeTextMinSize = 10;
+        texto.resizeTextMinSize = Mathf.Min(tamano, 16);
         texto.resizeTextMaxSize = tamano;
-        texto.fontStyle = FontStyle.Bold;
-        texto.alignment = TextAnchor.MiddleCenter;
+        texto.fontStyle = FontStyle.Normal;
+        texto.alignment = TextAnchor.MiddleLeft;
         texto.color = color;
         texto.raycastTarget = false;
         return texto;

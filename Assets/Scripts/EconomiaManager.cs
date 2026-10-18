@@ -20,6 +20,8 @@ public sealed class EconomiaManager : MonoBehaviour
     private Text textoSaldo;
     private GameObject ventana;
     private Text textoSaldoModal;
+    private TensionSystem sistemaPesca;
+    private GameObject accesoSaldo;
 
     private void Awake()
     {
@@ -30,12 +32,21 @@ public sealed class EconomiaManager : MonoBehaviour
         }
 
         Instance = this;
+        sistemaPesca = GetComponent<TensionSystem>();
         Saldo = PlayerPrefs.HasKey(ClaveSaldo)
             ? Mathf.Max(0, PlayerPrefs.GetInt(ClaveSaldo))
             : Mathf.Max(0, saldoInicial);
         GuardarSaldo();
         ConstruirInterfaz();
         ActualizarInterfaz();
+    }
+
+    private void LateUpdate()
+    {
+        bool disponible = sistemaPesca == null || sistemaPesca.PuedeCambiarCana;
+        if (accesoSaldo != null && accesoSaldo.activeSelf != disponible)
+            accesoSaldo.SetActive(disponible);
+        if (!disponible && ventana != null && ventana.activeSelf) CerrarVentana();
     }
 
     public void AgregarOro(int cantidad)
@@ -89,13 +100,20 @@ public sealed class EconomiaManager : MonoBehaviour
         scaler.referenceResolution = new Vector2(1280, 720);
         scaler.matchWidthOrHeight = 0.5f;
 
-        var wallet = Rect("Saldo de oro", canvasObject.transform, 0.81f, 0.91f, 0.985f, 0.985f);
+        var wallet = Rect("Saldo de oro", canvasObject.transform, 1, 1, 1, 1);
+        wallet.pivot = Vector2.one;
+        wallet.anchoredPosition = new Vector2(-90, -18);
+        wallet.sizeDelta = new Vector2(130, 58);
+        accesoSaldo = wallet.gameObject;
         var walletImage = wallet.gameObject.AddComponent<Image>();
         walletImage.color = Madera;
         var button = wallet.gameObject.AddComponent<Button>();
         button.targetGraphic = walletImage;
         button.onClick.AddListener(AbrirVentana);
         textoSaldo = Etiqueta("Cantidad de oro", wallet, "", 22, Dorado, 0.03f, 0.05f, 0.97f, 0.95f);
+        textoSaldo.resizeTextForBestFit = false;
+        textoSaldo.horizontalOverflow = HorizontalWrapMode.Overflow;
+        gameObject.AddComponent<ZonaSelectorUI>().Preparar(canvasObject.transform);
 
         ventana = new GameObject("Ventana de dinero", typeof(RectTransform), typeof(Image));
         ventana.transform.SetParent(canvasObject.transform, false);
@@ -105,22 +123,17 @@ public sealed class EconomiaManager : MonoBehaviour
 
         var tarjeta = Rect("Tarjeta de saldo", ventana.transform, 0.25f, 0.28f, 0.75f, 0.72f);
         tarjeta.gameObject.AddComponent<Image>().color = Madera;
-        Etiqueta("Titulo", tarjeta, "ORO DEL AMAZONAS", 30, Dorado, 0.04f, 0.69f, 0.96f, 0.94f);
+        Etiqueta("Titulo", tarjeta, "TU SALDO", 30, Dorado, 0.04f, 0.69f, 0.78f, 0.94f);
         textoSaldoModal = Etiqueta("Saldo guardado", tarjeta, "", 42, Color.white, 0.05f, 0.36f, 0.95f, 0.68f);
         Etiqueta("Guardado local", tarjeta, "Tu saldo se guarda automáticamente en este dispositivo.",
             17, new Color(0.89f, 0.85f, 0.74f), 0.06f, 0.18f, 0.94f, 0.36f);
-        var cerrar = Rect("Cerrar", tarjeta, 0.35f, 0.04f, 0.65f, 0.16f);
-        var cerrarImagen = cerrar.gameObject.AddComponent<Image>();
-        cerrarImagen.color = Dorado;
-        var cerrarBoton = cerrar.gameObject.AddComponent<Button>();
-        cerrarBoton.targetGraphic = cerrarImagen;
-        cerrarBoton.onClick.AddListener(CerrarVentana);
-        Etiqueta("Cerrar texto", cerrar, "VOLVER", 19, Madera, 0f, 0f, 1f, 1f);
+        EstiloExpedicion.Cierre(tarjeta, CerrarVentana, EstiloExpedicion.Papel);
         ventana.SetActive(false);
     }
 
     private void AbrirVentana()
     {
+        if (sistemaPesca != null && !sistemaPesca.PuedeCambiarCana) return;
         ActualizarInterfaz();
         ventana.SetActive(true);
     }
@@ -129,8 +142,14 @@ public sealed class EconomiaManager : MonoBehaviour
 
     private void ActualizarInterfaz()
     {
-        if (textoSaldo != null) textoSaldo.text = "ORO  " + Saldo.ToString("N0", Cultura);
-        if (textoSaldoModal != null) textoSaldoModal.text = Saldo.ToString("N0", Cultura) + " monedas";
+        if (textoSaldo != null)
+        {
+            textoSaldo.text = "$ " + Saldo.ToString("N0", Cultura);
+            // El importe puede crecer sin reducir la tipografía de 22 puntos.
+            ((RectTransform)accesoSaldo.transform).SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal, Mathf.Max(130, textoSaldo.preferredWidth + 24));
+        }
+        if (textoSaldoModal != null) textoSaldoModal.text = "$ " + Saldo.ToString("N0", Cultura);
     }
 
     private static RectTransform Rect(string nombre, Transform padre, float x0, float y0, float x1, float y1)
@@ -147,10 +166,10 @@ public sealed class EconomiaManager : MonoBehaviour
         Color color, float x0, float y0, float x1, float y1)
     {
         var texto = Rect(nombre, padre, x0, y0, x1, y1).gameObject.AddComponent<Text>();
-        texto.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        texto.font = EstiloExpedicion.Fuente;
         texto.text = contenido;
         texto.fontSize = tamano;
-        texto.fontStyle = FontStyle.Bold;
+        texto.fontStyle = FontStyle.Normal;
         texto.color = color;
         texto.alignment = TextAnchor.MiddleCenter;
         texto.resizeTextForBestFit = true;

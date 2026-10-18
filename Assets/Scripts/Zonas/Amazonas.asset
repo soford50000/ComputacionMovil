@@ -15,7 +15,7 @@ MonoBehaviour:
   nombreZona: Amazonas
   descripcion: La zona principal del juego, donde habitan todas las especies de peces
     que estan incluidas en este.
-  fondoZona: {fileID: 0}
+  fondoZona: {fileID: 2008046351130660985, guid: 0bf892d560464a743b275aac93247e32, type: 3}
   IconoMenu: {fileID: 0}
   musicaAmbiente: {fileID: 0}
   especiesDeEstaZona:

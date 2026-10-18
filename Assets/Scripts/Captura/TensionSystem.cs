@@ -27,7 +27,7 @@ public class TensionSystem : MonoBehaviour
     [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
     [Header("RF4: tensión vinculada al toque")]
     [SerializeField, Min(0.05f)] private float velocidadSubidaTension = 0.38f;
-    [SerializeField, Min(0.05f)] private float velocidadBajadaTension = 0.34f;
+    [SerializeField, Min(0.05f)] private float velocidadBajadaTension = 0.44f;
     [SerializeField] private Vector2 intervaloTirones = new Vector2(1.4f, 2.6f);
     [SerializeField, Min(0.1f)] private float tiempoMaximoEnRojo = 1.1f;
     [SerializeField] private CanaData canaEquipada;
@@ -82,6 +82,8 @@ public class TensionSystem : MonoBehaviour
     public bool PuedeCambiarCebo => estado == EstadoPesca.Listo;
     public event Action CeboCambiado;
     private CeboSelectorUI selectorCebos;
+    private FisheryManager gestorZonas;
+    private ZonaSelectorUI selectorZonas;
 
     public bool EquiparCebo(CeboData cebo)
     {
@@ -124,6 +126,19 @@ public class TensionSystem : MonoBehaviour
         selectorCebos = GetComponent<CeboSelectorUI>();
         if (selectorCebos == null) selectorCebos = gameObject.AddComponent<CeboSelectorUI>();
     }
+
+    private void Start()
+    {
+        gestorZonas = GetComponent<FisheryManager>();
+        selectorZonas = GetComponent<ZonaSelectorUI>();
+        if (gestorZonas != null)
+        {
+            gestorZonas.ZonaCambiada += AlCambiarZona;
+            AlCambiarZona(gestorZonas.ZonaActual);
+        }
+    }
+
+    private void AlCambiarZona(ZonaData zona) => VolverAListo();
 
     private void Update()
     {
@@ -197,7 +212,8 @@ public class TensionSystem : MonoBehaviour
     /// <summary>Callback del botón táctil «Lanzar / Pescar».</summary>
     public void IniciarLanzamiento()
     {
-        if (estado != EstadoPesca.Listo || (selectorCebos != null && selectorCebos.EstaAbierto))
+        if (estado != EstadoPesca.Listo || (selectorCebos != null && selectorCebos.EstaAbierto) ||
+            (selectorZonas != null && selectorZonas.EstaAbierto))
             return;
 
         var gestorPeces = FisheryManager.Instance;
@@ -208,10 +224,16 @@ public class TensionSystem : MonoBehaviour
             return;
         }
 
+        if (!gestorPeces.TieneEspecies)
+        {
+            textoEstado.text = "Las especies de esta zona estarán disponibles próximamente.";
+            return;
+        }
+
         pezEnAnzuelo = gestorPeces.GenerarPezAleatorio(cebo: ceboEquipado);
         if (pezEnAnzuelo == null)
         {
-            textoEstado.text = "No se pudo iniciar: revisa los peces de Amazonas.";
+            textoEstado.text = "No se pudo iniciar: revisa los peces de esta zona.";
             return;
         }
 
@@ -258,7 +280,7 @@ public class TensionSystem : MonoBehaviour
         SetZonaActiva(true);
         hudLanzamiento.SetActive(false);
         ColocarMensajeDePique();
-        textoEstado.text = "¡PICÓ! " + pezEnAnzuelo.nombreEspecie;
+        textoEstado.text = "¡PICÓ!";
         PiqueDetectado?.Invoke();
         alPique.Invoke();
     }
@@ -314,8 +336,6 @@ public class TensionSystem : MonoBehaviour
             tiempoEnZonaSegura += delta;
         tiempoEnRojo = enZonaSegura ? 0f : tiempoEnRojo + delta;
 
-        float restante = Mathf.Max(0f, duracionForcejeo - tiempoForcejeo);
-        textoEstado.text = $"¡PICÓ! {pezEnAnzuelo.nombreEspecie} — {Mathf.CeilToInt(restante)} s";
         ActualizarTextoTension();
 
         if (tiempoEnRojo >= tiempoMaximoEnRojo)
@@ -602,7 +622,8 @@ public class TensionSystem : MonoBehaviour
         subtituloRect.anchorMax = new Vector2(0.85f, 0.45f);
 
         marcaBotonLanzar = CrearTexto("Marca Amazonas", botonObject.transform);
-        marcaBotonLanzar.text = "AMAZONAS";
+        marcaBotonLanzar.text = FisheryManager.Instance != null && FisheryManager.Instance.ZonaActual != null
+            ? FisheryManager.Instance.ZonaActual.nombreZona.ToUpperInvariant() : "AMAZONAS";
         marcaBotonLanzar.fontSize = 9;
         marcaBotonLanzar.resizeTextMinSize = 7;
         marcaBotonLanzar.resizeTextMaxSize = 9;
@@ -650,8 +671,8 @@ public class TensionSystem : MonoBehaviour
         rect.offsetMax = Vector2.zero;
 
         var text = label.GetComponent<Text>();
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.fontStyle = FontStyle.Bold;
+        text.font = EstiloExpedicion.Fuente;
+        text.fontStyle = FontStyle.Normal;
         text.alignment = TextAnchor.MiddleCenter;
         text.color = Color.white;
         text.resizeTextForBestFit = true;
@@ -818,13 +839,16 @@ public class TensionSystem : MonoBehaviour
     {
         estado = EstadoPesca.Listo;
         SetZonaActiva(false);
-        botonLanzar.interactable = true;
+        bool disponible = gestorZonas == null || gestorZonas.TieneEspecies;
+        botonLanzar.interactable = disponible;
         hudLanzamiento.SetActive(true);
-        textoBotonLanzar.text = "LANZAR";
+        textoBotonLanzar.text = disponible ? "LANZAR" : "PRONTO";
         subtituloBotonLanzar.text = "PESCA";
-        marcaBotonLanzar.text = "AMAZONAS";
+        marcaBotonLanzar.text = gestorZonas != null && gestorZonas.ZonaActual != null
+            ? gestorZonas.ZonaActual.nombreZona.ToUpperInvariant() : "AMAZONAS";
         ColocarMensajeListo();
-        textoEstado.text = "Pulsa para lanzar el anzuelo.";
+        textoEstado.text = disponible ? "Pulsa para lanzar el anzuelo."
+            : "Las especies de esta zona estarán disponibles próximamente.";
     }
 
     private void OnDisable()
@@ -836,6 +860,7 @@ public class TensionSystem : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (gestorZonas != null) gestorZonas.ZonaCambiada -= AlCambiarZona;
         if (interfazResultado != null)
             interfazResultado.alRecoger.RemoveListener(VolverAListo);
 

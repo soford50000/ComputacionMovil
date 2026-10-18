@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d04b017c3a1e2c74da3b02f174f75d95, type: 3}
+  m_Name: SanAndres
+  m_EditorClassIdentifier: Assembly-CSharp::ZonaData
+  nombreZona: "San Andr\xE9s"
+  descripcion: "Caribe Insular. Aguas turquesas e islas para explorar; especies pr\xF3ximamente."
+  fondoZona: {fileID: 21300000, guid: e115c9be9ca34db198bf2e424669b3d4, type: 3}
+  IconoMenu: {fileID: 0}
+  musicaAmbiente: {fileID: 0}
+  especiesDeEstaZona:
+  - {fileID: 11400000, guid: eeb38e2b277ce65479af34dc2604ee5a, type: 2}
+  - {fileID: 11400000, guid: ed52c36019c0347468cc70d2e3ce46cb, type: 2}
+  - {fileID: 11400000, guid: 69861c026879daa43bea020e22230c43, type: 2}
+  - {fileID: 11400000, guid: 9c5c90b7e7cdef74aa19500484eade49, type: 2}
+  - {fileID: 11400000, guid: ecd2369940eb4d84aaacebedd7a093f1, type: 2}
+  - {fileID: 11400000, guid: b9ba1010ab578b34e8f521e87cd9b5c3, type: 2}
+  - {fileID: 11400000, guid: 2ba594e37aaa93f4b9cd22b2893a2f50, type: 2}
+  - {fileID: 11400000, guid: 7e28f78520e8ea6438f143b74f82eef6, type: 2}
+  - {fileID: 11400000, guid: 63f9f2a7e35a94e489d59d5d59e0a9d1, type: 2}
+  - {fileID: 11400000, guid: 4971a48545498d34bbc4638265bb765a, type: 2}
+  - {fileID: 11400000, guid: 8fb92f7f46c895c4c9b92a83a6a80db7, type: 2}
+  - {fileID: 11400000, guid: 2f354be204f1cb14790020384b1d4c52, type: 2}
+  - {fileID: 11400000, guid: 4e9b925f11e1adf4cb921423a0309138, type: 2}
+  - {fileID: 11400000, guid: 311929f1590812f43a39ed0e4d9cb2cd, type: 2}
+  - {fileID: 11400000, guid: 85c5f59658a09b9418e27e3125cf41cf, type: 2}

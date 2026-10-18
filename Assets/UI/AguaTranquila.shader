@@ -3,10 +3,10 @@ Shader "Pesca/AguaTranquila"
     Properties
     {
         [PerRendererData] _MainTex ("Fotografía", 2D) = "white" {}
-        _Intensity ("Amplitud en píxeles de pantalla", Range(0, 5)) = 2.5
+        _Intensity ("Amplitud en píxeles de pantalla", Range(0, 5)) = 3.51
         [HideInInspector] _RippleTime ("Tiempo de las ondas", Float) = 0
         [HideInInspector] _RippleUvPerPixel ("UV por píxel de pantalla", Vector) = (0.001, 0.001, 0, 0)
-        _Waterline ("Límite del agua", Range(0.05, 0.5)) = 0.34
+        _Waterline ("Límite del agua", Range(0.05, 0.5)) = 0.433
     }
     SubShader
     {

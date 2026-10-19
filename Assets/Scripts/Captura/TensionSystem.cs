@@ -230,11 +230,26 @@ public class TensionSystem : MonoBehaviour
             return;
         }
 
-        pezEnAnzuelo = gestorPeces.GenerarPezAleatorio(cebo: ceboEquipado);
+        if (ceboEquipado != null && (selectorCebos == null || !selectorCebos.TieneUsos(ceboEquipado)))
+        {
+            ceboEquipado = null;
+            CeboCambiado?.Invoke();
+        }
+
+        CeboData ceboUsado = ceboEquipado;
+        pezEnAnzuelo = gestorPeces.GenerarPezAleatorio(cebo: ceboUsado);
         if (pezEnAnzuelo == null)
         {
             textoEstado.text = "No se pudo iniciar: revisa los peces de esta zona.";
             return;
+        }
+
+        // Una unidad se consume al lanzar, aunque el pez escape después.
+        if (ceboUsado != null && selectorCebos != null && selectorCebos.ConsumirUso(ceboUsado))
+        {
+            if (!selectorCebos.TieneUsos(ceboUsado))
+                ceboEquipado = null;
+            CeboCambiado?.Invoke();
         }
 
         estado = EstadoPesca.EsperandoPique;
@@ -763,7 +778,7 @@ public class TensionSystem : MonoBehaviour
 
     private void AsegurarEventSystem()
     {
-        var sistemas = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
+        var sistemas = FindObjectsByType<EventSystem>();
         var eventSystem = EventSystem.current;
         if (eventSystem == null && sistemas.Length > 0)
             eventSystem = sistemas[0];

@@ -126,7 +126,7 @@ public sealed class CatalogoManager : MonoBehaviour
     {
         especies.Clear();
         FisheryManager gestor = FisheryManager.Instance;
-        if (gestor == null) gestor = FindFirstObjectByType<FisheryManager>();
+        if (gestor == null) gestor = FindAnyObjectByType<FisheryManager>();
         if (gestor != null && gestor.ZonaActual != null && gestor.ZonaActual.especiesDeEstaZona != null)
         {
             foreach (var pez in gestor.ZonaActual.especiesDeEstaZona)

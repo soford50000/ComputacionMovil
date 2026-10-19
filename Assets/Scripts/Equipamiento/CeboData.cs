@@ -8,7 +8,10 @@ public sealed class CeboData : ScriptableObject
     [TextArea] public string descripcion;
     [Min(0)] public int precio = 50;
     [Min(1f)] public float multiplicadorAparicion = 2f;
+    [Range(2, 3)] public int usosPorCompra = 3;
     public PezData[] especiesFavorecidas;
+
+    public int UsosPorCompra => Mathf.Clamp(usosPorCompra, 2, 3);
 
     public float MultiplicadorPara(PezData pez)
     {

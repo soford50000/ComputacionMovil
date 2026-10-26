@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: "S\xE1balo atl\xE1ntico"
   foto: {fileID: 21300000, guid: 64057a36000ad2e42ba7e7c4e2364301, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 3
+  fuerzaPez: 9
+  pesoMinimo: 20
+  pesoMaximo: 100
+  longitudMinima: 100
+  longitudMaxima: 220
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Bahías, estuarios y aguas costeras."
+  descripcion: "Sus grandes escamas plateadas reflejan la luz cuando recorre las aguas costeras. Famoso por sus saltos fuera del agua, combina una presencia imponente con una lucha llena de energía."

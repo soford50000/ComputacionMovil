@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Pargo de manglar
   foto: {fileID: 21300000, guid: 668614f07aafc1e43bb76feaf39a8b88, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 1
+  fuerzaPez: 5
+  pesoMinimo: 1
+  pesoMaximo: 6
+  longitudMinima: 30
+  longitudMaxima: 65
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Manglares, rocas y arrecifes costeros."
+  descripcion: "Se refugia entre raíces, rocas y salientes, donde encuentra peces pequeños y crustáceos. Su coloración discreta le ayuda a confundirse con las sombras de la costa."

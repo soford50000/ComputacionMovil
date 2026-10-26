@@ -67,7 +67,7 @@ public class CapturaResultUI : MonoBehaviour
         foto.sprite = resultado.Pez.foto;
         foto.enabled = foto.sprite != null;
         rareza.text = NombreRareza(resultado.Pez.rareza);
-        rareza.color = ColorRareza(resultado.Pez.rareza);
+        TemaZonaUI.Colorear(rareza, ColorRareza(resultado.Pez.rareza));
         peso.text = resultado.PesoKg.ToString("0.##", cultura) + " kg";
         largo.text = (resultado.LongitudCm / 100f).ToString("0.###", cultura) + " m";
         oro.text = "+$ " + resultado.Oro.ToString(cultura);
@@ -155,7 +155,8 @@ public class CapturaResultUI : MonoBehaviour
         var fondo = Panel("Cuaderno de captura", sombra, EstiloExpedicion.Papel, .04f, .08f, .96f, .92f);
         EstiloExpedicion.Enmarcar(fondo);
         EstiloExpedicion.PrepararModal(ventana, fondo);
-        Etiqueta("Titulo", fondo, "Una historia más del río", 36, EstiloExpedicion.Tinta, .04f, .83f, .73f, .93f, TextAnchor.MiddleLeft);
+        var titulo = Etiqueta("Titulo", fondo, "", 36, EstiloExpedicion.Tinta, .04f, .83f, .73f, .93f, TextAnchor.MiddleLeft);
+        TemaZonaUI.Rotular(titulo, "Una historia más del río", "Una historia más del mar");
         avisoNuevaEspecie = EstiloExpedicion.Texto(fondo, "Nueva especie", "¡Nueva especie!", 20,
             EstiloExpedicion.Verde, .75f, .85f, .96f, .93f, false, TextAnchor.MiddleCenter).gameObject;
         var imagen = Panel("Pez", fondo, Color.white, .025f, .20f, .49f, .77f);
@@ -213,7 +214,7 @@ public class CapturaResultUI : MonoBehaviour
     private static RectTransform Panel(string nombre, Transform padre, Color color, float x0, float y0, float x1, float y1)
     {
         var rect = Rect(nombre, padre, x0, y0, x1, y1);
-        rect.gameObject.AddComponent<Image>().color = color;
+        TemaZonaUI.Colorear(rect.gameObject.AddComponent<Image>(), color);
         return rect;
     }
 

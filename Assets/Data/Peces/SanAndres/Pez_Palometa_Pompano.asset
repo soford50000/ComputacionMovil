@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Palometa pompano
   foto: {fileID: 21300000, guid: 6e298695791a10a4e8008a08df07442c, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 1
+  fuerzaPez: 4
+  pesoMinimo: 0.5
+  pesoMaximo: 3
+  longitudMinima: 25
+  longitudMaxima: 50
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Playas de arena y aguas costeras someras."
+  descripcion: "De cuerpo plateado y aplanado, recorre las aguas claras próximas a la arena. Sus aletas dibujan giros suaves mientras explora el fondo en busca de alimento."

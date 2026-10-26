@@ -10,16 +10,36 @@ La foto suministrada se conserva en `Assets/UI/SanAndres.jpg`. `Assets/Resources
 
 San Andrés tiene un primer lote de siete especies registradas con nombre e imagen: sábalo atlántico, mero guasa, dorado de mar, raya águila jaspeada, ladyfish, carite lucio y gran barracuda. Sus assets están en `Assets/Data/Peces/SanAndres/` y las imágenes originales en `Assets/Sprites/Peces/SanAndres/`. La segunda imagen del carite no crea una especie duplicada.
 
-El segundo lote añade ocho especies: pez vela, morena verde, peto, pez loro, palometa pompano, pargo de manglar, pez ballesta y anchoa de banco. El total registrado es de quince especies; los nombres se toman de los archivos proporcionados, sin asignar todavía nombres científicos ni características.
+El segundo lote añade ocho especies: pez vela, morena verde, peto, pez loro, palometa pompano, pargo de manglar, pez ballesta y anchoa de banco. El total registrado es de quince especies; los nombres se toman de los archivos proporcionados, sin asignar nombres científicos.
 
-Por decisión del usuario, las características se revisarán después de recibir el resto de las especies. Los quince assets tienen `caracteristicasPendientes = true`: aparecen como siluetas en el catálogo con la indicación «Próximamente», pero no participan en el sorteo de capturas. La pesca continúa deshabilitada mientras no haya ninguna especie configurada. Los valores iniciales del ScriptableObject no representan un balance aprobado. Para habilitar cada especie se deben definir sus características y desmarcar el campo de pendientes; las especies existentes de Amazonas conservan su comportamiento.
+Los quince assets ya tienen los rangos de peso y longitud proporcionados por el usuario, las rarezas acordadas, fuerza inicial, hábitat y descripción. Con `caracteristicasPendientes = false` participan en el sorteo y habilitan la pesca en San Andrés. El catálogo revela sus fichas al descubrirlos. Las recompensas se calculan y cobran mediante el sistema de Amazonas; el detalle está en [Peces de San Andrés](PecesSanAndres.md). El mapa anuncia 15 especies disponibles. La verificación de esta configuración dentro del juego queda a cargo del usuario.
 
 `FondoAguaUI` conserva el recorte centrado que cubre la pantalla sin deformar la foto y cambia la textura al viajar. San Andrés utiliza `Pesca/MarCaribe`, descrito en `Docs/AguaCaribe.md`, con una máscara que termina bajo la playa. Amazonas conserva `Pesca/AguaTranquila`.
 
-La validación `ValidarMenusExpedicion.Ejecutar` incluye viaje de ida y vuelta, fondo correcto, quince especies distintas con sprites y sin peces ajenos, bloqueo de captura de especies pendientes, conservación del saldo y la fuente, y bloqueo del viaje durante espera y forcejeo. Genera capturas horizontal/vertical del mapa y de San Andrés. Se ejecuta en batchmode con el Editor de ese proyecto cerrado; para validar mientras el proyecto principal está abierto se usa una copia independiente y un `productName` distinto para aislar las preferencias del jugador.
+La validación `ValidarMenusExpedicion.Ejecutar` incluye viaje de ida y vuelta, fondo correcto, quince especies distintas configuradas con sprites y sin peces ajenos, selección marina habilitada, conservación del saldo y la fuente, y bloqueo del viaje durante espera y forcejeo. Genera capturas horizontal/vertical del mapa y de San Andrés. Se ejecuta en batchmode con el Editor de ese proyecto cerrado; para validar mientras el proyecto principal está abierto se usa una copia independiente y un `productName` distinto para aislar las preferencias del jugador. No se ejecutó tras habilitar las características marinas.
+
+## Validaciones históricas anteriores a las características marinas
 
 Validado el 18 de octubre de 2026 con Unity 6000.5.10f1: compilación y prueba en Play Mode completadas con código de salida 0. Registro en `Logs/zonas-qa-verificado.log` y capturas en `Logs/ZonasQA/`.
 
 El primer lote de siete especies se importó y validó con el mismo Editor, también con salida 0. Registro en `Logs/san-andres-especies-qa.log`; captura del catálogo actualizado en `Logs/ZonasQA/20-coleccion-san-andres.png`.
 
 Segundo lote validado en Unity con salida 0: quince fichas distintas con sprites, sin capturas habilitadas ni especies de Amazonas mezcladas. Registro en `Logs/san-andres-lote2-qa.log`. Las ocho imágenes conservan exactamente los archivos originales entregados.
+
+## Música de Amazonas
+
+`Assets/Audio/Bruma_del_Caqueta_65BPM_LOOP.wav` conserva el WAV original proporcionado por el usuario. Está asignado a `musicaAmbiente` en `Amazonas.asset`, con importación Vorbis al 85 % y streaming para evitar descomprimir la canción completa en memoria.
+
+`FisheryManager` crea un único `AudioSource` 2D al inicializar la instancia principal, con volumen de 0.6 y reproducción en bucle. Empieza con la música de la zona inicial y cambia al viajar. San Andrés reproduce su propia canción; al regresar a Amazonas, su canción comienza de nuevo. Seleccionar el destino actual o rechazar un viaje no interrumpe la reproducción. El reproductor persiste con el gestor entre escenas.
+
+`ValidarMusicaZona.Ejecutar` comprueba la importación, la asignación, el avance de reproducción, el bucle, los viajes de ida y vuelta y la ausencia de reproductores duplicados. Se ejecuta en batchmode con el Editor del proyecto cerrado y usa una escena vacía sin modificar las preferencias del jugador. Registro: `Logs/musica-amazonas-qa.log`.
+
+## Música de San Andrés
+
+**Brisa de San Andrés** es una composición instrumental original en sol mayor a 104 BPM, de 64 compases en 4/4 (147.692 segundos). Combina guitarra acústica, ukelele a contratiempo, melodía de steel drums, bajo suave, mandolina y percusión con influencias de reggae, calypso y soca. Los instrumentos y el ambiente de olas, brisa, gaviotas lejanas y agua se sintetizaron; no contiene voces ni grabaciones externas.
+
+El arreglo alterna dos temas, una variación ligera y un puente de mandolina. Las colas de notas, reverberación y ambiente se mezclan circularmente para mantener el bucle sin desvanecer a silencio. El máster estéreo de 44.1 kHz/16 bits está en `Assets/Audio/Brisa_de_San_Andres_104BPM_LOOP.wav`, asignado a `Assets/Resources/Zonas/SanAndres.asset`. Usa Vorbis al 85 % y streaming, igual que Amazonas.
+
+La fuente reproducible, el WAV original y las mediciones están en `BandaSonora/componer_san_andres.py`, `BandaSonora/Brisa_de_San_Andres_104BPM_LOOP.wav` y `BandaSonora/verificacion_san_andres.json`. La validación de Unity ahora comprueba ambas canciones y sus bucles; registro de esta ejecución: `Logs/musica-san-andres-qa.log`.
+
+La validación de audio conserva las escenas abiertas y las restaura al terminar, tanto si pasa como si falla. Si la sesión comenzó sin una escena guardada, abre `Assets/Scenes/MainScene.unity` antes de salir. Esto evita que la siguiente sesión del Editor arranque en una escena `Untitled` vacía. Para jugar desde el Editor, debe estar abierta `MainScene`; el fondo y la interfaz se crean al pulsar Play.

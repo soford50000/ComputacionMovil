@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Dorado de mar
   foto: {fileID: 21300000, guid: dd63a65f9154fe64f8546cc37a821ee3, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 4
+  fuerzaPez: 9
+  pesoMinimo: 4
+  pesoMaximo: 20
+  longitudMinima: 70
+  longitudMaxima: 150
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Mar abierto, cerca de algas y objetos flotantes."
+  descripcion: "Sus reflejos dorados, verdes y azules iluminan la superficie del mar. Recorre aguas abiertas en busca de alimento y ofrece una captura memorable por su energía y sus saltos."

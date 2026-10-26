@@ -48,7 +48,7 @@ public static class EstiloExpedicion
         float x0, float y0, float x1, float y1)
     {
         var imagen = Rect(padre, nombre, x0, y0, x1, y1).gameObject.AddComponent<UnityEngine.UI.Image>();
-        imagen.color = color;
+        TemaZonaUI.Colorear(imagen, color);
         imagen.raycastTarget = false;
         return imagen;
     }
@@ -58,7 +58,7 @@ public static class EstiloExpedicion
         texto.font = Fuente;
         texto.fontSize = tamano;
         texto.fontStyle = FontStyle.Normal;
-        texto.color = color;
+        TemaZonaUI.Colorear(texto, color);
         texto.resizeTextForBestFit = true;
         texto.resizeTextMinSize = Mathf.Min(tamano, 16);
         texto.resizeTextMaxSize = tamano;
@@ -80,29 +80,32 @@ public static class EstiloExpedicion
     {
         var borde = imagen.GetComponent<UnityEngine.UI.Outline>();
         if (borde == null) borde = imagen.gameObject.AddComponent<UnityEngine.UI.Outline>();
-        borde.effectColor = color;
+        TemaZonaUI.Borde(borde, color);
         borde.effectDistance = new Vector2(grosor, -grosor);
         borde.useGraphicAlpha = true;
     }
 
     public static void Boton(UnityEngine.UI.Button boton, bool primario = false)
     {
+        // Se aplica también a botones cuyo estilo se actualiza al equipar/comprar.
+        boton.onClick.RemoveListener(SonidosJuego.PulsarBoton);
+        boton.onClick.AddListener(SonidosJuego.PulsarBoton);
         var imagen = boton.targetGraphic as UnityEngine.UI.Image;
         if (imagen != null)
         {
             imagen.raycastTarget = true;
-            if (primario) imagen.color = Dorado;
+            if (primario) TemaZonaUI.Colorear(imagen, Dorado);
             Borde(imagen, primario ? Dorado : new Color(.65f, .57f, .39f, .55f));
         }
         boton.transition = UnityEngine.UI.Selectable.Transition.ColorTint;
-        var colores = boton.colors;
+        var colores = TemaZonaUI.EstadosOriginales(boton);
         colores.normalColor = Color.white;
         colores.highlightedColor = new Color(1.12f, 1.10f, 1.02f);
         colores.selectedColor = colores.highlightedColor;
         colores.pressedColor = new Color(.78f, .84f, .76f);
         colores.disabledColor = new Color(.75f, .75f, .70f, .72f);
         colores.fadeDuration = .12f;
-        boton.colors = colores;
+        TemaZonaUI.Estados(boton, colores);
     }
 
     public static UnityEngine.UI.Button Accion(Transform padre, string nombre, string etiqueta,
@@ -121,14 +124,15 @@ public static class EstiloExpedicion
     public static void Enmarcar(RectTransform panel)
     {
         var imagen = panel.GetComponent<UnityEngine.UI.Image>();
-        imagen.color = Papel;
+        TemaZonaUI.Colorear(imagen, Papel);
         Borde(imagen, Dorado, 2);
         var sombra = panel.gameObject.AddComponent<UnityEngine.UI.Shadow>();
         sombra.effectColor = new Color(0, 0, 0, .28f);
         sombra.effectDistance = new Vector2(5, -7);
         Panel(panel, "Línea de cabecera", PapelOscuro, .035f, .795f, .965f, .798f);
-        Texto(panel, "Marca de expedición", "R O A D   T O   A M A Z O N A S", 12, Secundario,
+        var marca = Texto(panel, "Marca de expedición", "", 12, Secundario,
             .04f, .932f, .75f, .976f);
+        TemaZonaUI.Rotular(marca, "R O A D   T O   A M A Z O N A S", "S A N   A N D R É S   ·   C A R I B E");
     }
 
     public static void Cabecera(RectTransform panel, string tituloTexto, string subtitulo, UnityAction cerrar)
@@ -159,7 +163,7 @@ public static class EstiloExpedicion
     public static void PrepararModal(GameObject modal, RectTransform panel)
     {
         var fondo = modal.GetComponent<UnityEngine.UI.Image>();
-        if (fondo != null) { fondo.color = Velo; fondo.raycastTarget = true; }
+        if (fondo != null) { TemaZonaUI.Colorear(fondo, Velo); fondo.raycastTarget = true; }
         // Elevar sólo la ventana: los accesos del HUD mantienen su orden habitual.
         var lienzo = modal.GetComponent<Canvas>();
         if (lienzo == null)

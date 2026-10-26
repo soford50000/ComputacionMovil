@@ -177,17 +177,17 @@ public sealed class CatalogoManager : MonoBehaviour
         menu = new GameObject("Menú catálogo", typeof(RectTransform), typeof(Image));
         menu.transform.SetParent(lienzo.transform, false);
         Estirar(menu.GetComponent<RectTransform>());
-        menu.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.03f, 0.88f);
+        TemaZonaUI.Colorear(menu.GetComponent<Image>(), new Color(0.015f, 0.035f, 0.03f, 0.88f));
 
         var panel = CrearPanel("Panel de catálogo", menu.transform, EstiloExpedicion.Papel,
             new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
         EstiloExpedicion.Cabecera(panel.rectTransform, "Peces del Amazonas", "Tu cuaderno de descubrimientos. Cada captura cuenta una historia.", Cerrar);
         panel.gameObject.AddComponent<FondoNogalCatalogo>().MostrarVetas = false;
-        panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel.rectTransform);
-        panel.transform.Find("Título").GetComponent<Text>().color = TintaCatalogo;
+        panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel.rectTransform, mostrarCoralesEnSanAndres: true);
+        TemaZonaUI.Colorear(panel.transform.Find("Título").GetComponent<Text>(), TintaCatalogo);
         tituloCatalogo = panel.transform.Find("Título").GetComponent<Text>();
-        panel.transform.Find("Ayuda").GetComponent<Text>().color = SecundarioNogal;
-        panel.transform.Find("Marca de expedición").GetComponent<Text>().color = SecundarioNogal;
+        TemaZonaUI.Colorear(panel.transform.Find("Ayuda").GetComponent<Text>(), SecundarioNogal);
+        TemaZonaUI.Colorear(panel.transform.Find("Marca de expedición").GetComponent<Text>(), SecundarioNogal);
         panel.transform.Find("Línea de cabecera").gameObject.SetActive(false);
         EstiloExpedicion.PrepararModal(menu, panel.rectTransform);
         progreso = CrearTexto("Progreso catálogo", panel.transform, "", 17, TintaCatalogo,
@@ -220,7 +220,7 @@ public sealed class CatalogoManager : MonoBehaviour
             Vector2.zero, Vector2.one);
         var mascara = viewport.gameObject.AddComponent<Mask>();
         mascara.showMaskGraphic = false;
-        viewport.gameObject.AddComponent<Image>().color = Color.white;
+        TemaZonaUI.Colorear(viewport.gameObject.AddComponent<Image>(), Color.white);
 
         var contenido = Rect("Cuadrícula de especies", viewport,
             new Vector2(0f, 1f), new Vector2(1f, 1f));
@@ -271,6 +271,8 @@ public sealed class CatalogoManager : MonoBehaviour
     private void CrearTarjetas()
     {
         if (menu == null) return;
+        // Retira enlaces de tarjetas destruidas en aperturas anteriores.
+        menu.GetComponentInParent<TemaZonaUI>(true)?.Actualizar(null);
         var contenido = menu.transform.Find("Panel de catálogo/Desplazamiento catálogo/Viewport catálogo/Cuadrícula de especies");
         if (contenido == null) return;
         // Conservar la capa ornamental al reconstruir las tarjetas.
@@ -283,22 +285,22 @@ public sealed class CatalogoManager : MonoBehaviour
             bool descubierto = EstaDescubierto(pez);
             var tarjeta = new GameObject("Especie " + pez.name, typeof(RectTransform), typeof(Image), typeof(Button));
             tarjeta.transform.SetParent(contenido, false);
-            tarjeta.GetComponent<Image>().color = descubierto ? CremaCasilla : NogalCasilla;
+            TemaZonaUI.Colorear(tarjeta.GetComponent<Image>(), descubierto ? CremaCasilla : NogalCasilla);
             var boton = tarjeta.GetComponent<Button>();
             boton.targetGraphic = tarjeta.GetComponent<Image>();
             boton.interactable = descubierto;
             boton.onClick.AddListener(() => MostrarDetalle(pez));
             EstiloExpedicion.Boton(boton);
-            var colores = boton.colors;
+            var colores = TemaZonaUI.EstadosOriginales(boton);
             colores.disabledColor = Color.white;
-            boton.colors = colores;
+            TemaZonaUI.Estados(boton, colores);
             EstiloExpedicion.Borde(tarjeta.GetComponent<Image>(), descubierto ? HexRareza(pez.rareza) : NogalCasilla);
 
             var imagen = CrearPanel("Retrato", tarjeta.transform,
                 Color.white, new Vector2(0.08f, 0.32f), new Vector2(0.92f, 0.87f));
             var foto = imagen.GetComponent<Image>();
             foto.sprite = pez.foto;
-            foto.color = descubierto ? Color.white : SiluetaNogal;
+            TemaZonaUI.Colorear(foto, descubierto ? Color.white : SiluetaNogal);
             foto.material = descubierto ? null : materialSilueta;
             foto.preserveAspect = true;
             foto.raycastTarget = false;
@@ -322,7 +324,7 @@ public sealed class CatalogoManager : MonoBehaviour
         imagenDetalle.sprite = pez.foto;
         nombreDetalle.text = pez.nombreEspecie;
         rarezaDetalle.text = "Rareza: " + NombreRareza(pez.rareza);
-        rarezaDetalle.color = HexRareza(pez.rareza);
+        TemaZonaUI.Colorear(rarezaDetalle, HexRareza(pez.rareza));
         rangoDetalle.text = string.Format(Cultura,
             "Peso: {0:0.##}–{1:0.##} kg\nLongitud: {2:0.##}–{3:0.##} cm",
             pez.pesoMinimo, pez.pesoMaximo, pez.longitudMinima, pez.longitudMaxima);
@@ -366,7 +368,7 @@ public sealed class CatalogoManager : MonoBehaviour
         rect.anchoredPosition = posicion;
         rect.sizeDelta = tamano;
         var imagen = rect.gameObject.AddComponent<Image>();
-        imagen.color = color;
+        TemaZonaUI.Colorear(imagen, color);
         var boton = rect.gameObject.AddComponent<Button>();
         boton.targetGraphic = imagen;
         boton.onClick.AddListener(accion);
@@ -395,7 +397,7 @@ public sealed class CatalogoManager : MonoBehaviour
     private static Image CrearPanel(string nombre, Transform padre, Color color, Vector2 anchorMin, Vector2 anchorMax)
     {
         var imagen = Rect(nombre, padre, anchorMin, anchorMax).gameObject.AddComponent<Image>();
-        imagen.color = color;
+        TemaZonaUI.Colorear(imagen, color);
         return imagen;
     }
 
@@ -407,7 +409,7 @@ public sealed class CatalogoManager : MonoBehaviour
         texto.text = contenido;
         texto.fontSize = tamano;
         texto.fontStyle = FontStyle.Normal;
-        texto.color = color;
+        TemaZonaUI.Colorear(texto, color);
         texto.alignment = TextAnchor.MiddleCenter;
         texto.resizeTextForBestFit = true;
         texto.resizeTextMinSize = Mathf.Min(tamano, 16);

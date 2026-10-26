@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Gran barracuda
   foto: {fileID: 21300000, guid: 2079cc797f24163469a051c14eb1fe91, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 3
+  fuerzaPez: 8
+  pesoMinimo: 2.5
+  pesoMaximo: 20
+  longitudMinima: 60
+  longitudMaxima: 160
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Arrecifes, praderas marinas y aguas costeras."
+  descripcion: "Su silueta alargada y su mandíbula armada de dientes anuncian a un depredador de emboscada. Puede parecer inmóvil junto al arrecife antes de lanzarse sobre su presa con una aceleración sorprendente."

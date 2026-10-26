@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Pez ballesta
   foto: {fileID: 21300000, guid: 93adbc3ce7a487744ad615524098f88c, type: 3}
-  caracteristicasPendientes: 1
+  caracteristicasPendientes: 0
   rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  fuerzaPez: 4
+  pesoMinimo: 0.8
+  pesoMaximo: 3.5
+  longitudMinima: 25
+  longitudMaxima: 50
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Arrecifes y fondos próximos de arena o roca."
+  descripcion: "Su cuerpo compacto avanza con pequeños movimientos de las aletas dorsal y anal. Explora el fondo del arrecife y utiliza sus fuertes dientes para alimentarse de presas resistentes."

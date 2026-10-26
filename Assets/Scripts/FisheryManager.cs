@@ -9,6 +9,7 @@ public class FisheryManager : MonoBehaviour
     [SerializeField] private ZonaData zonaAmazonas;
     private ZonaData zonaActual;
     private TensionSystem pesca;
+    private AudioSource musicaZona;
     public ZonaData ZonaInicial => zonaAmazonas;
     public ZonaData ZonaActual => zonaActual != null ? zonaActual : zonaAmazonas;
     public ZonaData ZonaSanAndres { get; private set; }
@@ -37,6 +38,13 @@ public class FisheryManager : MonoBehaviour
             pesca = GetComponent<TensionSystem>();
             ZonaSanAndres = Resources.Load<ZonaData>("Zonas/SanAndres");
             DontDestroyOnLoad(gameObject);
+            musicaZona = gameObject.AddComponent<AudioSource>();
+            musicaZona.playOnAwake = false;
+            musicaZona.loop = true;
+            musicaZona.spatialBlend = 0f;
+            musicaZona.volume = 0.6f;
+            ReproducirMusicaZona();
+            if (GetComponent<SonidosJuego>() == null) gameObject.AddComponent<SonidosJuego>();
         }
         else
         {
@@ -50,8 +58,19 @@ public class FisheryManager : MonoBehaviour
             (pesca != null && !pesca.PuedeCambiarCana)) return false;
         if (zona == ZonaActual) return true;
         zonaActual = zona;
+        ReproducirMusicaZona();
         ZonaCambiada?.Invoke(zona);
         return true;
+    }
+
+    private void ReproducirMusicaZona()
+    {
+        AudioClip clip = ZonaActual != null ? ZonaActual.musicaAmbiente : null;
+        if (musicaZona == null || musicaZona.clip == clip) return;
+
+        musicaZona.Stop();
+        musicaZona.clip = clip;
+        if (clip != null) musicaZona.Play();
     }
 
     /// <summary>

@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Mero guasa
   foto: {fileID: 21300000, guid: 6dbd2e5fd47ecfd45a4fc6c4ac55c6a9, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 3
+  fuerzaPez: 10
+  pesoMinimo: 40
+  pesoMaximo: 300
+  longitudMinima: 100
+  longitudMaxima: 220
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Fondos rocosos, arrecifes y refugios sumergidos."
+  descripcion: "Un gigante de cuerpo robusto y boca enorme que encuentra refugio entre rocas y estructuras sumergidas. Su aspecto tranquilo oculta una fuerza capaz de convertir cada captura en un desafío."

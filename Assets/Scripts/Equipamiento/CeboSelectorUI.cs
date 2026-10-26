@@ -80,11 +80,12 @@ public sealed class CeboSelectorUI : MonoBehaviour
         ventana = Panel(lienzo.transform, "Menú de carnadas", new Color(0, 0, 0, .86f), 0, 0, 1, 1).gameObject;
         var panel = Panel(ventana.transform, "Panel de carnadas", EstiloExpedicion.Papel, .04f, .05f, .96f, .95f);
         EstiloExpedicion.Cabecera(panel, "Carnadas del río", "Prepara tu próxima captura. Cada carnada atrae especies diferentes.", Cerrar);
+        TemaZonaUI.Rotular(panel.Find("Título").GetComponent<Text>(), "Carnadas del río", "Carnadas del mar");
         panel.gameObject.AddComponent<FondoNogalCatalogo>();
-        panel.Find("Título").GetComponent<Text>().color = Tinta;
-        panel.Find("Ayuda").GetComponent<Text>().color = Secundario;
-        panel.Find("Marca de expedición").GetComponent<Text>().color = Secundario;
-        panel.Find("Línea de cabecera").GetComponent<Image>().color = Nogal;
+        TemaZonaUI.Colorear(panel.Find("Título").GetComponent<Text>(), Tinta);
+        TemaZonaUI.Colorear(panel.Find("Ayuda").GetComponent<Text>(), Secundario);
+        TemaZonaUI.Colorear(panel.Find("Marca de expedición").GetComponent<Text>(), Secundario);
+        TemaZonaUI.Colorear(panel.Find("Línea de cabecera").GetComponent<Image>(), Nogal);
         EstiloExpedicion.PrepararModal(ventana, panel);
         var disposicion = panel.gameObject.AddComponent<DisposicionExpedicion>();
         panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel);
@@ -104,14 +105,14 @@ public sealed class CeboSelectorUI : MonoBehaviour
             float yVertical = .77f - i / 2 * .075f;
             disposicion.Agregar((RectTransform)boton.transform, .025f + i % 2 * .48f, yVertical - .066f,
                 .49f + i % 2 * .48f, yVertical);
-            tarjetas[i].color = Crema;
+            TemaZonaUI.Colorear(tarjetas[i], Crema);
             var imagen = Panel(boton.transform, "Imagen", Color.clear, .025f, .10f, .37f, .90f).GetComponent<Image>();
             imagen.raycastTarget = false;
             if (cebo != null && cebo.icono != null)
             {
                 imagen.sprite = cebo.icono;
                 imagen.preserveAspect = true;
-                imagen.color = Color.white;
+                TemaZonaUI.Colorear(imagen, Color.white);
             }
             else Texto(imagen.transform, "Imagen provisional", "CEBO", 15, 0, 0, 1, 1);
             var nombre = Texto(boton.transform, "Nombre", cebo != null ? cebo.nombre : "Sin datos",
@@ -119,7 +120,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
             nombre.alignment = TextAnchor.MiddleLeft;
             estados[i] = Texto(boton.transform, "Estado", "", 16, .40f, .07f, .96f, .37f);
             estados[i].alignment = TextAnchor.MiddleLeft;
-            estados[i].color = Secundario;
+            TemaZonaUI.Colorear(estados[i], Secundario);
         }
         var sinCarnada = Boton(panel, "Sin carnada", "Sin carnada", .025f, .025f, .315f, .1f, () => Mostrar(null));
         disposicion.Agregar((RectTransform)sinCarnada.transform, .025f, .41f, .49f, .46f);
@@ -161,7 +162,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         aviso = Texto(ficha, "Aviso", "", 16, .05f, .105f, .95f, .16f);
         equipar = Boton(ficha, "Equipar carnada", "", .07f, .02f, .93f, .10f, Equipar);
         textoEquipar = Texto(equipar.transform, "Texto equipar", "EQUIPAR", 19, 0, 0, 1, 1);
-        textoEquipar.color = Crema;
+        TemaZonaUI.Colorear(textoEquipar, Crema);
         EstiloExpedicion.Boton(equipar);
         ventana.SetActive(false);
     }
@@ -171,7 +172,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         seleccionado = cebo;
         titulo.text = cebo != null ? cebo.nombre : "Sin carnada";
         foto.sprite = cebo != null ? cebo.icono : null;
-        foto.color = foto.sprite != null ? Color.white : Color.clear;
+        TemaZonaUI.Colorear(foto, foto.sprite != null ? Color.white : Color.clear);
         detalle.text = cebo != null ? cebo.descripcion : "Todos los peces conservan su probabilidad base.";
         var lista = new StringBuilder();
         if (cebo != null && cebo.especiesFavorecidas != null)
@@ -203,7 +204,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
             bool elegida = cebos[i] == cebo;
             bool equipada = cebos[i] != null && cebos[i] == pesca.CeboEquipado;
             int usos = cebos[i] != null ? CantidadUsos(cebos[i]) : 0;
-            tarjetas[i].color = elegida || usos > 0 ? Crema : Nogal;
+            TemaZonaUI.Colorear(tarjetas[i], elegida || usos > 0 ? Crema : Nogal);
             EstiloExpedicion.Borde(tarjetas[i], elegida ? EstiloExpedicion.Dorado : Nogal, elegida ? 3 : 1);
             estados[i].text = equipada ? $"✓ Equipada · {usos} usos"
                 : usos > 0 ? $"{usos} usos disponibles"
@@ -277,7 +278,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         resumen.text = equipada != null
             ? $"CARNADA · {equipada.nombre} ({CantidadUsos(equipada)} usos)"
             : "CARNADA · Sin carnada";
-        resumen.color = EstiloExpedicion.Papel;
+        TemaZonaUI.Colorear(resumen, EstiloExpedicion.Papel);
     }
 
     private void OnDestroy()
@@ -298,7 +299,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private static RectTransform Panel(Transform padre, string nombre, Color color, float x0, float y0, float x1, float y1)
     {
         var rect = Rect(padre, nombre, x0, y0, x1, y1);
-        rect.gameObject.AddComponent<Image>().color = color;
+        TemaZonaUI.Colorear(rect.gameObject.AddComponent<Image>(), color);
         return rect;
     }
 
@@ -323,7 +324,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         boton.targetGraphic = rect.GetComponent<Image>();
         boton.onClick.AddListener(accion);
         EstiloExpedicion.Boton(boton);
-        if (!string.IsNullOrEmpty(etiqueta)) Texto(rect, "Etiqueta", etiqueta, 17, .04f, 0, .96f, 1).color = EstiloExpedicion.Papel;
+        if (!string.IsNullOrEmpty(etiqueta)) TemaZonaUI.Colorear(Texto(rect, "Etiqueta", etiqueta, 17, .04f, 0, .96f, 1), EstiloExpedicion.Papel);
         return boton;
     }
 }

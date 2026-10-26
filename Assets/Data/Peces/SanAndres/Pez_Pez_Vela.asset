@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Pez vela
   foto: {fileID: 21300000, guid: 98c6b34e3430f844d9d577afde025c74, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 4
+  fuerzaPez: 10
+  pesoMinimo: 20
+  pesoMaximo: 50
+  longitudMinima: 150
+  longitudMaxima: 270
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Aguas abiertas del Caribe."
+  descripcion: "Una gran aleta dorsal semejante a una vela y un hocico alargado distinguen su silueta. Sus carreras y saltos sobre el agua convierten el encuentro en uno de los grandes desafíos del mar."

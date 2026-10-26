@@ -2,8 +2,8 @@
 
 Cada captura exitosa genera sus medidas una sola vez y calcula `Oro` como entero.
 La ventana y el evento `CapturaRecogida` utilizan ese mismo resultado inmutable.
-Un escape no genera recompensa. Esta etapa calcula el premio; el monedero,
-el guardado del saldo y las compras quedan para la siguiente etapa.
+Un escape no genera recompensa. Al recoger la captura, el monedero acredita
+el premio una sola vez y guarda el saldo mediante `EconomiaManager`.
 
 ## Cálculo
 
@@ -31,7 +31,7 @@ Por el redondeo, dos ejemplares ligeramente diferentes pueden valer lo mismo.
 Se conserva el sorteo uniforme e independiente de peso y longitud existente.
 Cambiar su distribución o correlacionarlos requerirá revisar este balance.
 
-## Recompensas de los 25 peces actuales
+## Recompensas de los 25 peces de Amazonas
 
 Centro significa ambas medidas en la mitad de su rango, no promedio redondeado
 de todas las recompensas. Mínimo y máximo corresponden a ambas medidas extremas.
@@ -64,7 +64,14 @@ de todas las recompensas. Mínimo y máximo corresponden a ambas medidas extrema
 | Bagre tigre de río | 448 | 640 | 832 |
 | Tucunaré | 122 | 174 | 226 |
 
-## Balance de ingresos y precios futuros
+## Recompensas de San Andrés
+
+Las 15 especies usan la misma fórmula y el mismo flujo de cobro. Sus rangos,
+fuerzas iniciales, descripciones y premios mínimo/centro/máximo están en
+[Peces de San Andrés](PecesSanAndres.md). Dorado de mar, pez vela y raya águila
+jaspeada conservan la rareza legendaria. No se introducen precios fijos por pez.
+
+## Balance de ingresos y precios futuros de Amazonas
 
 `FisheryManager` aplica pesos por especie, no porcentajes globales por rareza.
 Con los 25 peces y pesos actuales 50/25/15/8/2, los pesos agregados son
@@ -101,4 +108,7 @@ si cambia el catálogo, las rarezas, sus pesos o la distribución de medidas.
 con un DTO de datos mínimo, sin ejecutar Unity. Recorre 255025 combinaciones
 de medidas de los assets y comprueba enteros, límites y monotonía en ambos ejes;
 también verifica medidas fijas y rechazo de entradas inválidas. Imprime la tabla
-y la media ponderada. La interacción de la ventana requiere prueba en Play.
+y la media ponderada. Con `-Zona SanAndres` recorre los 15 assets marinos
+(153015 combinaciones). La interacción de la ventana requiere prueba en Play.
+Estas pruebas no se ejecutaron en la entrega de San Andrés: el usuario realizará
+la verificación dentro del juego.

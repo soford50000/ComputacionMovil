@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Ladyfish
   foto: {fileID: 21300000, guid: 35e53aea42cef454e8f77b8ae8fcdf1e, type: 3}
-  caracteristicasPendientes: 1
+  caracteristicasPendientes: 0
   rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  fuerzaPez: 3
+  pesoMinimo: 0.5
+  pesoMaximo: 2.5
+  longitudMinima: 35
+  longitudMaxima: 70
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Bahías, estuarios y aguas costeras."
+  descripcion: "Esbelto y plateado, se mueve entre bahías y estuarios buscando peces pequeños y crustáceos. Sus saltos y giros aportan una captura vivaz incluso entre los ejemplares más modestos."

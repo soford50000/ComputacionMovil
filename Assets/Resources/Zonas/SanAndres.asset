@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: SanAndres
   m_EditorClassIdentifier: Assembly-CSharp::ZonaData
   nombreZona: "San Andr\xE9s"
-  descripcion: "Caribe Insular. Aguas turquesas e islas para explorar; especies pr\xF3ximamente."
+  descripcion: "Caribe Insular. Aguas turquesas e islas para explorar y quince especies por descubrir."
   fondoZona: {fileID: 21300000, guid: e115c9be9ca34db198bf2e424669b3d4, type: 3}
   IconoMenu: {fileID: 0}
-  musicaAmbiente: {fileID: 0}
+  musicaAmbiente: {fileID: 8300000, guid: 6903693d319d406fb88a12b1ab507be1, type: 3}
   especiesDeEstaZona:
   - {fileID: 11400000, guid: eeb38e2b277ce65479af34dc2604ee5a, type: 2}
   - {fileID: 11400000, guid: ed52c36019c0347468cc70d2e3ce46cb, type: 2}

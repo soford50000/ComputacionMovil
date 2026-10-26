@@ -17,7 +17,7 @@ MonoBehaviour:
     que estan incluidas en este.
   fondoZona: {fileID: 2008046351130660985, guid: 0bf892d560464a743b275aac93247e32, type: 3}
   IconoMenu: {fileID: 0}
-  musicaAmbiente: {fileID: 0}
+  musicaAmbiente: {fileID: 8300000, guid: a914fec1764449c5a8f6a8b923dac290, type: 3}
   especiesDeEstaZona:
   - {fileID: 11400000, guid: 11a00000000040008000000000000022, type: 2}
   - {fileID: 11400000, guid: 76c4e68b94e3bd349acb1aaf6b511316, type: 2}

@@ -33,7 +33,7 @@ public sealed class ZonaSelectorUI : MonoBehaviour
         icono.uvRect = new Rect(.15f, .18f, .70f, .66f);
         materialIcono = new Material(Resources.Load<Shader>("DecoracionCatalogo/SiluetaNogal"));
         icono.material = materialIcono;
-        icono.color = EstiloExpedicion.Dorado;
+        TemaZonaUI.Colorear(icono, EstiloExpedicion.Dorado);
         icono.raycastTarget = false;
 
         ventana = EstiloExpedicion.Panel(lienzo, "Mapa de zonas", EstiloExpedicion.Velo, 0, 0, 1, 1).gameObject;
@@ -41,9 +41,9 @@ public sealed class ZonaSelectorUI : MonoBehaviour
         EstiloExpedicion.Cabecera(panel, "Elige tu destino", "Dos paisajes para explorar. Tu equipo y tu saldo viajan contigo.", Cerrar);
         panel.gameObject.AddComponent<FondoNogalCatalogo>().MostrarVetas = false;
         panel.gameObject.AddComponent<VegetacionCatalogo>().Preparar(panel);
-        panel.Find("Título").GetComponent<Text>().color = EstiloExpedicion.Madera;
-        panel.Find("Ayuda").GetComponent<Text>().color = EstiloExpedicion.Madera;
-        panel.Find("Marca de expedición").GetComponent<Text>().color = EstiloExpedicion.Madera;
+        TemaZonaUI.Colorear(panel.Find("Título").GetComponent<Text>(), EstiloExpedicion.Madera);
+        TemaZonaUI.Colorear(panel.Find("Ayuda").GetComponent<Text>(), EstiloExpedicion.Madera);
+        TemaZonaUI.Colorear(panel.Find("Marca de expedición").GetComponent<Text>(), EstiloExpedicion.Madera);
         panel.Find("Línea de cabecera").gameObject.SetActive(false);
         EstiloExpedicion.PrepararModal(ventana, panel);
         ventana.SetActive(false);
@@ -66,7 +66,7 @@ public sealed class ZonaSelectorUI : MonoBehaviour
             estados = new Text[2];
             var disposicion = panel.gameObject.AddComponent<DisposicionExpedicion>();
             CrearDestino(0, gestor.ZonaInicial, "Selva amazónica", disposicion);
-            CrearDestino(1, gestor.ZonaSanAndres, "Caribe Insular · Especies próximamente", disposicion);
+            CrearDestino(1, gestor.ZonaSanAndres, "Caribe Insular · 15 especies", disposicion);
         }
         for (int i = 0; i < destinos.Length; i++)
         {
@@ -87,16 +87,16 @@ public sealed class ZonaSelectorUI : MonoBehaviour
         boton.targetGraphic = tarjeta;
         boton.onClick.AddListener(() => Viajar(zona));
         EstiloExpedicion.Boton(boton);
-        var colores = boton.colors;
+        var colores = TemaZonaUI.EstadosOriginales(boton);
         colores.disabledColor = Color.white;
-        boton.colors = colores;
+        TemaZonaUI.Estados(boton, colores);
         destinos[indice] = boton;
         float y = indice == 0 ? .44f : .07f;
         disposicion.Agregar(tarjeta.rectTransform, .04f, y, .96f, y + .33f);
         var foto = EstiloExpedicion.Panel(tarjeta.transform, "Paisaje", Color.white, .025f, .32f, .975f, .975f);
         foto.sprite = zona != null ? zona.fondoZona : null;
         foto.preserveAspect = true;
-        if (foto.sprite == null) foto.color = Color.clear;
+        if (foto.sprite == null) TemaZonaUI.Colorear(foto, Color.clear);
         EstiloExpedicion.Texto(tarjeta.transform, "Nombre", zona != null ? zona.nombreZona : "Próximamente", 26,
             EstiloExpedicion.Tinta, .05f, .22f, .95f, .32f);
         EstiloExpedicion.Texto(tarjeta.transform, "Región", descripcion, 15,

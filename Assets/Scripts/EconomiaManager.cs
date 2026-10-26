@@ -106,10 +106,11 @@ public sealed class EconomiaManager : MonoBehaviour
         wallet.sizeDelta = new Vector2(130, 58);
         accesoSaldo = wallet.gameObject;
         var walletImage = wallet.gameObject.AddComponent<Image>();
-        walletImage.color = Madera;
+        TemaZonaUI.Colorear(walletImage, Madera);
         var button = wallet.gameObject.AddComponent<Button>();
         button.targetGraphic = walletImage;
         button.onClick.AddListener(AbrirVentana);
+        button.onClick.AddListener(SonidosJuego.PulsarBoton);
         textoSaldo = Etiqueta("Cantidad de oro", wallet, "", 22, Dorado, 0.03f, 0.05f, 0.97f, 0.95f);
         textoSaldo.resizeTextForBestFit = false;
         textoSaldo.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -118,11 +119,11 @@ public sealed class EconomiaManager : MonoBehaviour
         ventana = new GameObject("Ventana de dinero", typeof(RectTransform), typeof(Image));
         ventana.transform.SetParent(canvasObject.transform, false);
         var fondo = ventana.GetComponent<Image>();
-        fondo.color = new Color(0.015f, 0.035f, 0.025f, 0.78f);
+        TemaZonaUI.Colorear(fondo, new Color(0.015f, 0.035f, 0.025f, 0.78f));
         Estirar(ventana.GetComponent<RectTransform>());
 
         var tarjeta = Rect("Tarjeta de saldo", ventana.transform, 0.25f, 0.28f, 0.75f, 0.72f);
-        tarjeta.gameObject.AddComponent<Image>().color = Madera;
+        TemaZonaUI.Colorear(tarjeta.gameObject.AddComponent<Image>(), Madera);
         Etiqueta("Titulo", tarjeta, "TU SALDO", 30, Dorado, 0.04f, 0.69f, 0.78f, 0.94f);
         textoSaldoModal = Etiqueta("Saldo guardado", tarjeta, "", 42, Color.white, 0.05f, 0.36f, 0.95f, 0.68f);
         Etiqueta("Guardado local", tarjeta, "Tu saldo se guarda automáticamente en este dispositivo.",
@@ -170,7 +171,7 @@ public sealed class EconomiaManager : MonoBehaviour
         texto.text = contenido;
         texto.fontSize = tamano;
         texto.fontStyle = FontStyle.Normal;
-        texto.color = color;
+        TemaZonaUI.Colorear(texto, color);
         texto.alignment = TextAnchor.MiddleCenter;
         texto.resizeTextForBestFit = true;
         texto.resizeTextMinSize = 10;

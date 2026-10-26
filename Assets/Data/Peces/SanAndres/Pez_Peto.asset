@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Peto
   foto: {fileID: 21300000, guid: 6d7728b08a1d0d74a80c19ac8cdedba2, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 2
+  fuerzaPez: 8
+  pesoMinimo: 10
+  pesoMaximo: 40
+  longitudMinima: 100
+  longitudMaxima: 180
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Mar abierto y alrededores de estructuras flotantes."
+  descripcion: "Su cuerpo estrecho, de lomo azulado y franjas verticales, está hecho para recorrer el mar abierto. Persigue peces y calamares con rápidas arrancadas que ponen a prueba al pescador."

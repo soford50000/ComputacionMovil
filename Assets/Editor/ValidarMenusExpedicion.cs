@@ -183,15 +183,18 @@ public static class ValidarMenusExpedicion
                     Pulsar("Destino San Andrés");
                     Exigir(FisheryManager.Instance.ZonaActual == FisheryManager.Instance.ZonaSanAndres,
                         "El mapa no viaja a San Andrés.");
-                    var pendientes = FisheryManager.Instance.ZonaSanAndres.especiesDeEstaZona;
-                    Exigir(pendientes.Length == 15 && pendientes.Distinct().Count() == 15 &&
-                        pendientes.All(p => p != null && p.foto != null && p.caracteristicasPendientes &&
+                    var marinos = FisheryManager.Instance.ZonaSanAndres.especiesDeEstaZona;
+                    Exigir(marinos.Length == 15 && marinos.Distinct().Count() == 15 &&
+                        marinos.All(p => p != null && p.foto != null && !p.caracteristicasPendientes &&
+                            p.pesoMinimo > 0 && p.pesoMaximo > p.pesoMinimo &&
+                            p.longitudMinima > 0 && p.longitudMaxima > p.longitudMinima &&
+                            p.fuerzaPez >= 1 && p.fuerzaPez <= 10 &&
+                            !string.IsNullOrWhiteSpace(p.descripcion) && !string.IsNullOrWhiteSpace(p.habitat) &&
                             !FisheryManager.Instance.ZonaInicial.especiesDeEstaZona.Contains(p)),
-                        "San Andrés no tiene las quince especies pendientes con imágenes propias.");
-                    Exigir(!FisheryManager.Instance.TieneEspecies && FisheryManager.Instance.GenerarPezAleatorio() == null,
-                        "San Andrés permite capturar especies pendientes.");
-                    pesca.IniciarLanzamiento();
-                    Exigir(pesca.PuedeCambiarCana, "La zona sin especies permite iniciar una captura.");
+                        "San Andrés no tiene las quince especies configuradas con imágenes propias.");
+                    Exigir(FisheryManager.Instance.TieneEspecies &&
+                        marinos.Contains(FisheryManager.Instance.GenerarPezAleatorio()),
+                        "San Andrés no permite seleccionar sus especies para pescar.");
                     break;
                 case 10:
                     Capturar("18-san-andres", 1280, 720);
@@ -242,7 +245,7 @@ public static class ValidarMenusExpedicion
                     pesca.NotificarPique();
                     Exigir(!FisheryManager.Instance.CambiarZona(FisheryManager.Instance.ZonaSanAndres),
                         "Se puede viajar durante el forcejeo.");
-                    Debug.Log("ZONAS QA OK: mapa, viaje ida y vuelta, fondo correcto, quince especies pendientes con imágenes, captura pendiente bloqueada, saldo y tipografía conservados, bloqueo de viaje durante pesca.");
+                    Debug.Log("ZONAS QA OK: mapa, viaje ida y vuelta, fondo correcto, quince especies configuradas con imágenes, selección marina habilitada, saldo y tipografía conservados, bloqueo de viaje durante pesca.");
                     Debug.Log("EXPEDICION QA OK: compra/equipado de carnada y caña, retirada, catálogo con vegetación y scroll, ficha, primer descubrimiento, captura repetida, recompensa única, reapertura y capturas horizontales y verticales.");
                     Terminar(0);
                     break;
@@ -295,8 +298,17 @@ public static class ValidarMenusExpedicion
                 Canvas.ForceUpdateCanvases();
                 VerificarContrasteCatalogo(coleccion);
                 var ramas = coleccion.transform.parent.GetComponentsInChildren<RawImage>();
-                Exigir(ramas.Length > 0 && ramas.All(r => r.texture != null), "Faltan imágenes de la vegetación.");
-                Exigir(ramas.Select(r => r.texture).Distinct().Count() == 4, "El catálogo no alterna las cuatro ramas.");
+                if (TemaZonaUI.EsMarino)
+                {
+                    Exigir(ramas.Length > 0 && ramas.All(r => r.texture != null && r.texture.name.StartsWith("Coral")),
+                        "Faltan corales o San Andrés conserva ramas del Amazonas.");
+                    Exigir(ramas.Select(r => r.texture).Distinct().Count() == 2, "El catálogo no alterna los dos corales.");
+                }
+                else
+                {
+                    Exigir(ramas.Length > 0 && ramas.All(r => r.texture != null), "Faltan imágenes de la vegetación.");
+                    Exigir(ramas.Select(r => r.texture).Distinct().Count() == 4, "El catálogo no alterna las cuatro ramas.");
+                }
                 var esquinas = new Vector3[4];
                 coleccion.viewport.GetWorldCorners(esquinas);
                 for (int x = 1; x <= 3; x++)

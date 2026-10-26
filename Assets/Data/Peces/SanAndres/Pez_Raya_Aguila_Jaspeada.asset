@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: "Raya \xE1guila jaspeada"
   foto: {fileID: 21300000, guid: 1058a07c2c8b35f4d8635835fc1e062c, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 4
+  fuerzaPez: 10
+  pesoMinimo: 15
+  pesoMaximo: 100
+  longitudMinima: 120
+  longitudMaxima: 250
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Bahías, arrecifes y aguas abiertas."
+  descripcion: "Sus aletas parecen alas que la llevan a planear sobre el fondo marino. El dorso salpicado de manchas claras hace inconfundible a esta viajera de bahías y arrecifes."

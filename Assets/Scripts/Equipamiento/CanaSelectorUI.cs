@@ -91,7 +91,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         ventanaRect.anchorMax = Vector2.one;
         ventanaRect.offsetMin = Vector2.zero;
         ventanaRect.offsetMax = Vector2.zero;
-        ventana.GetComponent<Image>().color = new Color(0.015f, 0.035f, 0.03f, 0.82f);
+        TemaZonaUI.Colorear(ventana.GetComponent<Image>(), new Color(0.015f, 0.035f, 0.03f, 0.82f));
 
         var panel = CrearPanel("Panel de cañas", ventana.transform, EstiloExpedicion.Papel,
             new Vector2(0.04f, 0.05f), new Vector2(0.96f, 0.95f));
@@ -182,7 +182,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         {
             var icono = zona.GetComponent<Image>();
             icono.sprite = cana.iconoCana;
-            icono.color = Color.white;
+            TemaZonaUI.Colorear(icono, Color.white);
             icono.preserveAspect = true;
             icono.raycastTarget = false;
             return;
@@ -324,7 +324,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
             bool seleccionada = cana == equipada;
             bool comprada = EstaComprada(cana);
             marcasOpciones[i].text = seleccionada ? "✓ Equipada" : comprada ? "Equipar caña  →" : "Comprar caña  →";
-            fondosOpciones[i].color = seleccionada ? EstiloExpedicion.PapelOscuro : EstiloExpedicion.Papel;
+            TemaZonaUI.Colorear(fondosOpciones[i], seleccionada ? EstiloExpedicion.PapelOscuro : EstiloExpedicion.Papel);
             EstiloExpedicion.Borde(fondosOpciones[i], seleccionada ? EstiloExpedicion.Dorado : EstiloExpedicion.PapelOscuro, seleccionada ? 3 : 1);
         }
     }
@@ -390,17 +390,17 @@ public sealed class CanaSelectorUI : MonoBehaviour
         rect.anchoredPosition = posicion;
         rect.sizeDelta = tamano;
         var imagen = objeto.GetComponent<Image>();
-        imagen.color = color;
+        TemaZonaUI.Colorear(imagen, color);
         imagen.raycastTarget = true;
         var boton = objeto.GetComponent<Button>();
         boton.targetGraphic = imagen;
         boton.onClick.AddListener(accion);
-        var colores = boton.colors;
+        var colores = TemaZonaUI.EstadosOriginales(boton);
         colores.normalColor = Color.white;
         colores.highlightedColor = Hex("FFF2D8");
         colores.pressedColor = Hex("DDE8D8");
         colores.colorMultiplier = 1f;
-        boton.colors = colores;
+        TemaZonaUI.Estados(boton, colores);
         EstiloExpedicion.Boton(boton);
         return boton;
     }
@@ -414,7 +414,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         rect.anchorMax = maximo;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
-        objeto.GetComponent<Image>().color = color;
+        TemaZonaUI.Colorear(objeto.GetComponent<Image>(), color);
         return rect;
     }
 
@@ -438,7 +438,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         texto.resizeTextMaxSize = tamano;
         texto.fontStyle = FontStyle.Normal;
         texto.alignment = TextAnchor.MiddleLeft;
-        texto.color = color;
+        TemaZonaUI.Colorear(texto, color);
         texto.raycastTarget = false;
         return texto;
     }

@@ -1,5 +1,6 @@
 # Ejecutar con pwsh -File Tests/VerificarRecompensas.ps1 desde la raíz.
 # Compila el cálculo de producción con un DTO mínimo: no requiere ejecutar Unity.
+param([ValidateSet('Amazonas', 'SanAndres')][string]$Zona = 'Amazonas')
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
 $modelo = @'
@@ -22,7 +23,9 @@ function DebeFallar([scriptblock]$accion) {
 $pesos = @(50, 25, 15, 8, 2)
 $totalProbabilidad = 0
 $ingresoPonderado = 0.0
-$filas = foreach ($archivo in Get-ChildItem Assets/Data/Peces/*.asset) {
+$directorio = if ($Zona -eq 'SanAndres') { 'Assets/Data/Peces/SanAndres' } else { 'Assets/Data/Peces' }
+$cantidadEsperada = if ($Zona -eq 'SanAndres') { 15 } else { 25 }
+$filas = foreach ($archivo in Get-ChildItem "$directorio/*.asset") {
     $datos = Get-Content $archivo.FullName -Raw
     $pez = [PezData]::new()
     foreach ($campo in @('rareza', 'fuerzaPez', 'pesoMinimo', 'pesoMaximo', 'longitudMinima', 'longitudMaxima')) {
@@ -52,10 +55,12 @@ $filas = foreach ($archivo in Get-ChildItem Assets/Data/Peces/*.asset) {
     $probabilidad = $pesos[[int]$pez.rareza]
     $totalProbabilidad += $probabilidad
     $ingresoPonderado += ($suma / 10201) * $probabilidad
-    $nombre = [regex]::Match($datos, "(?m)^  nombreEspecie: '(.+)'\r?$").Groups[1].Value
+    $nombre = [regex]::Match($datos, '(?m)^  nombreEspecie: (.+)$').Groups[1].Value.Trim()
+    if ($nombre.StartsWith('"')) { $nombre = [regex]::Unescape($nombre.Trim('"')) }
+    elseif ($nombre.StartsWith("'")) { $nombre = $nombre.Trim("'").Replace("''", "'") }
     "| $nombre | $min | $medio | $max |"
 }
-Exigir ($filas.Count -eq 25) 'Cambió el catálogo: actualizar el análisis de balance.'
+Exigir ($filas.Count -eq $cantidadEsperada) 'Cambió el catálogo: actualizar el análisis de balance.'
 DebeFallar { [RecompensaCaptura]::Calcular($null, 1, 1) }
 DebeFallar { [RecompensaCaptura]::Calcular($pez, [float]::NaN, 1) }
 DebeFallar { [RecompensaCaptura]::Calcular($pez, $pez.pesoMaximo + 1, $pez.longitudMinima) }
@@ -68,5 +73,5 @@ DebeFallar { [RecompensaCaptura]::Calcular($pez, 1, 2) }
 $pez.fuerzaPez = 1; $pez.pesoMaximo = 0
 DebeFallar { [RecompensaCaptura]::Calcular($pez, 1, 2) }
 $filas
-"OK: 255025 ejemplares; enteros, límites, monotonía y entradas inválidas."
+"OK ($Zona): $($filas.Count * 10201) ejemplares; enteros, límites, monotonía y entradas inválidas."
 "Media ponderada (todos los intentos exitosos, sin cebo): $([Math]::Round($ingresoPonderado/$totalProbabilidad, 2))"

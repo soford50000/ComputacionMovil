@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Pez loro
   foto: {fileID: 21300000, guid: 74d8f40290c336d44bb27b145cb24b85, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 1
+  fuerzaPez: 5
+  pesoMinimo: 1
+  pesoMaximo: 7
+  longitudMinima: 30
+  longitudMaxima: 70
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Arrecifes coralinos."
+  descripcion: "Sus colores vivos destacan entre los corales, donde busca algas sobre las superficies del arrecife. Los dientes unidos forman un pico característico que da origen a su nombre."

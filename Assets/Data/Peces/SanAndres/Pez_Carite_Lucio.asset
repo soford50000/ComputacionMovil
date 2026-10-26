@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PezData
   nombreEspecie: Carite lucio
   foto: {fileID: 21300000, guid: 6a6a49702bebed7428949993b2085b56, type: 3}
-  caracteristicasPendientes: 1
-  rareza: 0
-  fuerzaPez: 1
-  pesoMinimo: 0
-  pesoMaximo: 0
-  longitudMinima: 0
-  longitudMaxima: 0
+  caracteristicasPendientes: 0
+  rareza: 2
+  fuerzaPez: 7
+  pesoMinimo: 3
+  pesoMaximo: 25
+  longitudMinima: 60
+  longitudMaxima: 150
   velocidadRecogida: 1
-  habitat: 
-  descripcion: 
+  habitat: "Aguas costeras y bordes de arrecife."
+  descripcion: "Un cazador de cuerpo alargado que patrulla las aguas costeras del Caribe. Sus cambios de dirección y aceleraciones lo convierten en un rival difícil de seguir."

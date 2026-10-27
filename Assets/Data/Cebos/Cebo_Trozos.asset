@@ -14,9 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CeboData
   nombre: "Trozos de pescado"
   icono: {fileID: 21300000, guid: 0b1c7a00511f4be8a4a63a36d6170fe6, type: 3}
-  descripcion: "Pescado fresco para favorecer pirañas y tiburones toro."
+  descripcion: "Pescado fresco para depredadores de río y del Caribe."
   precio: 70
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: b436a3ed6fd665f4aba18e5327a82a1b, type: 2}
   - {fileID: 11400000, guid: 11a00000000040008000000000000020, type: 2}
+  - {fileID: 11400000, guid: 2ba594e37aaa93f4b9cd22b2893a2f50, type: 2}
+  - {fileID: 11400000, guid: ed52c36019c0347468cc70d2e3ce46cb, type: 2}
+  - {fileID: 11400000, guid: 63f9f2a7e35a94e489d59d5d59e0a9d1, type: 2}
+  - {fileID: 11400000, guid: 4e9b925f11e1adf4cb921423a0309138, type: 2}

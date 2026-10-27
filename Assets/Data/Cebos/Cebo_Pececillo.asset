@@ -14,10 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CeboData
   nombre: "Pececillo vivo"
   icono: {fileID: 21300000, guid: fc35150eeff54a28a0aef0482e7b9a80, type: 3}
-  descripcion: "Presa pequeña para depredadores como el pez hoja y la bicuda."
+  descripcion: "Presa pequeña para depredadores de río y del Caribe."
   precio: 100
   multiplicadorAparicion: 2
   especiesFavorecidas:
   - {fileID: 11400000, guid: 11a00000000040008000000000000016, type: 2}
   - {fileID: 11400000, guid: 11a00000000040008000000000000011, type: 2}
   - {fileID: 11400000, guid: 11a00000000040008000000000000013, type: 2}
+  - {fileID: 11400000, guid: ecd2369940eb4d84aaacebedd7a093f1, type: 2}
+  - {fileID: 11400000, guid: 69861c026879daa43bea020e22230c43, type: 2}
+  - {fileID: 11400000, guid: 2ba594e37aaa93f4b9cd22b2893a2f50, type: 2}
+  - {fileID: 11400000, guid: 4971a48545498d34bbc4638265bb765a, type: 2}
+  - {fileID: 11400000, guid: b9ba1010ab578b34e8f521e87cd9b5c3, type: 2}
+  - {fileID: 11400000, guid: 7e28f78520e8ea6438f143b74f82eef6, type: 2}

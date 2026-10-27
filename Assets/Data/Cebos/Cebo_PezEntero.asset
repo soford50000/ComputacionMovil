@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CeboData
   nombre: "Pez de carnada entero"
   icono: {fileID: 21300000, guid: 25be68bbae84451aa65d6b3ec7ba77a3, type: 3}
-  descripcion: "Presa entera para los grandes depredadores del río."
+  descripcion: "Presa entera para grandes depredadores de ambas zonas."
   precio: 160
   multiplicadorAparicion: 2
   especiesFavorecidas:
@@ -29,3 +29,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 11a00000000040008000000000000009, type: 2}
   - {fileID: 11400000, guid: 11a00000000040008000000000000017, type: 2}
   - {fileID: 11400000, guid: 6e4c76430fe01bd4d8c3b9fe860285a0, type: 2}
+  - {fileID: 11400000, guid: 2ba594e37aaa93f4b9cd22b2893a2f50, type: 2}
+  - {fileID: 11400000, guid: 69861c026879daa43bea020e22230c43, type: 2}
+  - {fileID: 11400000, guid: 4971a48545498d34bbc4638265bb765a, type: 2}
+  - {fileID: 11400000, guid: b9ba1010ab578b34e8f521e87cd9b5c3, type: 2}
+  - {fileID: 11400000, guid: 7e28f78520e8ea6438f143b74f82eef6, type: 2}
+  - {fileID: 11400000, guid: ed52c36019c0347468cc70d2e3ce46cb, type: 2}

@@ -1,0 +1,46 @@
+{
+  "title": "Brisa de San Andrés",
+  "bpm": 104,
+  "bars": 64,
+  "meter": "4/4",
+  "key": "G major",
+  "duration_seconds": 147.69231292517006,
+  "sample_rate": 44100,
+  "channels": 2,
+  "pcm_bits": 16,
+  "peak_dbfs": -2.0474579334259033,
+  "rms_dbfs": -16.2357234954834,
+  "eight_second_rms_range_db": 1.8900539822523952,
+  "loop_endpoint_difference_pcm": [
+    0,
+    0
+  ],
+  "finite_samples": true,
+  "clipped_samples": 0,
+  "sections": [
+    "A",
+    "B",
+    "A-light",
+    "B",
+    "A",
+    "C",
+    "A",
+    "B-return"
+  ],
+  "instruments": [
+    "acoustic guitar",
+    "ukulele",
+    "steel pans",
+    "Caribbean percussion",
+    "soft bass",
+    "mandolin"
+  ],
+  "ambience": [
+    "surf",
+    "sea breeze",
+    "distant gulls",
+    "water"
+  ],
+  "production": "Original composition with synthesized instruments and environmental sound design. No voices, external samples or field recordings.",
+  "loop_method": "64 complete bars; circular note tails, ambience and reverberation; no fade to silence."
+}

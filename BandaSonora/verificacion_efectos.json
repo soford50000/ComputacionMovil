@@ -1,0 +1,44 @@
+{
+  "Clic": {
+    "duration_seconds": 0.1,
+    "peak_dbfs": -6.935749724493126,
+    "rms_dbfs": -23.36743943735085,
+    "clipped_samples": 0
+  },
+  "Lanzar": {
+    "duration_seconds": 0.72,
+    "peak_dbfs": -3.7417328671428884,
+    "rms_dbfs": -22.663850327675213,
+    "clipped_samples": 0
+  },
+  "Pique": {
+    "duration_seconds": 0.44,
+    "peak_dbfs": -5.679933127304016,
+    "rms_dbfs": -18.289157914724086,
+    "clipped_samples": 0
+  },
+  "Tirar": {
+    "duration_seconds": 0.12,
+    "peak_dbfs": -8.873949984654255,
+    "rms_dbfs": -25.92113153257501,
+    "clipped_samples": 0
+  },
+  "Captura": {
+    "duration_seconds": 0.95,
+    "peak_dbfs": -4.436974992327128,
+    "rms_dbfs": -16.964505767717053,
+    "clipped_samples": 0
+  },
+  "Recoger": {
+    "duration_seconds": 0.38,
+    "peak_dbfs": -6.375175252488256,
+    "rms_dbfs": -17.633564907419863,
+    "clipped_samples": 0
+  },
+  "Escape": {
+    "duration_seconds": 0.48,
+    "peak_dbfs": -6.935749724493126,
+    "rms_dbfs": -20.880375529586217,
+    "clipped_samples": 0
+  }
+}

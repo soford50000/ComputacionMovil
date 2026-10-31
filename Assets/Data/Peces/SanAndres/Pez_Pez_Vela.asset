@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Pez_Pez_Vela
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: Pez vela
+  foto: {fileID: 21300000, guid: 98c6b34e3430f844d9d577afde025c74, type: 3}
+  caracteristicasPendientes: 0
+  rareza: 4
+  fuerzaPez: 10
+  pesoMinimo: 20
+  pesoMaximo: 50
+  longitudMinima: 150
+  longitudMaxima: 270
+  velocidadRecogida: 1
+  habitat: "Aguas abiertas del Caribe."
+  descripcion: "Una gran aleta dorsal semejante a una vela y un hocico alargado distinguen su silueta. Sus carreras y saltos sobre el agua convierten el encuentro en uno de los grandes desafíos del mar."

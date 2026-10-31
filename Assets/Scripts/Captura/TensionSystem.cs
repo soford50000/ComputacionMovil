@@ -823,9 +823,8 @@ public class TensionSystem : MonoBehaviour
         if (!visible)
             return;
 
-        fondoZona.color = estaPresionado
-            ? new Color(0.10f, 0.48f, 0.32f, Mathf.Min(0.55f, opacidadZona + 0.18f))
-            : new Color(0.02f, 0.08f, 0.08f, opacidadZona);
+        // Mantiene el mismo tono oscuro mientras se pulsa, evitando el destello verde.
+        fondoZona.color = new Color(0.02f, 0.08f, 0.08f, opacidadZona);
         ActualizarTextoTension();
     }
 

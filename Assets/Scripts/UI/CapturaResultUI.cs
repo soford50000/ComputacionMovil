@@ -13,6 +13,7 @@ public sealed class CapturaResultado
     public float PesoKg { get; }
     public float LongitudCm { get; }
     public int Oro { get; }
+    public int RecompensaEspecialInvasora { get; }
     public bool NuevaEspecie { get; }
 
     public CapturaResultado(PezData pez, bool nuevaEspecie = false)
@@ -24,7 +25,8 @@ public sealed class CapturaResultado
         NuevaEspecie = nuevaEspecie;
         PesoKg = UnityEngine.Random.Range(pez.pesoMinimo, pez.pesoMaximo);
         LongitudCm = UnityEngine.Random.Range(pez.longitudMinima, pez.longitudMaxima);
-        Oro = RecompensaCaptura.Calcular(pez, PesoKg, LongitudCm);
+        RecompensaEspecialInvasora = pez.esInvasora ? Math.Max(0, pez.bonoMonetarioInvasora) : 0;
+        Oro = RecompensaCaptura.Calcular(pez, PesoKg, LongitudCm) + RecompensaEspecialInvasora;
     }
 
     private static void ValidarRango(float min, float max)
@@ -46,7 +48,7 @@ public class CapturaResultUI : MonoBehaviour
     public CapturaResultado ResultadoActual { get; private set; }
 
     private GameObject ventana;
-    private Text nombre, rareza, peso, largo, oro, notaCaptura;
+    private Text nombre, rareza, peso, largo, oro, bonoInvasora, notaCaptura;
     private GameObject avisoNuevaEspecie;
     private Image foto;
     private CapturaResultado ultimoRecogido;
@@ -72,7 +74,11 @@ public class CapturaResultUI : MonoBehaviour
         largo.text = (resultado.LongitudCm / 100f).ToString("0.###", cultura) + " m";
         oro.text = "+$ " + resultado.Oro.ToString(cultura);
         var zona = FisheryManager.Instance != null ? FisheryManager.Instance.ZonaActual : null;
-        notaCaptura.text = "CAPTURA REGISTRADA · " + (zona != null ? zona.nombreZona.ToUpperInvariant() : "AMAZONAS");
+        notaCaptura.text = "CAPTURA REGISTRADA · " + (zona != null ? zona.nombreZona.ToUpperInvariant() : "AMAZONAS") +
+            (resultado.RecompensaEspecialInvasora > 0 ? " · ESPECIE INVASORA" : "");
+        bonoInvasora.gameObject.SetActive(resultado.RecompensaEspecialInvasora > 0);
+        if (resultado.RecompensaEspecialInvasora > 0)
+            bonoInvasora.text = "BONO INVASORA +$ " + resultado.RecompensaEspecialInvasora.ToString(cultura);
         avisoNuevaEspecie.SetActive(resultado.NuevaEspecie);
         ventana.SetActive(true);
     }
@@ -170,6 +176,12 @@ public class CapturaResultUI : MonoBehaviour
         peso = Campo(tarjeta, "Peso", .02f, .08f, .48f, .36f);
         oro = Campo(tarjeta, "Ganancia", .52f, .08f, .98f, .36f);
         EstiloExpedicion.Tipografia(oro, 34, Hex("886119"));
+        oro.rectTransform.anchorMin = new Vector2(.055f, .31f);
+        oro.rectTransform.anchorMax = new Vector2(.95f, .60f);
+        var panelGanancia = oro.transform.parent;
+        bonoInvasora = EstiloExpedicion.Texto(panelGanancia, "Bono invasora", "", 13,
+            Hex("886119"), .055f, .02f, .95f, .30f, false, TextAnchor.MiddleLeft);
+        bonoInvasora.gameObject.SetActive(false);
         var nota = EstiloExpedicion.Texto(fondo, "Nota de captura", "CAPTURA REGISTRADA · AMAZONAS", 13, EstiloExpedicion.Secundario, .04f, .14f, .47f, .20f);
         notaCaptura = nota;
         var recoger = Boton(fondo, "Recoger", EstiloExpedicion.Verde, EstiloExpedicion.Papel, .51f, .05f, .70f, .15f, () => Confirmar(false));

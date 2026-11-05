@@ -1,0 +1,8 @@
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/GameActivity/CMakeFiles/game.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/GameActivity/CMakeFiles/edit_cache.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/GameActivity/CMakeFiles/rebuild_cache.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+C:/trabajos/ComputacionMV/ComputacionMovil/.utmp/RelWithDebInfo/r2f6a3k2/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

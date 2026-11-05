@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public sealed class CanaSelectorUI : MonoBehaviour
 {
     private const string ClaveCompra = "RoadToAmazonas.CanasCompradas.v1.";
+    private const string ClaveCanaEquipada = "RoadToAmazonas.CanaEquipada.v1";
     [SerializeField] private CanaData[] canasDisponibles;
     [SerializeField] private CanaData canaInicial;
 
@@ -231,10 +232,14 @@ public sealed class CanaSelectorUI : MonoBehaviour
 
     private void EquiparCanaInicial()
     {
+        CanaData inicial = BuscarCana(PlayerPrefs.GetString(ClaveCanaEquipada, string.Empty));
+        if (inicial != null && !EstaComprada(inicial))
+            inicial = null;
+
         // El modelo básico se prioriza siempre: una referencia antigua
-        // serializada en la escena no debe cambiar la caña de inicio.
-        CanaData inicial = null;
-        if (canasDisponibles != null)
+        // serializada en la escena no debe cambiar la caña de inicio cuando
+        // todavía no existe una caña guardada para el jugador.
+        if (inicial == null && canasDisponibles != null)
         {
             for (int i = 0; i < canasDisponibles.Length; i++)
             {
@@ -265,9 +270,19 @@ public sealed class CanaSelectorUI : MonoBehaviour
         if (inicial != null)
         {
             MarcarComoComprada(inicial);
-            sistemaPesca.EquiparCana(inicial);
+            if (sistemaPesca.EquiparCana(inicial))
+                GuardarCanaEquipada(inicial);
         }
         ActualizarEstadoOpciones();
+    }
+
+    private CanaData BuscarCana(string nombreAsset)
+    {
+        if (string.IsNullOrEmpty(nombreAsset) || canasDisponibles == null) return null;
+        for (int i = 0; i < canasDisponibles.Length; i++)
+            if (canasDisponibles[i] != null && canasDisponibles[i].name == nombreAsset)
+                return canasDisponibles[i];
+        return null;
     }
 
     private void SeleccionarCana(CanaData cana)
@@ -303,6 +318,7 @@ public sealed class CanaSelectorUI : MonoBehaviour
         }
 
         textoAviso.text = "Caña equipada: " + cana.nombreCana;
+        GuardarCanaEquipada(cana);
         ActualizarEstadoOpciones();
         CerrarVentana();
     }
@@ -340,6 +356,13 @@ public sealed class CanaSelectorUI : MonoBehaviour
     {
         if (cana == null) return;
         PlayerPrefs.SetInt(ClaveDe(cana), 1);
+        PlayerPrefs.Save();
+    }
+
+    private static void GuardarCanaEquipada(CanaData cana)
+    {
+        if (cana == null) return;
+        PlayerPrefs.SetString(ClaveCanaEquipada, cana.name);
         PlayerPrefs.Save();
     }
 

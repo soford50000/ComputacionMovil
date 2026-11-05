@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class FisheryManager : MonoBehaviour
 {
+    private const string ClaveZonaSeleccionada = "RoadToAmazonas.ZonaSeleccionada.v1";
     public static FisheryManager Instance; // Patrón Singleton para acceder fácilmente desde otros scripts
 
     [Header("Zona inicial (RF1)")]
@@ -37,6 +38,14 @@ public class FisheryManager : MonoBehaviour
             Instance = this;
             pesca = GetComponent<TensionSystem>();
             ZonaSanAndres = Resources.Load<ZonaData>("Zonas/SanAndres");
+            string zonaGuardada = PlayerPrefs.GetString(ClaveZonaSeleccionada, string.Empty);
+            zonaActual = ZonaSanAndres != null && zonaGuardada == ZonaSanAndres.name
+                ? ZonaSanAndres : zonaAmazonas;
+            if (zonaActual != null && zonaGuardada != zonaActual.name)
+            {
+                PlayerPrefs.SetString(ClaveZonaSeleccionada, zonaActual.name);
+                PlayerPrefs.Save();
+            }
             DontDestroyOnLoad(gameObject);
             musicaZona = gameObject.AddComponent<AudioSource>();
             musicaZona.playOnAwake = false;
@@ -58,6 +67,8 @@ public class FisheryManager : MonoBehaviour
             (pesca != null && !pesca.PuedeCambiarCana)) return false;
         if (zona == ZonaActual) return true;
         zonaActual = zona;
+        PlayerPrefs.SetString(ClaveZonaSeleccionada, zona.name);
+        PlayerPrefs.Save();
         ReproducirMusicaZona();
         ZonaCambiada?.Invoke(zona);
         return true;

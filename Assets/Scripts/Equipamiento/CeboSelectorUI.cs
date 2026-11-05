@@ -7,6 +7,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
 {
     private const string ClaveUsos = "RoadToAmazonas.CebosUsos.v2.";
     private const string ClaveCompraAnterior = "RoadToAmazonas.CebosComprados.v1.";
+    private const string ClaveCeboEquipado = "RoadToAmazonas.CeboEquipado.v1";
     private TensionSystem pesca;
     private CeboData[] cebos;
     private CeboData seleccionado;
@@ -33,10 +34,52 @@ public sealed class CeboSelectorUI : MonoBehaviour
         var catalogo = Resources.Load<CatalogoCebos>("CatalogoCebos");
         cebos = catalogo != null && catalogo.cebos != null ? catalogo.cebos : new CeboData[0];
         CrearInterfaz();
+        RestaurarCeboEquipado();
+        pesca.CeboCambiado += AlCambiarCebo;
+        ActualizarResumen();
+    }
+
+    private void RestaurarCeboEquipado()
+    {
+        if (PlayerPrefs.HasKey(ClaveCeboEquipado))
+        {
+            string nombreGuardado = PlayerPrefs.GetString(ClaveCeboEquipado, string.Empty);
+            CeboData guardado = BuscarCebo(nombreGuardado);
+            if (guardado != null && TieneUsos(guardado))
+                pesca.EquiparCebo(guardado);
+            else
+                pesca.EquiparCebo(null);
+
+            GuardarCeboEquipado(pesca.CeboEquipado);
+            return;
+        }
+
+        // Conserva una carnada configurada inicialmente en la escena y crea
+        // su preferencia local para los siguientes inicios.
         if (pesca.CeboEquipado != null && !TieneUsos(pesca.CeboEquipado))
             pesca.EquiparCebo(null);
-        pesca.CeboCambiado += ActualizarResumen;
+        GuardarCeboEquipado(pesca.CeboEquipado);
+    }
+
+    private CeboData BuscarCebo(string nombreAsset)
+    {
+        if (string.IsNullOrEmpty(nombreAsset) || cebos == null) return null;
+        for (int i = 0; i < cebos.Length; i++)
+            if (cebos[i] != null && cebos[i].name == nombreAsset)
+                return cebos[i];
+        return null;
+    }
+
+    private void AlCambiarCebo()
+    {
+        GuardarCeboEquipado(pesca.CeboEquipado);
         ActualizarResumen();
+    }
+
+    private static void GuardarCeboEquipado(CeboData cebo)
+    {
+        PlayerPrefs.SetString(ClaveCeboEquipado, cebo != null ? cebo.name : string.Empty);
+        PlayerPrefs.Save();
     }
 
     private void LateUpdate()
@@ -283,7 +326,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (pesca != null) pesca.CeboCambiado -= ActualizarResumen;
+        if (pesca != null) pesca.CeboCambiado -= AlCambiarCebo;
     }
 
     private static RectTransform Rect(Transform padre, string nombre, float x0, float y0, float x1, float y1)

@@ -378,6 +378,7 @@ GameObject:
   - component: {fileID: 710000008}
   - component: {fileID: 710000009}
   - component: {fileID: 710000010}
+  - component: {fileID: 710000011}
   m_Layer: 0
   m_Name: Pesca Amazonas
   m_TagString: Untagged
@@ -534,6 +535,11 @@ MonoBehaviour:
   grosor: 1
   flexionMaxima: 0.32
   suavizado: 0.22
+  posicionXAncla: 0.3
+  profundidadAncla: 0.08
+  posicionYAncla: 0.24
+  depurarAnclaSedal: 0
+  usarObjetivoSedal: 0
 --- !u!114 &710000009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,6 +565,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d419c84f65431394a96bc8b44003548b, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CatalogoManager
+--- !u!114 &710000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e258801a37cc1b11cd3f75904eb3ae50, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PerfilJugador
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

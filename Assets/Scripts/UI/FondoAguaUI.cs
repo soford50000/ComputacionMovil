@@ -116,6 +116,38 @@ public sealed class FondoAguaUI : MonoBehaviour
             ancho / Mathf.Max(1, Screen.width), alto / Mathf.Max(1, Screen.height), 0f, 0f));
     }
 
+    /// <summary>Altura normalizada de pantalla, desde abajo, después del recorte de la fotografía.</summary>
+    public bool ObtenerLineaAguaNormalizada(out float altura)
+    {
+        altura = 0f;
+        if (imagen == null || imagen.uvRect.height <= 0f) return false;
+        Rect uv = imagen.uvRect;
+        altura = ((esMar ? limiteAguaMar : limiteAgua) - uv.yMin) / uv.height;
+        return true;
+    }
+
+    /// <summary>
+    /// El límite es una coordenada UV de la fotografía, medida desde abajo.
+    /// Invierte el recorte uvRect y convierte fondo local -> mundo UI -> destino local.
+    /// profundidad es una fracción de la altura visible del fondo, no de la fotografía.
+    /// </summary>
+    public bool ObtenerAnclaSedalLocal(RectTransform destino, float posicionX, float profundidad, out Vector2 punto)
+    {
+        punto = Vector2.zero;
+        if (imagen == null || destino == null) return false;
+        Rect uv = imagen.uvRect;
+        if (uv.height <= 0f) return false;
+        float limite = esMar ? limiteAguaMar : limiteAgua;
+        float alturaVisible = (limite - uv.yMin) / uv.height;
+        Rect rect = imagen.rectTransform.rect;
+        Vector3 puntoFondo = Vector3.zero;
+        puntoFondo.x = rect.xMin + rect.width * Mathf.Clamp01(posicionX);
+        puntoFondo.y = rect.yMin + rect.height * Mathf.Clamp01(alturaVisible - Mathf.Max(0f, profundidad));
+        // Ambos Canvas son ScreenSpaceOverlay; TransformPoint incluye CanvasScaler y pivotes.
+        punto = destino.InverseTransformPoint(imagen.rectTransform.TransformPoint(puntoFondo));
+        return true;
+    }
+
     private void OnEnable() { if (fondo != null) fondo.SetActive(true); }
     private void OnDisable() { if (fondo != null) fondo.SetActive(false); }
     private void OnDestroy()

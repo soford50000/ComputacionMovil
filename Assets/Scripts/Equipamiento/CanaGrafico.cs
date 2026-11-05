@@ -14,6 +14,52 @@ public sealed class CanaGrafico : MaskableGraphic
     private bool curvaPendiente = true;
     private float vibracion;
     private float tiempoAgua = -1f;
+    private Vector2? objetivoSedal;
+    private FondoAguaUI fondoAgua;
+    private float posicionXAncla = 0.3f, profundidadAncla = 0.08f;
+    private float? posicionYAncla = 0.24f;
+    private bool depurarAnclaSedal;
+    private static readonly Color ColorAncla = new Color32(0, 255, 255, 255);
+    private static readonly Color ColorLineaAgua = new Color32(255, 220, 0, 220);
+
+    /// <summary>Objetivo local opcional. null utiliza X/Y normalizadas, limitadas bajo el agua.</summary>
+    public Vector2? puntoObjetivoSedal
+    {
+        get => objetivoSedal;
+        set
+        {
+            if (value.HasValue && (float.IsNaN(value.Value.x) || float.IsInfinity(value.Value.x) ||
+                float.IsNaN(value.Value.y) || float.IsInfinity(value.Value.y))) value = null;
+            if (objetivoSedal == value) return;
+            objetivoSedal = value;
+            SetVerticesDirty();
+        }
+    }
+
+    public void ConfigurarAnclaAgua(FondoAguaUI fondo, float posicionX, float profundidad, float? posicionY = null, bool depurar = false)
+    {
+        fondoAgua = fondo;
+        posicionXAncla = Mathf.Clamp01(posicionX);
+        profundidadAncla = Mathf.Clamp01(profundidad);
+        posicionYAncla = posicionY.HasValue ? Mathf.Clamp01(posicionY.Value) : (float?)null;
+        depurarAnclaSedal = depurar;
+        SetVerticesDirty();
+    }
+    private float extensionSedal = 1f, caidaSedal, anchoSedal = 0.85f, brilloSedal = 0.55f, oscilacionSedal, fuerzaOndas = 1f;
+
+    /// <summary>Objetivo local del RectTransform; null conserva EntradaAgua. Ajustes enviados por CanaVisual.</summary>
+    public void ConfigurarSedal(Vector2? objetivo, float extension, float caida, float ancho, float brillo, float oscilacion, float ondas)
+    {
+        puntoObjetivoSedal = objetivo;
+        extensionSedal = Mathf.Clamp01(extension);
+        caidaSedal = caida;
+        anchoSedal = ancho;
+        brilloSedal = brillo;
+        oscilacionSedal = oscilacion;
+        fuerzaOndas = ondas;
+        SetVerticesDirty();
+    }
+
     public ModeloCana ModeloActual { get; private set; }
     private bool EsShimano => ModeloActual == ModeloCana.ShimanoColtSniperLimited100H;
     private bool EsFx => ModeloActual == ModeloCana.ShimanoFx;
@@ -90,10 +136,28 @@ public sealed class CanaGrafico : MaskableGraphic
     {
         get
         {
+            if (puntoObjetivoSedal.HasValue) return puntoObjetivoSedal.Value;
+            if (posicionYAncla.HasValue)
+            {
+                // El gráfico ocupa toda la pantalla. No atraviesa espacios de dos Canvas distintos.
+                Rect pantalla = rectTransform.rect;
+                float altura = posicionYAncla.Value;
+                if (fondoAgua != null && fondoAgua.ObtenerLineaAguaNormalizada(out float limite))
+                    altura = Mathf.Min(altura, Mathf.Max(0f, limite - profundidadAncla));
+                Vector2 punto = Vector2.zero;
+                punto.x = pantalla.xMin + pantalla.width * posicionXAncla;
+                punto.y = pantalla.yMin + pantalla.height * altura;
+                return punto;
+            }
+            if (fondoAgua != null && fondoAgua.ObtenerAnclaSedalLocal(rectTransform,
+                posicionXAncla, profundidadAncla, out Vector2 ancla)) return ancla;
+            // Respaldo fijo mientras Awake del fondo aún no ha creado la imagen.
+            // Nunca depende de Punto(1f), de la tensión ni de la vibración.
             Rect r = rectTransform.rect;
-            // Anclaje bajo y a la izquierda de la punta base; no persigue sus vibraciones.
-            Vector2 puntaBase = Punto(1f) - new Vector2(0.3f, 1f) * (r.height * vibracion);
-            return puntaBase + new Vector2(-r.width * 0.04f, -r.height * 0.18f);
+            Vector2 respaldo = Vector2.zero;
+            respaldo.x = r.xMin + r.width * posicionXAncla;
+            respaldo.y = r.yMin;
+            return respaldo;
         }
     }
 
@@ -104,30 +168,32 @@ public sealed class CanaGrafico : MaskableGraphic
         if (escala <= 0f) return;
 
         // Hilo translúcido, detrás del cuerpo, con recorrido por el centro de cada guía.
-        Color hilo = new Color(0.86f, 0.91f, 0.88f, 0.55f);
+        Color hilo = new Color(0.86f, 0.91f, 0.88f, brilloSedal);
         Vector2 previo = Punto(0.22f) + LadoInferior(0.22f) * Radio(0.22f);
         foreach (float t in PosicionesGuias)
         {
             Vector2 centro = CentroGuia(t);
-            Linea(vh, previo, centro, 0.85f * escala, hilo);
+            Linea(vh, previo, centro, anchoSedal * escala, hilo);
             previo = centro;
         }
-        Vector2 agua = EntradaAgua;
+        Vector2 anclaAgua = EntradaAgua;
+        Vector2 agua = Vector2.Lerp(previo, anclaAgua, extensionSedal);
         bool combate = tiempoAgua >= 0f;
         Vector2 direccionHilo = (agua - previo).normalized;
         Vector2 lateralHilo = new Vector2(-direccionHilo.y, direccionHilo.x);
-        // Sin comba: solo un temblor transversal subpíxel, con extremos anclados.
+        // Caída y oscilación con ambos extremos anclados.
         Vector2 control = Vector2.Lerp(previo, agua, 0.5f) + lateralHilo *
-            (combate ? Mathf.Sin(tiempoAgua * 32f) * 0.5f : 0f) * escala;
+            ((combate ? Mathf.Sin(tiempoAgua * 32f) * 0.5f : 0f) + oscilacionSedal) * escala * extensionSedal
+            + Vector2.down * (rectTransform.rect.height * caidaSedal * extensionSedal);
         Vector2 anterior = previo;
         for (int i = 1; i <= 24; i++)
         {
             float t = i / 24f;
             Vector2 p = (1 - t) * (1 - t) * previo + 2 * (1 - t) * t * control + t * t * agua;
-            Linea(vh, anterior, p, 0.85f * escala, hilo);
+            Linea(vh, anterior, p, anchoSedal * escala, hilo);
             anterior = p;
         }
-        if (combate) DibujarAgua(vh, agua);
+        if (combate && extensionSedal >= 1f) DibujarAgua(vh, anclaAgua);
 
         if (EsDaiwa) DibujarDaiwa(vh);
         else if (EsFx) DibujarShimanoFx(vh);
@@ -135,6 +201,26 @@ public sealed class CanaGrafico : MaskableGraphic
         else DibujarAbuGarcia(vh);
 
         foreach (float t in PosicionesGuias) Guia(vh, t);
+        if (depurarAnclaSedal) DibujarDepuracionAncla(vh, anclaAgua);
+    }
+
+    private void DibujarDepuracionAncla(VertexHelper vh, Vector2 ancla)
+    {
+        // Cruz y rombo visibles; sin crear objetos UI ni buffers por fotograma.
+        Vector2 horizontal = Vector2.right * (9f * escala);
+        Vector2 vertical = Vector2.up * (9f * escala);
+        Linea(vh, ancla - horizontal, ancla + horizontal, 2f * escala, ColorAncla);
+        Linea(vh, ancla - vertical, ancla + vertical, 2f * escala, ColorAncla);
+        Triangulo(vh, ancla + vertical * 0.4f, ancla - horizontal * 0.4f, ancla + horizontal * 0.4f, ColorAncla);
+        Triangulo(vh, ancla - vertical * 0.4f, ancla + horizontal * 0.4f, ancla - horizontal * 0.4f, ColorAncla);
+        if (fondoAgua == null || !fondoAgua.ObtenerLineaAguaNormalizada(out float limite)) return;
+        Rect r = rectTransform.rect;
+        Vector2 izquierda = Vector2.zero;
+        izquierda.x = r.xMin;
+        izquierda.y = r.yMin + r.height * limite;
+        Vector2 derecha = izquierda;
+        derecha.x = r.xMax;
+        Linea(vh, izquierda, derecha, 2f * escala, ColorLineaAgua);
     }
 
     private void DibujarAbuGarcia(VertexHelper vh)
@@ -283,8 +369,8 @@ public sealed class CanaGrafico : MaskableGraphic
         for (int onda = 0; onda < 3; onda++)
         {
             float fase = Mathf.Repeat(tiempoAgua * 0.7f + onda / 3f, 1f);
-            float radio = Mathf.Lerp(3f, 24f, fase) * escala;
-            Color colorAgua = new Color(0.83f, 0.94f, 0.98f, (1f - fase) * 0.35f);
+            float radio = Mathf.Lerp(3f, 24f, fase) * escala * fuerzaOndas;
+            Color colorAgua = new Color(0.83f, 0.94f, 0.98f, Mathf.Clamp01((1f - fase) * 0.35f * fuerzaOndas));
             for (int i = 0; i < 40; i++)
             {
                 float a = i * Mathf.PI * 2 / 40, b = (i + 1) * Mathf.PI * 2 / 40;
@@ -296,7 +382,7 @@ public sealed class CanaGrafico : MaskableGraphic
         {
             float fase = Mathf.Repeat(tiempoAgua * 1.1f + i * 0.23f, 1f);
             float salto = Mathf.Sin(fase * Mathf.PI);
-            Vector2 gota = centro + new Vector2((i - 1.5f) * fase * 5f, salto * (5f + i)) * escala;
+            Vector2 gota = centro + new Vector2((i - 1.5f) * fase * 5f, salto * (5f + i) * fuerzaOndas) * escala;
             Linea(vh, gota, gota + Vector2.up * 1.4f * escala, escala,
                 new Color(0.88f, 0.95f, 1f, salto * 0.45f));
         }

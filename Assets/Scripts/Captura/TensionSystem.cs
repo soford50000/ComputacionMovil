@@ -46,7 +46,6 @@ public class TensionSystem : MonoBehaviour
     private float tiempoParaPique;
     private GameObject hudLanzamiento;
     private Image fondoZona;
-    private Text textoZona;
     private Button botonLanzar;
     private Text textoBotonLanzar;
     private Text subtituloBotonLanzar;
@@ -340,6 +339,7 @@ public class TensionSystem : MonoBehaviour
             velocidadTironPendiente = tironPendiente / DuracionVisualTiron;
             tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
             tiempoDesdeTiron = 0f;
+            if (visualCana != null) visualCana.EfectoTiron(tironPendiente / 0.19f);
         }
 
         tensionActual = Mathf.Clamp01(tensionActual);
@@ -351,11 +351,11 @@ public class TensionSystem : MonoBehaviour
             tiempoEnZonaSegura += delta;
         tiempoEnRojo = enZonaSegura ? 0f : tiempoEnRojo + delta;
 
-        ActualizarTextoTension();
 
         if (tiempoEnRojo >= tiempoMaximoEnRojo)
         {
             ResolverIntentoConControl(0f);
+            if (visualCana != null) visualCana.FinalizarCaptura(false, true);
             if (estado == EstadoPesca.Listo)
                 textoEstado.text = "La línea se rompió. Pulsa para volver a pescar.";
             return;
@@ -443,6 +443,8 @@ public class TensionSystem : MonoBehaviour
             cana,
             porcentajeControlado,
             out evaluacion);
+
+        if (visualCana != null) visualCana.FinalizarCaptura(capturada);
 
         if (capturada)
         {
@@ -566,16 +568,7 @@ public class TensionSystem : MonoBehaviour
         fondoZona = panel.GetComponent<Image>();
         fondoZona.raycastTarget = false;
 
-        var label = CrearTexto("Instrucción de tensión", panel.transform);
-        var labelRect = label.GetComponent<RectTransform>();
-        labelRect.anchorMin = new Vector2(0.05f, 0.12f);
-        labelRect.anchorMax = new Vector2(0.95f, 0.88f);
-        labelRect.offsetMin = Vector2.zero;
-        labelRect.offsetMax = Vector2.zero;
-        textoZona = label;
-        textoZona.fontSize = 30;
-        textoZona.resizeTextMinSize = 16;
-        textoZona.resizeTextMaxSize = 30;
+
     }
 
     private void CrearBotonLanzar(Transform padre)
@@ -814,39 +807,16 @@ public class TensionSystem : MonoBehaviour
 
     private void ActualizarVisualZona()
     {
-        if (fondoZona == null || textoZona == null)
+        if (fondoZona == null)
             return;
 
         bool visible = mostrarIndicador && zonaActiva;
         fondoZona.enabled = visible;
-        textoZona.enabled = visible;
         if (!visible)
             return;
 
         // Mantiene el mismo tono oscuro mientras se pulsa, evitando el destello verde.
         fondoZona.color = new Color(0.02f, 0.08f, 0.08f, opacidadZona);
-        ActualizarTextoTension();
-    }
-
-    private void ActualizarTextoTension()
-    {
-        if (textoZona == null || !zonaActiva)
-            return;
-
-        int porcentaje = Mathf.RoundToInt(tensionActual * 100f);
-        string instruccion;
-        if (tiempoDesdeTiron < 0.65f)
-            instruccion = "¡TIRÓN! AJUSTA LA TENSIÓN";
-        else if (tensionActual > TensionSeguraMaxima)
-            instruccion = "TENSIÓN ALTA · SUELTA PARA BAJAR";
-        else if (tensionActual < TensionSeguraMinima)
-            instruccion = "LÍNEA FLOJA · MANTÉN PARA SUBIR";
-        else if (estaPresionado)
-            instruccion = "TENSANDO · SUELTA PARA BAJAR";
-        else
-            instruccion = "MANTÉN PARA SUBIR · SUELTA PARA BAJAR";
-
-        textoZona.text = $"TENSIÓN {porcentaje}%\n{instruccion}";
     }
 
     private void VolverAListo()

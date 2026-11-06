@@ -23,6 +23,7 @@ public sealed class CatalogoManager : MonoBehaviour
     private static readonly Color SecundarioNogal = ColorHex("#332411");
 
     public static CatalogoManager Instance { get; private set; }
+    public bool EstaAbierto => menu != null && menu.activeSelf;
     public event Action<PezData> EspecieDescubierta;
 
     private readonly List<PezData> especies = new List<PezData>();

@@ -139,10 +139,20 @@ public class TensionSystem : MonoBehaviour
 
     private void AlCambiarZona(ZonaData zona) => VolverAListo();
 
+    private bool HayMenuBloqueandoLanzamiento =>
+        (selectorCebos != null && selectorCebos.EstaAbierto) ||
+        (selectorZonas != null && selectorZonas.EstaAbierto) ||
+        (CatalogoManager.Instance != null && CatalogoManager.Instance.EstaAbierto);
+
     private void Update()
     {
         if (estado == EstadoPesca.Listo)
-            LeerEntradaDeLanzamiento();
+        {
+            bool disponible = gestorZonas == null || gestorZonas.TieneEspecies;
+            botonLanzar.interactable = disponible && !HayMenuBloqueandoLanzamiento;
+            if (!HayMenuBloqueandoLanzamiento)
+                LeerEntradaDeLanzamiento();
+        }
 
         if (estado == EstadoPesca.EsperandoPique && simularPiqueAutomatico)
         {
@@ -166,6 +176,10 @@ public class TensionSystem : MonoBehaviour
     // la escena no entrega el callback de UI. La prueba conserva la forma circular.
     private void LeerEntradaDeLanzamiento()
     {
+        // La lectura táctil de respaldo no pasa por el EventSystem; por eso
+        // también debe respetar los menús modales abiertos.
+        if (HayMenuBloqueandoLanzamiento) return;
+
         TouchControl touch = Touchscreen.current != null
             ? Touchscreen.current.primaryTouch
             : null;
@@ -211,8 +225,7 @@ public class TensionSystem : MonoBehaviour
     /// <summary>Callback del botón táctil «Lanzar / Pescar».</summary>
     public void IniciarLanzamiento()
     {
-        if (estado != EstadoPesca.Listo || (selectorCebos != null && selectorCebos.EstaAbierto) ||
-            (selectorZonas != null && selectorZonas.EstaAbierto))
+        if (estado != EstadoPesca.Listo || HayMenuBloqueandoLanzamiento)
             return;
 
         var gestorPeces = FisheryManager.Instance;

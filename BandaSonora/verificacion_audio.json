@@ -1,0 +1,20 @@
+{
+  "title": "Bruma del Caquetá",
+  "bpm": 65,
+  "bars": 40,
+  "meter": "4/4",
+  "duration_seconds": 147.69231292517006,
+  "sample_rate": 44100,
+  "frames": 6513231,
+  "channels": 2,
+  "pcm_bits": 16,
+  "peak_dbfs": -2.270185708999634,
+  "rms_dbfs": -16.59415626525879,
+  "eight_second_rms_range_db": 2.6839718812323077,
+  "loop_endpoint_difference_pcm": [
+    0,
+    0
+  ],
+  "finite_samples": true,
+  "production": "Original composition. Synthesized instruments and environmental sound design; no voices or field recordings."
+}

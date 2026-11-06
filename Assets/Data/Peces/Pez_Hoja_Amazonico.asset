@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b4ca7cfd73e2764aa746466820f4117, type: 3}
+  m_Name: Pez_Hoja_Amazonico
+  m_EditorClassIdentifier: Assembly-CSharp::PezData
+  nombreEspecie: 'Pez hoja amazónico (Monocirrhus polyacanthus)'
+  foto: {fileID: -9046001172131082368, guid: 7aa4d8da157a46a49ae31c24e024c1c3, type: 3}
+  rareza: 2
+  fuerzaPez: 2
+  pesoMinimo: 0.005
+  pesoMaximo: 0.05
+  longitudMinima: 3
+  longitudMaxima: 10
+  velocidadRecogida: 1
+  habitat: 'Aguas tranquilas, sombreadas y con hojarasca.'
+  descripcion: 'Pequeño maestro del camuflaje que parece una hoja seca flotando entre la vegetación. Su forma y coloración le permiten acercarse a peces pequeños sin ser detectado antes de atraparlos con su boca extensible.'
+
+
+

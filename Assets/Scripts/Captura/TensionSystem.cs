@@ -70,6 +70,7 @@ public class TensionSystem : MonoBehaviour
     private bool estaPresionado;
     private const float TensionSeguraMinima = 0.17f;
     private const float TensionSeguraMaxima = 0.83f;
+    public const float LimiteSuperiorZonaSegura = TensionSeguraMaxima;
 
     /// <summary>True mientras el jugador mantiene pulsada la zona inferior.</summary>
     public bool EstaPresionado => estaPresionado;
@@ -352,7 +353,7 @@ public class TensionSystem : MonoBehaviour
             velocidadTironPendiente = tironPendiente / DuracionVisualTiron;
             tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
             tiempoDesdeTiron = 0f;
-            if (visualCana != null) visualCana.EfectoTiron(tironPendiente / 0.19f);
+            if (visualCana != null) visualCana.AplicarTiron(tironPendiente / 0.19f);
         }
 
         tensionActual = Mathf.Clamp01(tensionActual);

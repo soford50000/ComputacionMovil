@@ -533,8 +533,8 @@ MonoBehaviour:
   basePantalla: {x: 0.74, y: -0.12}
   puntaPantalla: {x: 0.5, y: 0.81}
   grosor: 1
-  flexionMaxima: 0.27
-  suavizado: 0.22
+  curvaMaxima: 1.35
+  rigidez: 100
   posicionXAncla: 0.3
   profundidadAncla: 0.08
   posicionYAncla: 0.24

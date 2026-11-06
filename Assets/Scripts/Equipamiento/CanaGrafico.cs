@@ -13,6 +13,10 @@ public sealed class CanaGrafico : MaskableGraphic
     private Rect rectCache;
     private bool curvaPendiente = true;
     private float vibracion;
+    private float inicioFlexion = 0.25f, potenciaFlexion = 2f, caidaGravedad = 0.045f;
+    private bool depurarCurva;
+    private readonly float[] perfilCache = new float[Tramos];
+    private bool perfilPendiente = true;
     private float tiempoAgua = -1f;
     private Vector2? objetivoSedal;
     private FondoAguaUI fondoAgua;
@@ -90,6 +94,21 @@ public sealed class CanaGrafico : MaskableGraphic
         SetVerticesDirty();
     }
 
+    /// <summary>Distribución angular: base rígida y flexibilidad creciente hacia la punta.</summary>
+    public void ConfigurarFlexion(float inicio, float potencia, float gravedad, bool depurar)
+    {
+        inicio = Mathf.Clamp(inicio, 0f, 0.6f);
+        potencia = Mathf.Clamp(potencia, 1.1f, 5f);
+        gravedad = Mathf.Clamp(gravedad, 0f, 0.15f);
+        if (inicioFlexion == inicio && potenciaFlexion == potencia && caidaGravedad == gravedad && depurarCurva == depurar) return;
+        inicioFlexion = inicio;
+        potenciaFlexion = potencia;
+        caidaGravedad = gravedad;
+        depurarCurva = depurar;
+        perfilPendiente = curvaPendiente = true;
+        SetVerticesDirty();
+    }
+
     // Integra la dirección de cada tramo conservando longitud. El primer tercio
     // permanece rígido y la curva aumenta gradualmente hacia la punta.
     public Vector2 Punto(float t)
@@ -97,6 +116,12 @@ public sealed class CanaGrafico : MaskableGraphic
         Rect r = rectTransform.rect;
         if (curvaPendiente || r != rectCache)
         {
+            if (perfilPendiente)
+            {
+                for (int i = 0; i < Tramos; i++)
+                    perfilCache[i] = Mathf.Pow(Mathf.InverseLerp(inicioFlexion, 1f, (i + 0.5f) / Tramos), potenciaFlexion);
+                perfilPendiente = false;
+            }
             rectCache = r;
             curvaPendiente = false;
             Vector2 a = r.min + Vector2.Scale(r.size, origen);
@@ -107,10 +132,10 @@ public sealed class CanaGrafico : MaskableGraphic
             Vector2 punto = a;
             for (int i = 1; i <= Tramos; i++)
             {
-                float u = Mathf.InverseLerp(0.30f, 1f, (i - 0.5f) / Tramos);
-                float perfilFlexion = u * u * (3f - 2f * u);
-                float carga = Mathf.Clamp01(tension);
-                float angulo = anguloInicial + perfilFlexion * carga * Mathf.Clamp(flexion, 0f, 0.55f);
+                // La carga visual admite sobrepaso y rebote; nunca se devuelve al gameplay.
+                float carga = Mathf.Clamp(tension, -0.25f, 1.5f);
+                float angulo = anguloInicial + perfilCache[i - 1] *
+                    (caidaGravedad + carga * Mathf.Clamp(flexion, 0f, 1.8f));
                 punto += new Vector2(Mathf.Cos(angulo), Mathf.Sin(angulo)) * largo;
                 // Solo el último tercio oscila; valor y pendiente nulos en la unión.
                 float punta = Mathf.Clamp01((i / (float)Tramos - 2f / 3f) * 3f);
@@ -183,9 +208,10 @@ public sealed class CanaGrafico : MaskableGraphic
         bool combate = tiempoAgua >= 0f;
         Vector2 direccionHilo = (agua - previo).normalized;
         Vector2 lateralHilo = new Vector2(-direccionHilo.y, direccionHilo.x);
+        float holgura = 1f - Mathf.Clamp01(tension);
         // Caída y oscilación con ambos extremos anclados.
         Vector2 control = Vector2.Lerp(previo, agua, 0.5f) + lateralHilo *
-            ((combate ? Mathf.Sin(tiempoAgua * 32f) * 0.5f : 0f) + oscilacionSedal) * escala * extensionSedal
+            ((combate ? Mathf.Sin(tiempoAgua * 32f) * 0.5f * holgura : 0f) + oscilacionSedal) * escala * extensionSedal
             + Vector2.down * (rectTransform.rect.height * caidaSedal * extensionSedal);
         Vector2 anterior = previo;
         for (int i = 1; i <= 24; i++)
@@ -203,7 +229,14 @@ public sealed class CanaGrafico : MaskableGraphic
         else DibujarAbuGarcia(vh);
 
         foreach (float t in PosicionesGuias) Guia(vh, t);
-        if (depurarAnclaSedal) DibujarDepuracionAncla(vh, anclaAgua);
+        if (depurarAnclaSedal || depurarCurva) DibujarDepuracionAncla(vh, anclaAgua);
+        if (depurarCurva)
+        {
+            for (int i = 1; i <= Tramos; i++)
+                Linea(vh, curvaCache[i - 1], curvaCache[i], escala, ColorAncla);
+            Vector2 punta = SalidaSedal;
+            Linea(vh, punta - Vector2.right * 6f * escala, punta + Vector2.right * 6f * escala, escala, ColorLineaAgua);
+        }
     }
 
     private void DibujarDepuracionAncla(VertexHelper vh, Vector2 ancla)

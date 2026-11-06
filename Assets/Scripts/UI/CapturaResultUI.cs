@@ -66,8 +66,18 @@ public class CapturaResultUI : MonoBehaviour
         Construir();
         ResultadoActual = resultado;
         nombre.text = resultado.Pez.nombreEspecie;
+        // Restablecer el estado visual evita que una captura previa o el tema
+        // de la zona deje el retrato transparente/tintado en el siguiente popup.
+        foto.overrideSprite = null;
         foto.sprite = resultado.Pez.foto;
+        foto.type = Image.Type.Simple;
+        foto.preserveAspect = true;
+        foto.color = Color.white;
+        foto.canvasRenderer.SetAlpha(1f);
         foto.enabled = foto.sprite != null;
+        foto.SetAllDirty();
+        if (foto.sprite == null)
+            Debug.LogError($"La especie '{resultado.Pez.nombreEspecie}' no tiene una imagen asignada.", resultado.Pez);
         rareza.text = NombreRareza(resultado.Pez.rareza);
         TemaZonaUI.Colorear(rareza, ColorRareza(resultado.Pez.rareza));
         peso.text = resultado.PesoKg.ToString("0.##", cultura) + " kg";

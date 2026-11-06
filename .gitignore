@@ -85,3 +85,6 @@ crashlytics-build.properties
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.psd filter=lfs diff=lfs merge=lfs -text
+Assets/_Recovery/
+Assets/_Recovery.meta
+Docs/Presentacion/.build/

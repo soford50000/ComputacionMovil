@@ -10,11 +10,11 @@ public sealed class CanaVisual : MonoBehaviour
     [SerializeField] private Vector2 basePantalla = new Vector2(0.74f, -0.12f);
     [SerializeField] private Vector2 puntaPantalla = new Vector2(0.50f, 0.81f);
     [SerializeField, Range(0.5f, 1.5f)] private float grosor = 1f;
-    [SerializeField, Range(0.1f, 0.5f)] private float flexionMaxima = 0.32f;
+    [SerializeField, Range(0.1f, 0.5f)] private float flexionMaxima = 0.27f;
     [SerializeField, Min(0.05f)] private float suavizado = 0.22f;
     [Header("Combate con pez pesado")]
-    [SerializeField, Range(0.2f, 1f)] private float amortiguacion = 0.48f;
-    [SerializeField, Range(0f, 0.01f)] private float amplitudVibracion = 0.0015f;
+    [SerializeField, Range(0.2f, 1f)] private float amortiguacion = 0.72f;
+    [SerializeField, Range(0f, 0.01f)] private float amplitudVibracion = 0.0009f;
 
     [Header("Animaciones visuales y sedal")]
     [SerializeField, Range(0.3f, 2f), Tooltip("Duración visual del lanzamiento en segundos.")]
@@ -34,11 +34,11 @@ public sealed class CanaVisual : MonoBehaviour
     [SerializeField, Range(0.5f, 5f), Tooltip("Pulsos de recogida por segundo.")]
     private float frecuenciaRecogida = 2f;
     [SerializeField, Range(0f, 8f), Tooltip("Impulso de velocidad del resorte de tirones.")]
-    private float fuerzaTironVisual = 3f;
+    private float fuerzaTironVisual = 1.7f;
     [SerializeField, Range(0.05f, 0.5f), Tooltip("Tiempo de respuesta del resorte de tirones.")]
-    private float respuestaTiron = 0.16f;
+    private float respuestaTiron = 0.22f;
     [SerializeField, Range(0.2f, 0.95f), Tooltip("Amortiguación de tirones y latigazos.")]
-    private float amortiguacionTiron = 0.4f;
+    private float amortiguacionTiron = 0.68f;
     [SerializeField, Range(0f, 6f), Tooltip("Velocidad de descarga al perder el pez.")]
     private float impulsoEscape = 2.5f;
     [SerializeField, Range(1f, 3f), Tooltip("Multiplicador de vibración con tensión alta.")]
@@ -240,7 +240,9 @@ public sealed class CanaVisual : MonoBehaviour
         IntegrarResorte(ref tension, ref velocidad, objetivo, suavizado, amortiguacion, dt);
         IntegrarResorte(ref impulso, ref velocidadImpulso, 0f, respuestaTiron, amortiguacionTiron, dt);
         IntegrarResorte(ref latigazo, ref velocidadLatigazo, 0f, respuestaTiron, amortiguacionTiron, dt);
-        poseCombate = Mathf.Clamp(tension + impulso, -0.35f, 1.25f);
+        // El blank no invierte su curvatura ni supera su carga máxima cuando
+        // llega un tirón: el resorte suaviza la pose dentro del rango físico.
+        poseCombate = Mathf.Clamp01(tension + impulso);
         float roja = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.75f, 1f, objetivo));
         faseVibracion = Mathf.Repeat(faseVibracion + dt * Mathf.Lerp(27f, 45f, roja), Mathf.PI * 2f);
         vibracion = tirando ? amplitudVibracion * Mathf.Clamp01(tension) * Mathf.Lerp(1f, vibracionRoja, roja) *
@@ -306,7 +308,9 @@ public sealed class CanaVisual : MonoBehaviour
         Vector2 puntaAnimada = basePantalla;
         puntaAnimada.x += (eje.x * coseno - eje.y * seno) / Mathf.Max(1f, tamano.x);
         puntaAnimada.y += (eje.x * seno + eje.y * coseno) / Mathf.Max(1f, tamano.y);
-        grafico.Configurar(basePantalla, puntaAnimada, grosor, flexionMaxima, poseCombate, vibracion, estabaTirando ? relojVisual : -1f);
+        float poder = equipada != null ? Mathf.Clamp(equipada.poderCana, 1f, 10f) : 1f;
+        float rigidez = Mathf.Lerp(1f, 0.72f, Mathf.InverseLerp(1f, 10f, poder));
+        grafico.Configurar(basePantalla, puntaAnimada, grosor, flexionMaxima * rigidez, poseCombate, vibracion, estabaTirando ? relojVisual : -1f);
         float cargaSedal = Mathf.Clamp01(tension);
         grafico.ConfigurarAnclaAgua(fondoAgua, posicionXAncla, profundidadAncla, posicionYAncla, depurarAnclaSedal);
         grafico.ConfigurarSedal(puntoObjetivoSedal, extensionSedal,

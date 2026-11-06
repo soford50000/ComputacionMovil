@@ -90,8 +90,8 @@ public sealed class CanaGrafico : MaskableGraphic
         SetVerticesDirty();
     }
 
-    // Integra la dirección de cada tramo conservando longitud, con el mango rígido.
-    // El arco empieza justo al salir del mango y gira hacia la izquierda de pantalla.
+    // Integra la dirección de cada tramo conservando longitud. El primer tercio
+    // permanece rígido y la curva aumenta gradualmente hacia la punta.
     public Vector2 Punto(float t)
     {
         Rect r = rectTransform.rect;
@@ -107,8 +107,10 @@ public sealed class CanaGrafico : MaskableGraphic
             Vector2 punto = a;
             for (int i = 1; i <= Tramos; i++)
             {
-                float u = Mathf.Clamp01(((i - 0.5f) / Tramos - 0.265f) / 0.735f);
-                float angulo = anguloInicial + Mathf.Pow(u, 2.1f) * tension * flexion * 7.8f;
+                float u = Mathf.InverseLerp(0.30f, 1f, (i - 0.5f) / Tramos);
+                float perfilFlexion = u * u * (3f - 2f * u);
+                float carga = Mathf.Clamp01(tension);
+                float angulo = anguloInicial + perfilFlexion * carga * Mathf.Clamp(flexion, 0f, 0.55f);
                 punto += new Vector2(Mathf.Cos(angulo), Mathf.Sin(angulo)) * largo;
                 // Solo el último tercio oscila; valor y pendiente nulos en la unión.
                 float punta = Mathf.Clamp01((i / (float)Tramos - 2f / 3f) * 3f);

@@ -32,6 +32,10 @@ public class FisheryManager : MonoBehaviour
 
     private void Awake()
     {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Application.targetFrameRate = 60;
+#endif
+
         // Configuración básica de Singleton para que este manager no se destruya entre escenas
         if (Instance == null)
         {

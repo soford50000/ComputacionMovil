@@ -9,6 +9,10 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private const string ClaveCompraAnterior = "RoadToAmazonas.CebosComprados.v1.";
     private const string ClaveCeboEquipado = "RoadToAmazonas.CeboEquipado.v1";
     private TensionSystem pesca;
+    private FisheryManager gestor;
+    private GameObject lienzo;
+    private bool marino;
+    private string ClaveSeleccion => marino ? "RoadToAmazonas.SenueloEquipado.v1" : ClaveCeboEquipado;
     private CeboData[] cebos;
     private CeboData seleccionado;
     private GameObject ventana;
@@ -27,21 +31,45 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private static readonly Color Tinta = EstiloExpedicion.Hex("2A1D10");
     private static readonly Color Secundario = EstiloExpedicion.Hex("332411");
 
-    private void Awake()
+    private void Start()
     {
         pesca = GetComponent<TensionSystem>();
         if (pesca == null) { enabled = false; return; }
-        var catalogo = Resources.Load<CatalogoCebos>("CatalogoCebos");
+        gestor = GetComponent<FisheryManager>();
+        if (gestor != null) gestor.ZonaCambiada += ConfigurarZona;
+        ConfigurarZona(gestor != null ? gestor.ZonaActual : null);
+        pesca.CeboCambiado += AlCambiarCebo;
+    }
+
+    private void ConfigurarZona(ZonaData zona)
+    {
+        if (lienzo != null)
+        {
+            lienzo.SetActive(false);
+            Destroy(lienzo);
+        }
+        marino = zona != null && zona == gestor.ZonaSanAndres;
+        var catalogo = Resources.Load<CatalogoCebos>(marino ? "CatalogoSenuelos" : "CatalogoCebos");
         cebos = catalogo != null && catalogo.cebos != null ? catalogo.cebos : new CeboData[0];
         CrearInterfaz();
         RestaurarCeboEquipado();
-        pesca.CeboCambiado += AlCambiarCebo;
         ActualizarResumen();
     }
 
     private void RestaurarCeboEquipado()
     {
-        if (PlayerPrefs.HasKey(ClaveCeboEquipado))
+        if (marino)
+        {
+            if (cebos.Length == 0)
+            {
+                Debug.LogError("El catálogo de señuelos de San Andrés está vacío.", this);
+                return;
+            }
+            var guardado = BuscarCebo(PlayerPrefs.GetString(ClaveSeleccion, string.Empty));
+            pesca.EquiparCebo(TieneUsos(guardado) ? guardado : cebos[0]);
+            return;
+        }
+        if (PlayerPrefs.HasKey(ClaveSeleccion))
         {
             string nombreGuardado = PlayerPrefs.GetString(ClaveCeboEquipado, string.Empty);
             CeboData guardado = BuscarCebo(nombreGuardado);
@@ -56,7 +84,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
         // Conserva una carnada configurada inicialmente en la escena y crea
         // su preferencia local para los siguientes inicios.
-        if (pesca.CeboEquipado != null && !TieneUsos(pesca.CeboEquipado))
+        if (pesca.CeboEquipado != null && (pesca.CeboEquipado.esSenuelo || !TieneUsos(pesca.CeboEquipado)))
             pesca.EquiparCebo(null);
         GuardarCeboEquipado(pesca.CeboEquipado);
     }
@@ -76,9 +104,9 @@ public sealed class CeboSelectorUI : MonoBehaviour
         ActualizarResumen();
     }
 
-    private static void GuardarCeboEquipado(CeboData cebo)
+    private void GuardarCeboEquipado(CeboData cebo)
     {
-        PlayerPrefs.SetString(ClaveCeboEquipado, cebo != null ? cebo.name : string.Empty);
+        PlayerPrefs.SetString(ClaveSeleccion, cebo != null ? cebo.name : string.Empty);
         PlayerPrefs.Save();
     }
 
@@ -102,7 +130,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
     private void CrearInterfaz()
     {
-        var lienzo = new GameObject("Canvas Carnadas", typeof(RectTransform), typeof(Canvas),
+        lienzo = new GameObject(marino ? "Canvas Señuelos" : "Canvas Carnadas", typeof(RectTransform), typeof(Canvas),
             typeof(CanvasScaler), typeof(GraphicRaycaster));
         lienzo.transform.SetParent(transform, false);
         var canvas = lienzo.GetComponent<Canvas>();
@@ -122,8 +150,8 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
         ventana = Panel(lienzo.transform, "Menú de carnadas", new Color(0, 0, 0, .86f), 0, 0, 1, 1).gameObject;
         var panel = Panel(ventana.transform, "Panel de carnadas", EstiloExpedicion.Papel, .04f, .05f, .96f, .95f);
-        EstiloExpedicion.Cabecera(panel, "Carnadas del río", "Prepara tu próxima captura. Cada carnada atrae especies diferentes.", Cerrar);
-        TemaZonaUI.Rotular(panel.Find("Título").GetComponent<Text>(), "Carnadas del río", "Carnadas del mar");
+        EstiloExpedicion.Cabecera(panel, marino ? "Señuelos de San Andrés" : "Carnadas del río",
+            marino ? "Elige el señuelo según la especie que buscas." : "Cada carnada atrae especies diferentes.", Cerrar);
         panel.gameObject.AddComponent<FondoNogalCatalogo>();
         TemaZonaUI.Colorear(panel.Find("Título").GetComponent<Text>(), Tinta);
         TemaZonaUI.Colorear(panel.Find("Ayuda").GetComponent<Text>(), Secundario);
@@ -142,7 +170,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
             var cebo = cebos[i];
             float x = .025f + i % 2 * .305f;
             float y = .77f - i / 2 * alto;
-            var boton = Boton(panel, "Carnada " + (cebo != null ? cebo.nombre : "Sin datos"), "",
+            var boton = Boton(panel, (marino ? "Señuelo " : "Carnada ") + (cebo != null ? cebo.nombre : "Sin datos"), "",
                 x, y - alto + .012f, x + .292f, y, () => Mostrar(cebo));
             tarjetas[i] = boton.targetGraphic as Image;
             float yVertical = .77f - i / 2 * .075f;
@@ -167,6 +195,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
         }
         var sinCarnada = Boton(panel, "Sin carnada", "Sin carnada", .025f, .025f, .315f, .1f, () => Mostrar(null));
         disposicion.Agregar((RectTransform)sinCarnada.transform, .025f, .41f, .49f, .46f);
+        sinCarnada.gameObject.SetActive(!marino);
 
         var ficha = Panel(panel, "Ficha de carnada", Crema, .66f, .025f, .975f, .77f);
         EstiloExpedicion.Borde(ficha.GetComponent<Image>(), Nogal);
@@ -242,6 +271,12 @@ public sealed class CeboSelectorUI : MonoBehaviour
             : usosDisponibles > 0 ? $"Equipar · {usosDisponibles} usos"
             : $"Comprar · $ {cebo.precio:N0} ({cebo.UsosPorCompra} usos)";
         equipar.interactable = cebo != pesca.CeboEquipado;
+        if (marino && cebo != null)
+        {
+            aviso.text = $"Reutilizable · Atracción ×{cebo.multiplicadorAparicion:0.#}";
+            textoEquipar.text = cebo == pesca.CeboEquipado ? "Equipado"
+                : TieneUsos(cebo) ? "Equipar" : $"Comprar · $ {cebo.precio:N0}";
+        }
         for (int i = 0; i < tarjetas.Length; i++)
         {
             bool elegida = cebos[i] == cebo;
@@ -252,12 +287,13 @@ public sealed class CeboSelectorUI : MonoBehaviour
             estados[i].text = equipada ? $"✓ Equipada · {usos} usos"
                 : usos > 0 ? $"{usos} usos disponibles"
                 : cebos[i] != null ? $"Comprar · $ {cebos[i].precio:N0}" : "Sin datos";
+            if (marino && usos > 0) estados[i].text = equipada ? "✓ Equipado" : "Disponible";
         }
     }
 
     private void Equipar()
     {
-        if (!pesca.PuedeCambiarCebo) { aviso.text = "Termina el intento antes de cambiar de carnada."; return; }
+        if (!pesca.PuedeCambiarCebo) { aviso.text = "Termina el intento antes de cambiar de equipo."; return; }
 
         if (seleccionado != null && !TieneUsos(seleccionado))
         {
@@ -271,10 +307,10 @@ public sealed class CeboSelectorUI : MonoBehaviour
                 aviso.text = $"Saldo insuficiente. Necesitas $ {seleccionado.precio:N0}.";
                 return;
             }
-            AgregarUsos(seleccionado, seleccionado.UsosPorCompra);
+            AgregarUsos(seleccionado, seleccionado.esSenuelo ? 1 : seleccionado.UsosPorCompra);
         }
 
-        if (!pesca.EquiparCebo(seleccionado)) { aviso.text = "No se pudo equipar esta carnada."; return; }
+        if (!pesca.EquiparCebo(seleccionado)) { aviso.text = "No se pudo equipar la selección."; return; }
         ActualizarResumen();
         Cerrar();
     }
@@ -283,7 +319,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
 
     public bool ConsumirUso(CeboData cebo)
     {
-        if (!TieneUsos(cebo)) return false;
+        if (!TieneUsos(cebo) || cebo.esSenuelo) return false;
         PlayerPrefs.SetInt(ClaveDe(cebo), CantidadUsos(cebo) - 1);
         PlayerPrefs.Save();
         return true;
@@ -292,6 +328,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private static int CantidadUsos(CeboData cebo)
     {
         if (cebo == null) return 0;
+        if (cebo.esSenuelo && cebo.precio == 0) return 1;
         string clave = ClaveDe(cebo);
         if (PlayerPrefs.HasKey(clave))
             return Mathf.Max(0, PlayerPrefs.GetInt(clave));
@@ -318,7 +355,9 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private void ActualizarResumen()
     {
         var equipada = pesca.CeboEquipado;
-        resumen.text = equipada != null
+        if (marino)
+            resumen.text = equipada != null ? $"SEÑUELO · {equipada.nombre}" : "SEÑUELO";
+        else resumen.text = equipada != null
             ? $"CARNADA · {equipada.nombre} ({CantidadUsos(equipada)} usos)"
             : "CARNADA · Sin carnada";
         TemaZonaUI.Colorear(resumen, EstiloExpedicion.Papel);
@@ -327,6 +366,7 @@ public sealed class CeboSelectorUI : MonoBehaviour
     private void OnDestroy()
     {
         if (pesca != null) pesca.CeboCambiado -= AlCambiarCebo;
+        if (gestor != null) gestor.ZonaCambiada -= ConfigurarZona;
     }
 
     private static RectTransform Rect(Transform padre, string nombre, float x0, float y0, float x1, float y1)

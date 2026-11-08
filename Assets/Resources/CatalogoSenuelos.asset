@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05e55cdb0f08494fa088cbf51d512f89, type: 3}
+  m_Name: CatalogoSenuelos
+  m_EditorClassIdentifier: Assembly-CSharp::CatalogoCebos
+  cebos:
+  - {fileID: 11400000, guid: 6a61859ef7f746798352fcc15dd77631, type: 2}
+  - {fileID: 11400000, guid: a3c1a2557a2c4297803e38cb91c888be, type: 2}
+  - {fileID: 11400000, guid: 305bfe1c753e43ac949f14d0ab9c2726, type: 2}

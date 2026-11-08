@@ -12,21 +12,26 @@ kilogramos, tamaño, fuerza ni recompensa de un mismo ejemplar. Otros peces sigu
 pudiendo aparecer. Se conserva la firma anterior de FisheryManager para sus otros
 consumidores; TensionSystem pasa el CeboData equipado al lanzar.
 
-| Carnada | Amazonas | San Andrés |
-| --- | --- | --- |
-| Lombriz | Óscar | — |
-| Grillo / saltamontes | Arawana plateada, óscar | — |
-| Camarón | Raya motoro, óscar | Mero guasa, raya águila jaspeada, pargo de manglar, pez ballesta |
-| Frutos del bosque | Pacu, cachama blanca, tambaquí | — |
-| Pececillo vivo | Pez hoja, barracuda de cola roja, bicuda | Ladyfish, dorado de mar, gran barracuda, peto, carite lucio, pez vela |
-| Pez de carnada entero | Tucunaré, payara, paiche, anguila eléctrica, bagre rayado, surubí, bagre tigre, dorado de río, manguruyú, bagre espátula, bagre de cabeza plana | Mero guasa, gran barracuda, dorado de mar, peto, carite lucio, pez vela |
-| Trozos de pescado | Piraña roja, tiburón toro | Mero guasa, gran barracuda, morena verde, pargo de manglar |
-| Engodo vegetal de fondo | Curimatá, jaraquí, pleco | Pez loro, palometa pompano, anchoa de banco, sábalo atlántico |
+| Carnada | Amazonas |
+| --- | --- |
+| Lombriz | Óscar |
+| Grillo / saltamontes | Arawana plateada, óscar |
+| Camarón | Raya motoro, óscar |
+| Frutos del bosque | Pacu, cachama blanca, tambaquí |
+| Pececillo vivo | Pez hoja, barracuda de cola roja, bicuda |
+| Pez de carnada entero | Tucunaré, payara, paiche, anguila eléctrica, bagre rayado, surubí, bagre tigre, dorado de río, manguruyú, bagre espátula, bagre de cabeza plana |
+| Trozos de pescado | Piraña roja, tiburón toro |
+| Engodo vegetal de fondo | Curimatá, jaraquí, pleco |
 
-Las asociaciones de San Andrés son una primera configuración de jugabilidad
-para reutilizar el inventario y el sistema RF11 en la zona nueva; pueden ajustarse
-desde los `CeboData` sin cambios de código. Las carnadas sin especies asignadas
-para esa zona conservan la probabilidad base de sus peces.
+## Señuelos de San Andrés
+
+El STORM inicial se equipa al llegar. El Mepps y el Rapala se compran una sola vez. Cada zona recuerda su equipo. Los multiplicadores aumentan el peso relativo de las especies indicadas en el sorteo.
+
+| Señuelo | Precio | Atracción | Especies favorecidas |
+|---|---:|---:|---|
+| STORM Biscay Minnow | Gratis | ×1,5 | Ladyfish, pargo de manglar, palometa pompano |
+| Mepps Aglia Long 5 | 270 | ×2 | Carite lucio, peto, gran barracuda |
+| Rapala MaxRap Walk N Roll | 600 | ×3 | Sábalo atlántico, dorado de mar, pez vela |
 
 El engodo es una adaptación para el juego inspirada en la dieta detritívora,
 no una eficacia de pesca demostrada para las tres especies. Pseudopimelodus sp.

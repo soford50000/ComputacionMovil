@@ -17,7 +17,7 @@ public static class ResetearProgresoJuego
 
         bool confirmar = EditorUtility.DisplayDialog(
             "Resetear progreso guardado",
-            "Se borrarán el saldo, las especies descubiertas y las compras de cañas y carnadas de este juego. Los assets y archivos del proyecto no cambiarán.",
+            "Se borrarán el saldo, las especies descubiertas y las compras de cañas, carnadas y señuelos de este juego. Los assets y archivos del proyecto no cambiarán.",
             "Resetear",
             "Cancelar");
         if (!confirmar) return;
@@ -26,6 +26,9 @@ public static class ResetearProgresoJuego
         BorrarClavesDeAssets<PezData>("RoadToAmazonas.Catalogo.v1.", true);
         BorrarClavesDeAssets<CanaData>("RoadToAmazonas.CanasCompradas.v1.", false);
         BorrarClavesDeAssets<CeboData>("RoadToAmazonas.CebosComprados.v1.", false);
+        BorrarClavesDeAssets<CeboData>("RoadToAmazonas.CebosUsos.v2.", false);
+        PlayerPrefs.DeleteKey("RoadToAmazonas.CeboEquipado.v1");
+        PlayerPrefs.DeleteKey("RoadToAmazonas.SenueloEquipado.v1");
         PlayerPrefs.Save();
         Debug.Log("Progreso local de Road to the Amazon reseteado.");
     }

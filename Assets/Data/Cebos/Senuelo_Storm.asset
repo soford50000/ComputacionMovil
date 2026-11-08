@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4892dee4388245989b22489d2f49de4f, type: 3}
+  m_Name: Senuelo_Storm
+  m_EditorClassIdentifier: Assembly-CSharp::CeboData
+  nombre: STORM 36GT Coastal Biscay Minnow
+  icono: {fileID: 21300000, guid: fc4a6c060e8d48918c8afd333462490d, type: 3}
+  descripcion: Vinilo costero de cola móvil.
+  precio: 0
+  esSenuelo: 1
+  multiplicadorAparicion: 1.5
+  especiesFavorecidas:
+  - {fileID: 11400000, guid: ecd2369940eb4d84aaacebedd7a093f1, type: 2}
+  - {fileID: 11400000, guid: 4e9b925f11e1adf4cb921423a0309138, type: 2}
+  - {fileID: 11400000, guid: 2f354be204f1cb14790020384b1d4c52, type: 2}

@@ -15,8 +15,8 @@ MonoBehaviour:
   nombreCana: Abu Garcia Vengeance
   modeloVisual: 0
   puestoPotenciaPrevisto: 2
-  estadisticasPendientes: 1
+  estadisticasPendientes: 0
   iconoCana: {fileID: 0}
   precio: 3500
-  poderCana: 1
-  bonificacionTolerancia: 0
+  poderCana: 5
+  bonificacionTolerancia: 2

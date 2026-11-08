@@ -4,6 +4,7 @@ using UnityEngine;
 public sealed class CeboData : ScriptableObject
 {
     public string nombre;
+    public bool esSenuelo;
     public Sprite icono;
     [TextArea] public string descripcion;
     [Min(0)] public int precio = 50;

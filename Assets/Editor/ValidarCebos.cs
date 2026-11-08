@@ -26,6 +26,81 @@ public static class ValidarCebos
         EditorApplication.EnterPlaymode();
     }
 
+    public static void EjecutarSenuelos()
+    {
+        SessionState.SetBool("Pesca.ValidarSenuelos", true);
+        Ejecutar();
+    }
+
+    private static void ProbarSenuelos(TensionSystem pesca)
+    {
+        var gestor = FisheryManager.Instance;
+        var zona = gestor.ZonaActual;
+        var menu = pesca.GetComponent<CeboSelectorUI>();
+        var senuelos = Resources.Load<CatalogoCebos>("CatalogoSenuelos").cebos;
+        string clave = "RoadToAmazonas.SenueloEquipado.v1";
+        string anterior = PlayerPrefs.GetString(clave, "");
+        bool existia = PlayerPrefs.HasKey(clave);
+        string compra = "RoadToAmazonas.CebosUsos.v2." + senuelos[1].name;
+        int propiedadAnterior = PlayerPrefs.GetInt(compra, -1);
+        var economia = EconomiaManager.Instance;
+        int saldoAnterior = economia.Saldo;
+        try
+        {
+            gestor.CambiarZona(gestor.ZonaInicial);
+            var carnada = pesca.CeboEquipado;
+            PlayerPrefs.DeleteKey(clave);
+            Exigir(gestor.CambiarZona(gestor.ZonaSanAndres), "No se pudo viajar al mar.");
+            Exigir(senuelos.Length == 3 && pesca.CeboEquipado == senuelos[0], "Falta el señuelo inicial.");
+            menu.Abrir();
+            float anteriorFactor = 1f;
+            foreach (var s in senuelos)
+            {
+                Pulsar(pesca, "Señuelo " + s.nombre);
+                Exigir(s.esSenuelo && s.icono != null && s.multiplicadorAparicion > anteriorFactor &&
+                    s.especiesFavorecidas.Length == 3 && s.especiesFavorecidas.All(p =>
+                        gestor.ZonaActual.especiesDeEstaZona.Contains(p) && s.MultiplicadorPara(p) == s.multiplicadorAparicion),
+                    "Datos incorrectos para " + s.name);
+                anteriorFactor = s.multiplicadorAparicion;
+            }
+            menu.Cerrar();
+            Exigir(!pesca.EquiparCebo(Resources.Load<CatalogoCebos>("CatalogoCebos").cebos[0]), "Se admitió carnada en el mar.");
+            pesca.IniciarLanzamiento();
+            Exigir(!pesca.PuedeCambiarCebo && pesca.CeboEquipado == senuelos[0] && menu.TieneUsos(senuelos[0]), "El lanzamiento perdió el señuelo.");
+            pesca.SendMessage("VolverAListo");
+            PlayerPrefs.DeleteKey(compra);
+            if (economia.Saldo < senuelos[1].precio)
+                economia.AgregarOro(senuelos[1].precio - economia.Saldo);
+            int saldoCompra = economia.Saldo;
+            menu.Abrir();
+            Pulsar(pesca, "Señuelo " + senuelos[1].nombre);
+            Pulsar(pesca, "Equipar carnada");
+            Exigir(pesca.CeboEquipado == senuelos[1] && economia.Saldo == saldoCompra - senuelos[1].precio,
+                "La compra del Mepps no lo equipó al precio previsto.");
+            pesca.IniciarLanzamiento();
+            Exigir(!pesca.PuedeCambiarCebo && pesca.CeboEquipado == senuelos[1] && menu.TieneUsos(senuelos[1]),
+                "El señuelo comprado se agotó al lanzar.");
+            pesca.SendMessage("VolverAListo");
+            Exigir(gestor.CambiarZona(gestor.ZonaInicial) && pesca.CeboEquipado == carnada &&
+                !pesca.EquiparCebo(senuelos[0]), "La vuelta al río no restauró la carnada.");
+            Exigir(gestor.CambiarZona(gestor.ZonaSanAndres) && pesca.CeboEquipado == senuelos[1],
+                "El regreso a San Andrés perdió el señuelo comprado.");
+            Debug.Log("SEÑUELOS QA OK: catálogo, imágenes, afinidades, compra, reutilización y cambio de zona.");
+        }
+        finally
+        {
+            gestor.CambiarZona(gestor.ZonaInicial);
+            if (propiedadAnterior < 0) PlayerPrefs.DeleteKey(compra);
+            else PlayerPrefs.SetInt(compra, propiedadAnterior);
+            if (economia.Saldo < saldoAnterior) economia.AgregarOro(saldoAnterior - economia.Saldo);
+            else if (economia.Saldo > saldoAnterior) economia.IntentarGastarOro(economia.Saldo - saldoAnterior);
+            if (existia) PlayerPrefs.SetString(clave, anterior);
+            else PlayerPrefs.DeleteKey(clave);
+            gestor.CambiarZona(zona);
+            PlayerPrefs.Save();
+        }
+    }
+
     private static void Registrar()
     {
         limite = EditorApplication.timeSinceStartup + 90;
@@ -42,6 +117,13 @@ public static class ValidarCebos
             var pesca = UnityEngine.Object.FindAnyObjectByType<TensionSystem>();
             if (pesca == null || pesca.GetComponent<CeboSelectorUI>() == null) return;
             EditorApplication.update -= Verificar;
+            if (SessionState.GetBool("Pesca.ValidarSenuelos", false))
+            {
+                SessionState.SetBool("Pesca.ValidarSenuelos", false);
+                ProbarSenuelos(pesca);
+                Terminar(0);
+                return;
+            }
             var catalogo = Resources.Load<CatalogoCebos>("CatalogoCebos");
             Exigir(catalogo != null && catalogo.cebos.Length == 8, "Deben existir ocho carnadas.");
             Exigir(catalogo.cebos.All(c => c.icono != null), "Las ocho carnadas deben tener su imagen asignada.");

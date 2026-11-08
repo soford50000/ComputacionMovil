@@ -27,8 +27,9 @@ public class TensionSystem : MonoBehaviour
     [SerializeField, Min(1f)] private float duracionForcejeo = 8f;
     [Header("RF4: tensión vinculada al toque")]
     [SerializeField, Min(0.05f)] private float velocidadSubidaTension = 0.38f;
-    [SerializeField, Min(0.05f)] private float velocidadBajadaTension = 0.44f;
-    [SerializeField] private Vector2 intervaloTirones = new Vector2(1.4f, 2.6f);
+    [SerializeField, Min(0.05f)] private float velocidadBajadaTension = 0.506f;
+    [SerializeField] private Vector2 pausaFuerzaMinima = new Vector2(2.2f, 3.2f);
+    [SerializeField] private Vector2 pausaFuerzaMaxima = new Vector2(1f, 1.7f);
     [SerializeField, Min(0.1f)] private float tiempoMaximoEnRojo = 1.1f;
     [SerializeField] private CanaData canaEquipada;
     [SerializeField] private CeboData ceboEquipado;
@@ -60,6 +61,8 @@ public class TensionSystem : MonoBehaviour
     private float tiempoEnZonaSegura;
     private float tensionActual = 0.5f;
     private float tiempoEnRojo;
+    private float fuerzaEfectiva;
+    private float factorTirones = 1f;
     private float tiempoHastaTiron;
     private float tiempoDesdeTiron = 10f;
     private float tironPendiente;
@@ -88,6 +91,8 @@ public class TensionSystem : MonoBehaviour
     public bool EquiparCebo(CeboData cebo)
     {
         if (!PuedeCambiarCebo) return false;
+        if (cebo != null && cebo.esSenuelo != TemaZonaUI.EsMarino) return false;
+        if (cebo == null && TemaZonaUI.EsMarino) return false;
         ceboEquipado = cebo; // null permite volver a las probabilidades base.
         CeboCambiado?.Invoke();
         return true;
@@ -301,6 +306,12 @@ public class TensionSystem : MonoBehaviour
         tiempoEnRojo = 0f;
         tironPendiente = 0f;
         velocidadTironPendiente = 0f;
+        fuerzaEfectiva = CapturaCalculoRF5.CalcularFuerzaEfectiva(
+            pezEnAnzuelo != null ? pezEnAnzuelo.fuerzaPez : 1f,
+            canaEquipada != null ? canaEquipada.poderCana : 1f);
+        factorTirones = pezEnAnzuelo != null
+            ? CalcularFactorTirones(pezEnAnzuelo.rareza, fuerzaEfectiva)
+            : 1f;
         tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
         tiempoDesdeTiron = 10f;
         if (visualCana != null)
@@ -324,7 +335,6 @@ public class TensionSystem : MonoBehaviour
         tiempoForcejeo += delta;
         tiempoDesdeTiron += delta;
 
-        float fuerzaEfectiva = ObtenerFuerzaEfectiva();
         float poderCana = canaEquipada != null ? Mathf.Clamp(canaEquipada.poderCana, 1f, 10f) : 1f;
         float factorPez = 0.75f + Mathf.Clamp01(fuerzaEfectiva / 10f) * 0.45f;
         float factorCana = 1f / (1f + Mathf.Max(0f, poderCana - 1f) * 0.055f);
@@ -349,7 +359,7 @@ public class TensionSystem : MonoBehaviour
         if (tiempoHastaTiron <= 0f)
         {
             float intensidadTiron = Mathf.Lerp(0.07f, 0.19f, Mathf.Clamp01(fuerzaEfectiva / 10f));
-            tironPendiente = UnityEngine.Random.Range(intensidadTiron * 0.65f, intensidadTiron) * factorCana;
+            tironPendiente = UnityEngine.Random.Range(intensidadTiron * 0.65f, intensidadTiron) * factorCana * factorTirones;
             velocidadTironPendiente = tironPendiente / DuracionVisualTiron;
             tiempoHastaTiron = ObtenerIntervaloTironAleatorio();
             tiempoDesdeTiron = 0f;
@@ -384,18 +394,21 @@ public class TensionSystem : MonoBehaviour
         ResolverIntentoConControl(porcentajeControlado);
     }
 
-    private float ObtenerFuerzaEfectiva()
+    public static float CalcularFactorTirones(Rareza rareza, float fuerzaEfectiva)
     {
-        float fuerza = pezEnAnzuelo != null ? Mathf.Clamp(pezEnAnzuelo.fuerzaPez, 1f, 10f) : 1f;
-        float poder = canaEquipada != null ? Mathf.Clamp(canaEquipada.poderCana, 1f, 10f) : 1f;
-        return Mathf.Max(1f, fuerza - (poder - 1f) * 0.65f);
+        if (rareza != Rareza.Epica && rareza != Rareza.Legendaria)
+            return 1f;
+
+        return 1f + 0.20f * Mathf.InverseLerp(4f, 9f, fuerzaEfectiva);
     }
 
     private float ObtenerIntervaloTironAleatorio()
     {
+        Vector2 intervaloTirones = Vector2.Lerp(pausaFuerzaMinima, pausaFuerzaMaxima,
+            Mathf.InverseLerp(1f, 10f, fuerzaEfectiva));
         float minimo = Mathf.Max(0.25f, Mathf.Min(intervaloTirones.x, intervaloTirones.y));
         float maximo = Mathf.Max(minimo, Mathf.Max(intervaloTirones.x, intervaloTirones.y));
-        return UnityEngine.Random.Range(minimo, maximo);
+        return UnityEngine.Random.Range(minimo, maximo) / factorTirones;
     }
 
     private void ResolverIntentoConControl(float porcentajeControlado)

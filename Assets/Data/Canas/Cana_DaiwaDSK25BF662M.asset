@@ -15,8 +15,8 @@ MonoBehaviour:
   nombreCana: Daiwa DSK25-B/F662M
   modeloVisual: 3
   puestoPotenciaPrevisto: 3
-  estadisticasPendientes: 1
+  estadisticasPendientes: 0
   iconoCana: {fileID: 0}
   precio: 8000
-  poderCana: 1
-  bonificacionTolerancia: 0
+  poderCana: 3
+  bonificacionTolerancia: 1

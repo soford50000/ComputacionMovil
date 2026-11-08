@@ -69,7 +69,7 @@ public static class ValidarCanaVisual
             if (paso == -6)
             {
                 var daiwa = AssetDatabase.LoadAssetAtPath<CanaData>("Assets/Data/Canas/Cana_DaiwaDSK25BF662M.asset");
-                Exigir(daiwa != null && daiwa.puestoPotenciaPrevisto == 3 && daiwa.estadisticasPendientes,
+                Exigir(daiwa != null && daiwa.puestoPotenciaPrevisto == 3 && !daiwa.estadisticasPendientes,
                     "Falta la Daiwa o su posición como tercera más potente.");
                 PulsarBoton(pesca, "Abrir equipo");
                 PulsarBoton(pesca, "Opción Daiwa DSK25-B/F662M");
@@ -87,7 +87,7 @@ public static class ValidarCanaVisual
             else if (paso == -4)
             {
                 var fx = AssetDatabase.LoadAssetAtPath<CanaData>("Assets/Data/Canas/Cana_ShimanoFx.asset");
-                Exigir(fx != null && fx.modeloVisual == ModeloCana.ShimanoFx && fx.estadisticasPendientes,
+                Exigir(fx != null && fx.modeloVisual == ModeloCana.ShimanoFx && !fx.estadisticasPendientes,
                     "Falta la identidad Shimano Fx.");
                 PulsarBoton(pesca, "Abrir equipo");
                 PulsarBoton(pesca, "Opción Shimano Fx");
@@ -107,7 +107,7 @@ public static class ValidarCanaVisual
             else if (paso == -2)
             {
                 var shimano = AssetDatabase.LoadAssetAtPath<CanaData>("Assets/Data/Canas/Cana_ShimanoColtSniperLimited100H.asset");
-                Exigir(shimano != null && shimano.puestoPotenciaPrevisto == 1 && shimano.estadisticasPendientes,
+                Exigir(shimano != null && shimano.puestoPotenciaPrevisto == 1 && !shimano.estadisticasPendientes,
                     "Falta la identidad o la posición prevista de Shimano.");
                 Capturar("abu-reposo");
                 PulsarBoton(pesca, "Abrir equipo");

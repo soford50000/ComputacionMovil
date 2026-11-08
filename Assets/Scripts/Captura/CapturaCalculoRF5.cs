@@ -24,6 +24,11 @@ public sealed class CapturaEvaluacion
 /// </summary>
 public static class CapturaCalculoRF5
 {
+    public static float CalcularFuerzaEfectiva(float fuerza, float poder)
+    {
+        return Mathf.Max(1f, Mathf.Clamp(fuerza, 1f, 10f) - (Mathf.Clamp(poder, 1f, 10f) - 1f) * 0.65f);
+    }
+
     /// <param name="porcentajeControlado">
     /// Proporción del intento que RF4 mantuvo en rango seguro, de 0 a 1.
     /// </param>
@@ -35,11 +40,7 @@ public static class CapturaCalculoRF5
             throw new ArgumentOutOfRangeException(nameof(porcentajeControlado));
 
         float control = Mathf.Clamp01(porcentajeControlado);
-        float fuerzaPez = Mathf.Clamp(pez.fuerzaPez, 1f, 10f);
-        float poderCana = Mathf.Clamp(cana.poderCana, 1f, 10f);
-
-        // Cada punto de poder sobre el nivel base reduce 0.65 de fuerza efectiva.
-        float fuerzaEfectiva = Mathf.Max(1f, fuerzaPez - (poderCana - 1f) * 0.65f);
+        float fuerzaEfectiva = CalcularFuerzaEfectiva(pez.fuerzaPez, cana.poderCana);
 
         // Un pez más fuerte exige más tiempo de control seguro. La tolerancia
         // de la caña reduce el requisito en 2 puntos porcentuales por punto.

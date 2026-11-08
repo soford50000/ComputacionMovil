@@ -101,6 +101,9 @@ public class FisheryManager : MonoBehaviour
             return null;
         }
 
+        if (cebo != null && cebo.esSenuelo != (ZonaActual == ZonaSanAndres))
+            cebo = null;
+
         // 1. Calcular el "peso" total de probabilidad considerando el cebo (RF11)
         Dictionary<PezData, float> probabilidadesPonderadas = new Dictionary<PezData, float>();
         float pesoTotal = 0f;

@@ -15,7 +15,7 @@ MonoBehaviour:
   nombreCana: Shimano Fx
   modeloVisual: 2
   puestoPotenciaPrevisto: 4
-  estadisticasPendientes: 1
+  estadisticasPendientes: 0
   iconoCana: {fileID: 0}
   precio: 0
   poderCana: 1

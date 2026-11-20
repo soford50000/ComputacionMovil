@@ -12,8 +12,10 @@ public sealed class CapturaResultado
     public PezData Pez { get; }
     public float PesoKg { get; }
     public float LongitudCm { get; }
+    public int RecompensaBase { get; }
     public int Oro { get; }
     public int RecompensaEspecialInvasora { get; }
+    public bool EspecieInvasora => Pez.esInvasora;
     public bool NuevaEspecie { get; }
 
     public CapturaResultado(PezData pez, bool nuevaEspecie = false)
@@ -26,7 +28,8 @@ public sealed class CapturaResultado
         PesoKg = UnityEngine.Random.Range(pez.pesoMinimo, pez.pesoMaximo);
         LongitudCm = UnityEngine.Random.Range(pez.longitudMinima, pez.longitudMaxima);
         RecompensaEspecialInvasora = pez.esInvasora ? Math.Max(0, pez.bonoMonetarioInvasora) : 0;
-        Oro = RecompensaCaptura.Calcular(pez, PesoKg, LongitudCm) + RecompensaEspecialInvasora;
+        RecompensaBase = RecompensaCaptura.Calcular(pez, PesoKg, LongitudCm);
+        Oro = RecompensaBase + RecompensaEspecialInvasora;
     }
 
     private static void ValidarRango(float min, float max)
@@ -48,8 +51,16 @@ public class CapturaResultUI : MonoBehaviour
     public CapturaResultado ResultadoActual { get; private set; }
 
     private GameObject ventana;
-    private Text nombre, rareza, peso, largo, oro, bonoInvasora, notaCaptura;
+    private Text nombre, rareza, peso, largo, oro, recompensaBase, bonoInvasora, notaCaptura;
     private GameObject avisoNuevaEspecie;
+    private GameObject avisoInvasora;
+    private Text mensajeAvisoInvasora;
+    private CapturaResultado capturaPendienteAvisoInvasora;
+    private Coroutine secuenciaAvisoInvasora;
+    private GameObject insigniaInvasora;
+    private CanvasGroup grupoInsigniaInvasora;
+    private RectTransform rectInsigniaInvasora;
+    private Coroutine animacionInvasora;
     private Image foto;
     private CapturaResultado ultimoRecogido;
     private readonly CultureInfo cultura = CultureInfo.GetCultureInfo("es-CO");
@@ -63,7 +74,25 @@ public class CapturaResultUI : MonoBehaviour
         if (ReferenceEquals(resultado, ultimoRecogido)) return;
         // No reemplazar una captura pendiente de recoger.
         if (ResultadoActual != null && !ReferenceEquals(ResultadoActual, resultado)) return;
+        // Evitar que una segunda llamada a Mostrar reemplace el aviso previo a la ficha.
+        if (capturaPendienteAvisoInvasora != null) return;
         Construir();
+        if (resultado.EspecieInvasora)
+        {
+            capturaPendienteAvisoInvasora = resultado;
+            mensajeAvisoInvasora.text = "¡Esta especie es invasora!\nTienes un bonus de +$ " +
+                resultado.RecompensaEspecialInvasora.ToString(cultura) + " por la captura.";
+            avisoInvasora.SetActive(true);
+            ventana.SetActive(true);
+            secuenciaAvisoInvasora = StartCoroutine(MostrarFichaDespuesDelAviso(resultado));
+            return;
+        }
+
+        MostrarFichaCaptura(resultado);
+    }
+
+    private void MostrarFichaCaptura(CapturaResultado resultado)
+    {
         ResultadoActual = resultado;
         nombre.text = resultado.Pez.nombreEspecie;
         // Restablecer el estado visual evita que una captura previa o el tema
@@ -85,12 +114,32 @@ public class CapturaResultUI : MonoBehaviour
         oro.text = "+$ " + resultado.Oro.ToString(cultura);
         var zona = FisheryManager.Instance != null ? FisheryManager.Instance.ZonaActual : null;
         notaCaptura.text = "CAPTURA REGISTRADA · " + (zona != null ? zona.nombreZona.ToUpperInvariant() : "AMAZONAS") +
-            (resultado.RecompensaEspecialInvasora > 0 ? " · ESPECIE INVASORA" : "");
-        bonoInvasora.gameObject.SetActive(resultado.RecompensaEspecialInvasora > 0);
-        if (resultado.RecompensaEspecialInvasora > 0)
-            bonoInvasora.text = "BONO INVASORA +$ " + resultado.RecompensaEspecialInvasora.ToString(cultura);
+            (resultado.EspecieInvasora ? " · CONTROL DE INVASORA" : "");
+        bool invasora = resultado.EspecieInvasora;
+        recompensaBase.gameObject.SetActive(invasora);
+        bonoInvasora.gameObject.SetActive(invasora);
+        insigniaInvasora.SetActive(invasora);
+        if (animacionInvasora != null) StopCoroutine(animacionInvasora);
+        if (invasora)
+        {
+            recompensaBase.text = "PESCA +$ " + resultado.RecompensaBase.ToString(cultura);
+            bonoInvasora.text = "BONO DE CONTROL +$ " + resultado.RecompensaEspecialInvasora.ToString(cultura);
+            animacionInvasora = StartCoroutine(RevelarBonoInvasora(resultado.RecompensaEspecialInvasora));
+        }
         avisoNuevaEspecie.SetActive(resultado.NuevaEspecie);
         ventana.SetActive(true);
+    }
+
+    private System.Collections.IEnumerator MostrarFichaDespuesDelAviso(CapturaResultado resultado)
+    {
+        // Mantener el aviso el tiempo suficiente para leerlo antes de abrir la ficha habitual.
+        yield return new WaitForSecondsRealtime(3f);
+        secuenciaAvisoInvasora = null;
+        if (capturaPendienteAvisoInvasora != resultado) yield break;
+
+        capturaPendienteAvisoInvasora = null;
+        avisoInvasora.SetActive(false);
+        MostrarFichaCaptura(resultado);
     }
 
     /// <summary>
@@ -175,6 +224,18 @@ public class CapturaResultUI : MonoBehaviour
         TemaZonaUI.Rotular(titulo, "Una historia más del río", "Una historia más del mar");
         avisoNuevaEspecie = EstiloExpedicion.Texto(fondo, "Nueva especie", "¡Nueva especie!", 20,
             EstiloExpedicion.Verde, .75f, .85f, .96f, .93f, false, TextAnchor.MiddleCenter).gameObject;
+        var insignia = Panel("Distintivo de conservación", fondo, Hex("963C2B"), .70f, .75f, .96f, .835f);
+        var imagenInsignia = insignia.GetComponent<Image>();
+        TemaZonaUI.Excluir(imagenInsignia);
+        EstiloExpedicion.Borde(imagenInsignia, Hex("DDAA5D"), 1.5f);
+        var textoInsignia = Etiqueta("Etiqueta de conservación", insignia, "CONTROL DE INVASORA", 14,
+            Hex("FFF2D8"), .04f, .04f, .96f, .96f, TextAnchor.MiddleCenter);
+        TemaZonaUI.Excluir(textoInsignia);
+        textoInsignia.color = Hex("FFF2D8");
+        insigniaInvasora = insignia.gameObject;
+        grupoInsigniaInvasora = insignia.gameObject.AddComponent<CanvasGroup>();
+        rectInsigniaInvasora = insignia;
+        insigniaInvasora.SetActive(false);
         var imagen = Panel("Pez", fondo, Color.white, .025f, .20f, .49f, .77f);
         foto = imagen.GetComponent<Image>();
         foto.preserveAspect = true;
@@ -189,8 +250,13 @@ public class CapturaResultUI : MonoBehaviour
         oro.rectTransform.anchorMin = new Vector2(.055f, .31f);
         oro.rectTransform.anchorMax = new Vector2(.95f, .60f);
         var panelGanancia = oro.transform.parent;
+        recompensaBase = EstiloExpedicion.Texto(panelGanancia, "Recompensa de pesca", "", 12,
+            Hex("526358"), .055f, .16f, .95f, .31f, false, TextAnchor.MiddleLeft);
         bonoInvasora = EstiloExpedicion.Texto(panelGanancia, "Bono invasora", "", 13,
-            Hex("886119"), .055f, .02f, .95f, .30f, false, TextAnchor.MiddleLeft);
+            Hex("886119"), .055f, .015f, .95f, .17f, false, TextAnchor.MiddleLeft);
+        EstiloExpedicion.Tipografia(bonoInvasora, 12, Hex("886119"));
+        EstiloExpedicion.Tipografia(recompensaBase, 12, Hex("526358"));
+        recompensaBase.gameObject.SetActive(false);
         bonoInvasora.gameObject.SetActive(false);
         var nota = EstiloExpedicion.Texto(fondo, "Nota de captura", "CAPTURA REGISTRADA · AMAZONAS", 13, EstiloExpedicion.Secundario, .04f, .14f, .47f, .20f);
         notaCaptura = nota;
@@ -202,7 +268,52 @@ public class CapturaResultUI : MonoBehaviour
         disposicion.Agregar(nota.rectTransform, .04f, .14f, .96f, .17f);
         disposicion.Agregar(recoger, .04f, .05f, .48f, .13f);
         disposicion.Agregar(repetir, .52f, .05f, .96f, .13f);
+
+        var fondoAviso = EstiloExpedicion.Panel(ventana.transform, "Aviso de especie invasora",
+            EstiloExpedicion.Velo, 0, 0, 1, 1);
+        fondoAviso.raycastTarget = true;
+        var bloqueoAviso = fondoAviso.gameObject.AddComponent<CanvasGroup>();
+        bloqueoAviso.blocksRaycasts = true;
+        bloqueoAviso.interactable = false;
+        var panelAviso = EstiloExpedicion.Panel(fondoAviso.transform, "Tarjeta de aviso invasora",
+            EstiloExpedicion.Papel, .08f, .32f, .92f, .68f);
+        EstiloExpedicion.Borde(panelAviso, Hex("963C2B"), 2.5f);
+        var acentoAviso = EstiloExpedicion.Panel(panelAviso.transform, "Acento de control",
+            Hex("963C2B"), .035f, .15f, .052f, .85f);
+        TemaZonaUI.Excluir(acentoAviso);
+        EstiloExpedicion.Texto(panelAviso.transform, "Titulo aviso invasora", "¡ESPECIE INVASORA!", 28,
+            Hex("963C2B"), .09f, .67f, .94f, .91f, true, TextAnchor.MiddleCenter);
+        mensajeAvisoInvasora = EstiloExpedicion.Texto(panelAviso.transform, "Mensaje aviso invasora", "", 25,
+            EstiloExpedicion.Tinta, .08f, .30f, .94f, .68f, false, TextAnchor.MiddleCenter);
+        EstiloExpedicion.Texto(panelAviso.transform, "Siguiente paso aviso invasora",
+            "A continuación verás los datos de tu captura.", 16, EstiloExpedicion.Secundario,
+            .08f, .10f, .94f, .27f, false, TextAnchor.MiddleCenter);
+        avisoInvasora = fondoAviso.gameObject;
+        avisoInvasora.SetActive(false);
         ventana.SetActive(false);
+    }
+
+    private System.Collections.IEnumerator RevelarBonoInvasora(int bono)
+    {
+        const float entrada = .30f;
+        grupoInsigniaInvasora.alpha = 0;
+        rectInsigniaInvasora.localScale = Vector3.one * .78f;
+        float tiempo = 0;
+        while (tiempo < entrada)
+        {
+            tiempo += Time.unscaledDeltaTime;
+            float avance = Mathf.Clamp01(tiempo / entrada);
+            float suave = 1f - Mathf.Pow(1f - avance, 3f);
+            grupoInsigniaInvasora.alpha = suave;
+            rectInsigniaInvasora.localScale = Vector3.one * Mathf.Lerp(.78f, 1f, suave);
+            int mostrado = Mathf.RoundToInt(bono * suave);
+            bonoInvasora.text = "BONO DE CONTROL +$ " + mostrado.ToString(cultura);
+            yield return null;
+        }
+        grupoInsigniaInvasora.alpha = 1;
+        rectInsigniaInvasora.localScale = Vector3.one;
+        bonoInvasora.text = "BONO DE CONTROL +$ " + bono.ToString(cultura);
+        animacionInvasora = null;
     }
 
     private Text Campo(Transform padre, string titulo, float x0, float y0, float x1, float y1)

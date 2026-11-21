@@ -24,7 +24,7 @@ $pesos = @(50, 25, 15, 8, 2)
 $totalProbabilidad = 0
 $ingresoPonderado = 0.0
 $directorio = if ($Zona -eq 'SanAndres') { 'Assets/Data/Peces/SanAndres' } else { 'Assets/Data/Peces' }
-$cantidadEsperada = if ($Zona -eq 'SanAndres') { 15 } else { 25 }
+$cantidadEsperada = if ($Zona -eq 'SanAndres') { 16 } else { 26 }
 $filas = foreach ($archivo in Get-ChildItem "$directorio/*.asset") {
     $datos = Get-Content $archivo.FullName -Raw
     $pez = [PezData]::new()
@@ -74,4 +74,4 @@ $pez.fuerzaPez = 1; $pez.pesoMaximo = 0
 DebeFallar { [RecompensaCaptura]::Calcular($pez, 1, 2) }
 $filas
 "OK ($Zona): $($filas.Count * 10201) ejemplares; enteros, límites, monotonía y entradas inválidas."
-"Media ponderada (todos los intentos exitosos, sin cebo): $([Math]::Round($ingresoPonderado/$totalProbabilidad, 2))"
+"Media ponderada de la recompensa base (sin cebo ni bonos): $([Math]::Round($ingresoPonderado/$totalProbabilidad, 2))"

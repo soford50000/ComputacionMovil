@@ -184,14 +184,14 @@ public static class ValidarMenusExpedicion
                     Exigir(FisheryManager.Instance.ZonaActual == FisheryManager.Instance.ZonaSanAndres,
                         "El mapa no viaja a San Andrés.");
                     var marinos = FisheryManager.Instance.ZonaSanAndres.especiesDeEstaZona;
-                    Exigir(marinos.Length == 15 && marinos.Distinct().Count() == 15 &&
+                    Exigir(marinos.Length == 16 && marinos.Distinct().Count() == marinos.Length &&
                         marinos.All(p => p != null && p.foto != null && !p.caracteristicasPendientes &&
                             p.pesoMinimo > 0 && p.pesoMaximo > p.pesoMinimo &&
                             p.longitudMinima > 0 && p.longitudMaxima > p.longitudMinima &&
                             p.fuerzaPez >= 1 && p.fuerzaPez <= 10 &&
                             !string.IsNullOrWhiteSpace(p.descripcion) && !string.IsNullOrWhiteSpace(p.habitat) &&
                             !FisheryManager.Instance.ZonaInicial.especiesDeEstaZona.Contains(p)),
-                        "San Andrés no tiene las quince especies configuradas con imágenes propias.");
+                        "San Andrés no tiene las dieciséis especies configuradas con imágenes propias.");
                     Exigir(FisheryManager.Instance.TieneEspecies &&
                         marinos.Contains(FisheryManager.Instance.GenerarPezAleatorio()),
                         "San Andrés no permite seleccionar sus especies para pescar.");
@@ -218,8 +218,8 @@ public static class ValidarMenusExpedicion
                     Capturar("20-coleccion-san-andres", 1280, 720);
                     Exigir(pesca.GetComponentsInChildren<Text>().Any(t => t.text == "Peces de San Andrés"),
                         "El catálogo conserva el nombre de Amazonas.");
-                    Exigir(pesca.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Especie ")) == 15,
-                        "El catálogo de San Andrés no muestra sus quince especies.");
+                    Exigir(pesca.GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Especie ")) == FisheryManager.Instance.ZonaActual.especiesDeEstaZona.Length,
+                        "El catálogo de San Andrés no muestra todas sus especies.");
                     Pulsar("Cerrar");
                     pesca.GetComponent<ZonaSelectorUI>().Abrir();
                     Pulsar("Destino Amazonas");

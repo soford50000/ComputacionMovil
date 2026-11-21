@@ -325,6 +325,8 @@ public sealed class CatalogoManager : MonoBehaviour
         imagenDetalle.sprite = pez.foto;
         nombreDetalle.text = pez.nombreEspecie;
         rarezaDetalle.text = "Rareza: " + NombreRareza(pez.rareza);
+        if (pez.esInvasora)
+            rarezaDetalle.text += $" · Invasora (+${pez.bonoMonetarioInvasora})";
         TemaZonaUI.Colorear(rarezaDetalle, HexRareza(pez.rareza));
         rangoDetalle.text = string.Format(Cultura,
             "Peso: {0:0.##}–{1:0.##} kg\nLongitud: {2:0.##}–{3:0.##} cm",
@@ -347,9 +349,14 @@ public sealed class CatalogoManager : MonoBehaviour
 
     private void ActualizarProgreso()
     {
-        if (progreso != null) progreso.text = $"{CantidadDescubierta} de {especies.Count} especies descubiertas";
+        int descubiertas = CantidadDescubierta;
+        float fraccion = especies.Count > 0 ? (float)descubiertas / especies.Count : 0f;
+        if (progreso != null)
+            progreso.text = especies.Count > 0 && descubiertas == especies.Count
+                ? $"Colección completa · {descubiertas}/{especies.Count}"
+                : $"{descubiertas}/{especies.Count} especies · {Mathf.RoundToInt(fraccion * 100f)} %";
         if (rellenoProgreso != null)
-            rellenoProgreso.anchorMax = new Vector2(especies.Count > 0 ? (float)CantidadDescubierta / especies.Count : 0, 1);
+            rellenoProgreso.anchorMax = new Vector2(fraccion, 1);
     }
 
     private static void CrearIconoMenu(Transform padre)

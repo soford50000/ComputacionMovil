@@ -88,7 +88,7 @@ public sealed class PerfilJugador : MonoBehaviour
     {
         bool valido = IntentarNormalizarNombre(valor, out _);
         botonContinuar.interactable = valido;
-        aviso.text = valido ? "¡Tu expedición está a punto de comenzar!" : "Escribe un nombre de 1 a 20 caracteres.";
+        aviso.text = valido ? "Al picar un pez, pulsa abajo para subir la tensión y suelta para bajarla." : "Escribe un nombre de 1 a 20 caracteres.";
     }
 
     private void ConfirmarNombre()
